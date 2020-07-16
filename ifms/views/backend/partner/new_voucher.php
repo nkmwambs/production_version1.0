@@ -657,7 +657,7 @@ include "dct_scripts.php";
 
 			var use_dct_detail_row = '<?= $this->config->item('use_dct_detail_row'); ?>';
 
-			if (use_dct_detail_row && $("#VTypeMain").val() !== 'CR') {
+			if (use_dct_detail_row && ($("#VTypeMain").val() == 'CHQ' || $("#VTypeMain").val() == 'PC')) {
 				add_dct_detail_row_and_header($(this));
 			} else {
 				add_detail_row($(this));
@@ -828,10 +828,10 @@ include "dct_scripts.php";
 				$.ajax({
 					url: url,
 					success: function(response) {
-						//alert(response);
-						var obj = response;
+						var obj = response['acc'];
+						//alert(response['acc'][0].AccNo);
 						//var obj = JSON.parse(response);
-						//alert(obj[1].AccNo);
+						//alert(obj[0].AccNo);
 						var table = document.getElementById('bodyTable').children[1];
 						var rowCount = table.rows.length;
 						var row = table.insertRow(rowCount);
@@ -933,6 +933,7 @@ include "dct_scripts.php";
 						x.add(option1, x[0]);
 
 						for (i = 0; i < obj.length; i++) {
+							
 							var option = document.createElement("option");
 							if (obj[i].AccTextCIVA !== null && obj[i].open === "1") {
 								option.text = obj[i].AccTextCIVA;

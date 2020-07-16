@@ -756,6 +756,8 @@ function reverse_cheque($param1=''){
 
 		$rst['voucher_type_effect'] = $this->db->get_where('voucher_type',array('voucher_type_abbrev'=>$param1))->row()->voucher_type_effect;
 
+		$rst['test']=$rst_rw;
+		
 		if($this->config->item('use_dct_detail_row')){
 			$rst['item_types'] = $this->dct_model->get_voucher_item_types();
 			$rst['support_modes'] = $this->dct_model->get_support_modes_for_voucher_type($param1);

@@ -489,4 +489,53 @@ class Dct extends CI_Controller
 			unlink('downloads/' . $backup_file);
 		}
 	}
+
+	function voucher_type_item_accounts_matrix(){
+		$this->db->select(array('voucher_item_type.voucher_item_type_id as voucher_item_type_id','voucher_item_type_name'));
+		$this->db->select(array('accID','AccText','voucher_type_item_is_active','voucher_type_item_is_beneficiary','voucher_type_item_is_household'));
+		$this->db->join('voucher_items_with_accounts','voucher_items_with_accounts.voucher_item_type_id=voucher_item_type.voucher_item_type_id','left');
+		$this->db->join('accounts','accounts.accID=voucher_items_with_accounts.accounts_id','left');
+		$ungrouped_matrix = $this->db->get('voucher_item_type')->result_array();
+
+		$matrix = [];
+
+		foreach($ungrouped_matrix as $matrix_element){
+			$matrix[$matrix_element['voucher_item_type_id'].'-'.$matrix_element['voucher_item_type_name']]['accounts'][] = array($matrix_element['accID'],$matrix_element['AccText']);
+			$matrix[$matrix_element['voucher_item_type_id'].'-'.$matrix_element['voucher_item_type_name']]['status'] = $matrix_element['voucher_type_item_is_active'];
+			$matrix[$matrix_element['voucher_item_type_id'].'-'.$matrix_element['voucher_item_type_name']]['is_beneficiary'] = $matrix_element['voucher_type_item_is_beneficiary'];
+			$matrix[$matrix_element['voucher_item_type_id'].'-'.$matrix_element['voucher_item_type_name']]['is_household'] = $matrix_element['voucher_type_item_is_household'];
+		}
+
+		return $matrix;
+	}
+
+	function support_mode_accounts_matrix(){
+		$this->db->select(array('support_mode.support_mode_id as support_mode_id','support_mode_name'));
+		$this->db->select(array('accID','AccText','support_mode_is_active','support_mode_is_dct'));
+		$this->db->join('accounts_support_mode','accounts_support_mode.fk_support_mode_id=support_mode_id','left');
+		$this->db->join('accounts','accounts.accID=accounts_support_mode.fk_accounts_id','left');
+		$ungrouped_matrix = $this->db->get('support_mode')->result_array();
+
+		$matrix = [];
+
+		foreach($ungrouped_matrix as $matrix_element){
+			$matrix[$matrix_element['support_mode_id'].'-'.$matrix_element['support_mode_name']]['accounts'][] = array($matrix_element['accID'],$matrix_element['AccText']);
+			$matrix[$matrix_element['support_mode_id'].'-'.$matrix_element['support_mode_name']]['status'] = $matrix_element['support_mode_is_active'];
+			$matrix[$matrix_element['support_mode_id'].'-'.$matrix_element['support_mode_name']]['is_dct'] = $matrix_element['support_mode_is_dct'];
+		}
+
+		return $matrix;
+	}
+
+	function dct_settings(){
+		if ($this->session->userdata('admin_login') != 1)
+			redirect(base_url(), 'refresh');
+		
+		$page_data['voucher_type_item_accounts_matrix'] = $this->voucher_type_item_accounts_matrix();
+		$page_data['support_mode_accounts_matrix'] = $this->support_mode_accounts_matrix();
+		$page_data['account_type']= 'admin';
+		$page_data['page_name']  = 'dct_settings';
+        $page_data['page_title'] = get_phrase('dct_settings');
+        $this->load->view('backend/index', $page_data);	
+	}
 }

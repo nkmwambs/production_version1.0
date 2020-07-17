@@ -160,12 +160,14 @@ class Dct_model extends CI_Model {
     
     function get_accounts_related_voucher_item_type(int $voucher_item_type_id=0){
 
-        
-        //return $this->db->select(array('accno','acctext','accname'))->get_where('accounts', array('fk_voucher_item_type_id'=>$voucher_item_type_id))->result_array();
-        $this->db->select(array('accno','acctext','accname'));
         $this->db->join('voucher_items_with_accounts','voucher_items_with_accounts.accounts_id=accounts.accID');
         $this->db->join('voucher_item_type','voucher_items_with_accounts.voucher_item_type_id=voucher_item_type.voucher_item_type_id');
-        return $this->db->get_where('accounts', array('voucher_item_type.voucher_item_type_id'=>$voucher_item_type_id))->result_array();
+        
+        //$this->db->group_start();
+            $this->db->where(array('voucher_item_type.voucher_item_type_id'=>$voucher_item_type_id));
+            //$this->db->or_where(array('AccGrp'=>3));
+        //$this->db->group_end();
+
     }
 }
 

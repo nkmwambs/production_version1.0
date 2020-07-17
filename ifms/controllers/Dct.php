@@ -529,7 +529,8 @@ class Dct extends CI_Controller
 
 	function get_all_expense_accounts(){
 		$this->db->select(array('accID','AccText'));
-		$accounts = $this->db->get_where('accounts',array('AccGrp'=>0))->result_array();
+		$this->db->where_in('AccGrp',array(0,3));
+		$accounts = $this->db->get('accounts')->result_array();
 
 		$accID = array_column($accounts,'accID');
 		$accText = array_column($accounts,'AccText');

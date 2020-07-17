@@ -698,15 +698,18 @@ function reverse_cheque($param1=''){
 		
 		echo json_encode($chk);
 	}
-	private function get_accounts(String $condition): array
+	private function get_accounts(String $condition, int $voucher_item_type_id = 0): array
 	{
+		if($voucher_item_type_id > 0){
+			$this->dct_model->get_accounts_related_voucher_item_type($voucher_item_type_id);
+		}
 
 		$expenses_or_income_accs = $this->db->where($condition)->join('civa', 'accounts.accID=civa.accID', 'left')->get('accounts')->result_array();
 
 		return $expenses_or_income_accs;
 	}
 
-	function voucher_accounts($param1 = '')
+	function voucher_accounts($param1 = '', $voucher_item_type_id = 0)
 	{
 		//Return as JSON object
 		$rst_rw = "";
@@ -714,31 +717,31 @@ function reverse_cheque($param1=''){
 			//Bank Expenses Accounts
 			//$exp_cond = "(accounts.AccGrp = 0 OR accounts.AccGrp = 3) AND (accounts.Active=1 OR civa.open=1 AND civa.closureDate>CURDATE())";
 			$exp_cond = "((accounts.AccGrp = 0 OR accounts.AccGrp = 3) AND accounts.Active=1) OR (accounts.AccGrp = 0 AND accounts.Active=0 AND civa.open=1 AND civa.closureDate>CURDATE() AND civa.is_direct_cash_transfer = 0)";
-			$rst_rw = $this->get_accounts($exp_cond);
+			$rst_rw = $this->get_accounts($exp_cond, $voucher_item_type_id);
 		}
 
 		if ($param1 === 'PC' || $param1 === 'BCHG') {
 			//PC and BC Expenses Accounts	
 			$pc_exp_cond = "(accounts.AccGrp = 0 AND accounts.Active=1) OR (accounts.AccGrp = 0 AND accounts.Active=0 AND civa.open=1 AND civa.closureDate>CURDATE() AND civa.is_direct_cash_transfer = 0)";
-			$rst_rw = $this->get_accounts($pc_exp_cond);
+			$rst_rw = $this->get_accounts($pc_exp_cond, $voucher_item_type_id);
 		}
 
 		if ($param1 === 'CR') {
 			//Revenue accounts
 			//$revenues_cond = "accounts.AccGrp = 1 AND (accounts.Active=1 OR civa.open=1 AND civa.closureDate>CURDATE())";
 			$revenues_cond = "(accounts.AccGrp = 1 AND accounts.Active=1) OR (accounts.AccGrp = 1 AND accounts.Active=0 AND civa.open=1 AND civa.closureDate>CURDATE())";
-			$rst_rw = $this->get_accounts($revenues_cond);
+			$rst_rw = $this->get_accounts($revenues_cond, $voucher_item_type_id);
 		}
 
 		if ($param1 === 'PCR') {
 			//Petty Cash rebanking account	
 			$rebank_cond = "accounts.AccGrp = 4 AND (accounts.Active=1 OR civa.open=1 AND civa.closureDate>CURDATE())";
-			$rst_rw = $this->get_accounts($rebank_cond);
+			$rst_rw = $this->get_accounts($rebank_cond, $voucher_item_type_id);
 		}
 
 		if ($param1 == 'UDCTB' || $param1 == 'UDCTC') {
 			$exp_cond = "(accounts.AccGrp = 0 AND accounts.is_direct_cash_transfer = 1 AND accounts.Active=1) OR (accounts.AccGrp = 0 AND accounts.is_direct_cash_transfer = 1 AND accounts.Active=0 AND civa.open=1 AND civa.closureDate>CURDATE() AND civa.is_direct_cash_transfer = 1)";
-			$rst_rw = $this->get_accounts($exp_cond);
+			$rst_rw = $this->get_accounts($exp_cond, $voucher_item_type_id);
 		}
 
 		$rst = array();

@@ -1,3 +1,6 @@
+<?php 
+//print_r($expense_accounts);
+?>
 <div class='row'>    
     <div class='col-xs-12'>
         <div class='col-xs-12'>
@@ -37,7 +40,7 @@
                             $id = array_shift($voucher_type_item_array);
                         ?>
                         <tr>
-                            <td id='item_<?=$id;?>'><?=implode('-',$voucher_type_item_array);?></td>
+                            <td><?=implode('-',$voucher_type_item_array);?></td>
                             <td>
                                 <div class='label label-info'>
                                     <?=$accounts_and_status['status']?get_phrase('active'):get_phrase('inactive');?>
@@ -46,12 +49,10 @@
                             <td><?=$accounts_and_status['is_beneficiary']?get_phrase('yes'):get_phrase('no');?></td>
                             <td><?=$accounts_and_status['is_household']?get_phrase('yes'):get_phrase('no');?></td>
                             <td>
-                                <select class='form-control select2' multiple>
-                                    <?php foreach($accounts_and_status['accounts'] as $account){
-                                        if(!$account[0]) continue;
-                                        ?>
-                                        <option value='<?=$account[0];?>' selected>
-                                            <?=$account[1];?> 
+                                <select class='form-control select2 type_account_selector' id='item_<?=$id;?>' multiple>
+                                    <?php foreach($expense_accounts as $account_id => $account_text){?>
+                                        <option value='<?=$account_id;?>' <?php if(array_key_exists($account_id,$accounts_and_status['accounts'])) echo "selected";?> >
+                                            <?=$account_text;?> 
                                         </option>
                                     <?php }?>
                                 </select>
@@ -99,7 +100,7 @@
                             $id = array_shift($support_mode_array);
                         ?>
                         <tr>
-                            <td id='mode_<?=$id;?>'><?=implode('-',$support_mode_array);?></td>
+                            <td><?=implode('-',$support_mode_array);?></td>
                             <td>
                                 <div class='label label-info'>
                                     <?=$accounts_and_status['status']?get_phrase('active'):get_phrase('inactive');?>
@@ -107,12 +108,10 @@
                             </td>
                             <td><?=$accounts_and_status['is_dct']?get_phrase('yes'):get_phrase('no');?></td>
                             <td>
-                                <select class='form-control select2' multiple>
-                                    <?php foreach($accounts_and_status['accounts'] as $account){
-                                        if(!$account[0]) continue;
-                                        ?>
-                                        <option value='<?=$account[0];?>' selected>
-                                            <?=$account[1];?> 
+                                <select class='form-control select2 mode_account_selector' id='mode_<?=$id;?>' multiple>
+                                    <?php foreach($expense_accounts as $account_id => $account_text){?>
+                                        <option value='<?=$account_id;?>' <?php if(array_key_exists($account_id,$accounts_and_status['accounts'])) echo "selected";?> >
+                                            <?=$account_text;?> 
                                         </option>
                                     <?php }?>
                                 </select>
@@ -140,6 +139,29 @@
         var is_dct_mode = $('#mode_status').is(':checked')?1:0;
 
         alert(mode);
+    });
+
+    $(".mode_account_selector").on('change',function(){
+        var account_ids = $(this).val();
+        var mode_id = $(this).attr('id').split('_')[1];
+        var url = "<?=base_url();?>ifms.php/dct/update_support_mode_accounts";
+        var data = {'account_ids':account_ids,'mode_id':mode_id};
+        //alert(mode_id);
+        $.post(url,data,function(response){
+            alert(response);
+        });
+
+    });
+
+    $(".type_account_selector").on('change',function(){
+        var account_ids = $(this).val();
+        var type_id = $(this).attr('id').split('_')[1];
+        var url = "<?=base_url();?>ifms.php/dct/update_voucher_item_type_accounts";
+        var data = {'account_ids':account_ids,'type_id':type_id};
+        //alert(type_id);
+        $.post(url,data,function(response){
+            alert(response);
+        });
     });
 
 </script>

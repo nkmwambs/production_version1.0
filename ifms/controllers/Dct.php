@@ -500,7 +500,7 @@ class Dct extends CI_Controller
 		$matrix = [];
 
 		foreach($ungrouped_matrix as $matrix_element){
-			$matrix[$matrix_element['voucher_item_type_id'].'-'.$matrix_element['voucher_item_type_name']]['accounts'][] = array($matrix_element['accID'],$matrix_element['AccText']);
+			$matrix[$matrix_element['voucher_item_type_id'].'-'.$matrix_element['voucher_item_type_name']]['accounts'][$matrix_element['accID']] = $matrix_element['AccText'];
 			$matrix[$matrix_element['voucher_item_type_id'].'-'.$matrix_element['voucher_item_type_name']]['status'] = $matrix_element['voucher_type_item_is_active'];
 			$matrix[$matrix_element['voucher_item_type_id'].'-'.$matrix_element['voucher_item_type_name']]['is_beneficiary'] = $matrix_element['voucher_type_item_is_beneficiary'];
 			$matrix[$matrix_element['voucher_item_type_id'].'-'.$matrix_element['voucher_item_type_name']]['is_household'] = $matrix_element['voucher_type_item_is_household'];
@@ -519,12 +519,22 @@ class Dct extends CI_Controller
 		$matrix = [];
 
 		foreach($ungrouped_matrix as $matrix_element){
-			$matrix[$matrix_element['support_mode_id'].'-'.$matrix_element['support_mode_name']]['accounts'][] = array($matrix_element['accID'],$matrix_element['AccText']);
+			$matrix[$matrix_element['support_mode_id'].'-'.$matrix_element['support_mode_name']]['accounts'][$matrix_element['accID']] = $matrix_element['AccText'];
 			$matrix[$matrix_element['support_mode_id'].'-'.$matrix_element['support_mode_name']]['status'] = $matrix_element['support_mode_is_active'];
 			$matrix[$matrix_element['support_mode_id'].'-'.$matrix_element['support_mode_name']]['is_dct'] = $matrix_element['support_mode_is_dct'];
 		}
 
 		return $matrix;
+	}
+
+	function get_all_expense_accounts(){
+		$this->db->select(array('accID','AccText'));
+		$accounts = $this->db->get_where('accounts',array('AccGrp'=>0))->result_array();
+
+		$accID = array_column($accounts,'accID');
+		$accText = array_column($accounts,'AccText');
+
+		return array_combine($accID,$accText);
 	}
 
 	function dct_settings(){
@@ -533,9 +543,104 @@ class Dct extends CI_Controller
 		
 		$page_data['voucher_type_item_accounts_matrix'] = $this->voucher_type_item_accounts_matrix();
 		$page_data['support_mode_accounts_matrix'] = $this->support_mode_accounts_matrix();
+		$page_data['expense_accounts'] = $this->get_all_expense_accounts();
 		$page_data['account_type']= 'admin';
 		$page_data['page_name']  = 'dct_settings';
         $page_data['page_title'] = get_phrase('dct_settings');
         $this->load->view('backend/index', $page_data);	
+	}
+
+	function update_support_mode_accounts(){
+		$post = $this->input->post();
+
+		$selected_account_ids = $post['account_ids'];
+		$mode_id = $post['mode_id'];
+
+		$message = get_phrase('error_occurred');
+
+		//Check if account is not there for the mode and 
+		$this->db->select(array('fk_accounts_id as account_id'));
+		$all_accounts_in_mode_raw = $this->db->get_where('accounts_support_mode',
+			array('fk_support_mode_id'=>$mode_id));	
+
+		$all_accounts_in_mode = array_column($all_accounts_in_mode_raw,'account_id');
+
+		foreach($all_accounts_in_mode as $used_account_id){
+
+			if(!in_array($used_account_id,$selected_account_ids)){
+				// Delete the record for this account
+				$this->db->where(array('fk_accounts_id'=>$used_account_id,'fk_support_mode_id'=>$mode_id));
+				$this->db->delete('accounts_support_mode');
+
+				$message = get_phrase('account_deleted_successfully');
+			}
+		}
+
+		foreach($selected_account_ids as $selected_account_id){
+
+			if(!in_array($selected_account_id,$all_accounts_in_mode)){
+				// Insert the record for this account
+				$insert_data['fk_accounts_id'] = $selected_account_id;
+				$insert_data['fk_support_mode_id'] = $mode_id;
+				$insert_data['accounts_support_mode_created_by'] = $this->session->login_user_id;
+				$insert_data['accounts_support_mode_create_date'] = date('Y-md');
+				$insert_data['accounts_support_mode_last_modified_by'] = $this->session->login_user_id;
+				$insert_data['accounts_support_mode_last_modified_date'] =date('Y-m-d h:i:s');
+
+				$this->db->insert('accounts_support_mode',$insert_data);
+
+				$message = get_phrase('account_added_successfully');
+			}
+		}
+		
+
+		echo $message;
+	}
+
+	function update_voucher_item_type_accounts(){
+		$post = $this->input->post();
+
+		$selected_account_ids = $post['account_ids'];
+		$type_id = $post['type_id'];
+
+		$message = get_phrase('error_occurred');
+
+		//Check if account is not there for the mode and 
+		$this->db->select(array('accounts_id as account_id'));
+		$all_accounts_in_type_raw = $this->db->get_where('voucher_items_with_accounts',
+			array('voucher_item_type_id'=>$type_id));	
+
+		$all_accounts_in_type = array_column($all_accounts_in_type_raw,'account_id');
+
+		foreach($all_accounts_in_type as $used_account_id){
+
+			if(!in_array($used_account_id,$selected_account_ids)){
+				// Delete the record for this account
+				$this->db->where(array('accounts_id'=>$used_account_id,'voucher_item_type_id'=>$type_id));
+				$this->db->delete('voucher_items_with_accounts');
+
+				$message = get_phrase('account_deleted_successfully');
+			}
+		}
+
+		foreach($selected_account_ids as $selected_account_id){
+
+			if(!in_array($selected_account_id,$all_accounts_in_type)){
+				// Insert the record for this account
+				$insert_data['accounts_id'] = $selected_account_id;
+				$insert_data['voucher_item_type_id'] = $type_id;
+				$insert_data['voucher_items_with_accounts_created_by'] = $this->session->login_user_id;
+				$insert_data['voucher_items_with_accounts_created_date'] = date('Y-md');
+				$insert_data['voucher_items_with_accounts_created_by'] = $this->session->login_user_id;
+				$insert_data['voucher_items_with_accounts_last_modified_date'] =date('Y-m-d h:i:s');
+
+				$this->db->insert('voucher_items_with_accounts',$insert_data);
+
+				$message = get_phrase('account_added_successfully');
+			}
+		}
+		
+
+		echo $message;
 	}
 }

@@ -561,7 +561,7 @@ class Dct extends CI_Controller
 		//Check if account is not there for the mode and 
 		$this->db->select(array('fk_accounts_id as account_id'));
 		$all_accounts_in_mode_raw = $this->db->get_where('accounts_support_mode',
-			array('fk_support_mode_id'=>$mode_id));	
+			array('fk_support_mode_id'=>$mode_id))->result_array();	
 
 		$all_accounts_in_mode = array_column($all_accounts_in_mode_raw,'account_id');
 
@@ -608,7 +608,7 @@ class Dct extends CI_Controller
 		//Check if account is not there for the mode and 
 		$this->db->select(array('accounts_id as account_id'));
 		$all_accounts_in_type_raw = $this->db->get_where('voucher_items_with_accounts',
-			array('voucher_item_type_id'=>$type_id));	
+			array('voucher_item_type_id'=>$type_id))->result_array();	
 
 		$all_accounts_in_type = array_column($all_accounts_in_type_raw,'account_id');
 

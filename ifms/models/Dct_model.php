@@ -163,11 +163,7 @@ class Dct_model extends CI_Model {
         $this->db->join('voucher_items_with_accounts','voucher_items_with_accounts.accounts_id=accounts.accID');
         $this->db->join('voucher_item_type','voucher_items_with_accounts.voucher_item_type_id=voucher_item_type.voucher_item_type_id');
         
-        //$this->db->group_start();
-            $this->db->where(array('voucher_item_type.voucher_item_type_id'=>$voucher_item_type_id));
-            //$this->db->or_where(array('AccGrp'=>3));
-        //$this->db->group_end();
-
+        $this->db->where(array('voucher_item_type.voucher_item_type_id'=>$voucher_item_type_id));
     }
 }
 

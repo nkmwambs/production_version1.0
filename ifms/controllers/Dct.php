@@ -605,7 +605,7 @@ class Dct extends CI_Controller
 
 		$message = get_phrase('error_occurred');
 
-		//Check if account is not there for the mode and 
+		//Check if account is not there for the mode 
 		$this->db->select(array('accounts_id as account_id'));
 		$all_accounts_in_type_raw = $this->db->get_where('voucher_items_with_accounts',
 			array('voucher_item_type_id'=>$type_id))->result_array();	

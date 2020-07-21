@@ -25,6 +25,15 @@ class Finance_model extends CI_Model {
 		return $return_array;
 	}
 
+	function get_civa_record_by_civa_account_number(string $civa_account_number, int $expense_or_income=0)
+	{
+		$this->db->join('accounts', 'accounts.accID=civa.accID');
+		$this->db->where(array('AccGrp' => $expense_or_income));
+		$civa = $this->db->get_where('civa', array('AccNoCIVA' => $civa_account_number))->row();
+
+		return $civa;
+	}
+
 	function get_voucher_types(){
 		$this->db->select(array('voucher_type_id','voucher_type_name','voucher_type_abbrev'));
 		return $this->db->get_where('voucher_type',array('voucher_type_is_active'=>1))->result_array();

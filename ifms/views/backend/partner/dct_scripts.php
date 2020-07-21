@@ -221,7 +221,7 @@
 			//alert(obj.length);  
 			//document.getElementById("civaCode" + rowCount).value = obj[2].civaID;
 			//check_pc_other_ac_mix(this);
-			build_support_mode_list(this);
+			//build_support_mode_list(this);
 		};
 		x.setAttribute('required', 'required');
 		cell3.appendChild(x);
@@ -346,16 +346,22 @@
 		var voucher_item_type_value = $(this).closest('tr').find('.td_voucher_item_type').find('select').val();
 		var input_civa_code = $(this).closest('tr').find('.td_civacode').find('input');
 		var vtype = $("#VTypeMain").val();
+		var acSelect = $(this);
 
 		//Get the accounts form server
 		var url = '<?= base_url() ?>ifms.php/partner/voucher_accounts/' + vtype + '/' + voucher_item_type_value;
+		var civa_id = 0;
 
 		$.get(url,function(response){
 			if(response.acc[selectedIndex].civaID){
-				input_civa_code.val(response.acc[selectedIndex].civaID);
+				civa_id = response.acc[selectedIndex].civaID;
+				input_civa_code.val(civa_id);
 			}else{
 				input_civa_code.val(0);
 			}
+
+			build_support_mode_list(acSelect, civa_id);
+			
 		});
 
 	});
@@ -410,20 +416,21 @@
 
 
 
-	function build_support_mode_list(acSelect) {
+	function build_support_mode_list(acSelect, civa_id = 0) {
+
+		//alert(civa_id);
+
 		var sibling_support_mode_select = $(acSelect).closest('tr').find('.td_support_mode').find('select');
-		//var civa_code = $(acSelect).closest('tr').find('input.civaCode');
-
-		//sibling_support_mode_select.removeAttr('disabled')
-		//alert(sibling_support_mode_select);
-
 		var accno = $(acSelect).val();
 		var voucher_type_abbrev = $('#VTypeMain').val();
+
+		//alert(accno);
 
 		var url = "<?= base_url(); ?>ifms.php/dct/get_support_modes";
 		var data = {
 			'accno': accno,
-			'voucher_type_abbrev': voucher_type_abbrev
+			'voucher_type_abbrev': voucher_type_abbrev,
+			'civa_id':civa_id,
 		};
 
 		$.post(url, data, function(response) {

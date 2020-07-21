@@ -698,15 +698,42 @@ function reverse_cheque($param1=''){
 		
 		echo json_encode($chk);
 	}
-	private function get_accounts(String $condition, int $voucher_item_type_id = 0): array
-	{
+
+	function get_account_without_civs(String $non_civ_condition, int $voucher_item_type_id = 0){
+		
 		if($voucher_item_type_id > 0){
 			$this->dct_model->get_accounts_related_voucher_item_type($voucher_item_type_id);
 		}
 
-		$expenses_or_income_accs = $this->db->where($condition)->join('civa', 'accounts.accID=civa.accID', 'left')->get('accounts')->result_array();
+		$this->db->select(array('accID','AccNo','AccText','AccName'));
+		$this->db->where($non_civ_condition);
+		$expenses_or_income_accs = $this->db->get('accounts')->result_array();
 
 		return $expenses_or_income_accs;
+	}
+
+	function get_accounts_with_civs(String $civ_condition, int $voucher_item_type_id = 0){
+
+		$this->db->join('civa', 'accounts.accID=civa.accID');
+		
+		if($voucher_item_type_id > 0){
+			$this->dct_model->get_civa_related_voucher_item_type($voucher_item_type_id);
+		}
+
+		$this->db->select(array('accounts.accID as accID','AccNo','AccText','AccName','civaID','AccNoCIVA','AccTextCIVA','allocate','open'));
+		$this->db->where($civ_condition);
+		$expenses_or_income_accs = $this->db->get('accounts')->result_array();
+
+		return $expenses_or_income_accs;
+	}
+
+	private function get_accounts(String $non_civ_condition, String $civ_condition, int $voucher_item_type_id = 0): array
+	{
+		
+		$get_account_without_civs = $this->get_account_without_civs($non_civ_condition, $voucher_item_type_id);
+		$get_accounts_with_civs = $this->get_accounts_with_civs($civ_condition, $voucher_item_type_id);
+
+		return array_merge($get_account_without_civs,$get_accounts_with_civs);
 	}
 
 	function voucher_accounts($param1 = '', $voucher_item_type_id = 0)
@@ -715,41 +742,43 @@ function reverse_cheque($param1=''){
 		$rst_rw = "";
 		if ($param1 === 'CHQ') {
 			//Bank Expenses Accounts
-			//$exp_cond = "(accounts.AccGrp = 0 OR accounts.AccGrp = 3) AND (accounts.Active=1 OR civa.open=1 AND civa.closureDate>CURDATE())";
-			$exp_cond = "((accounts.AccGrp = 0 OR accounts.AccGrp = 3) AND accounts.Active=1) OR (accounts.AccGrp = 0 AND accounts.Active=0 AND civa.open=1 AND civa.closureDate>CURDATE() AND civa.is_direct_cash_transfer = 0)";
-			$rst_rw = $this->get_accounts($exp_cond, $voucher_item_type_id);
+			$non_civ_cond = "((accounts.AccGrp = 0 OR accounts.AccGrp = 3) AND accounts.Active=1)";
+			$civ_cond = "(accounts.AccGrp = 0 AND accounts.Active=0 AND civa.open=1 AND civa.closureDate>CURDATE() AND civa.is_direct_cash_transfer = 0)"; 
+			$rst_rw = $this->get_accounts($non_civ_cond, $civ_cond , $voucher_item_type_id);
 		}
 
 		if ($param1 === 'PC' || $param1 === 'BCHG') {
-			//PC and BC Expenses Accounts	
-			$pc_exp_cond = "(accounts.AccGrp = 0 AND accounts.Active=1) OR (accounts.AccGrp = 0 AND accounts.Active=0 AND civa.open=1 AND civa.closureDate>CURDATE() AND civa.is_direct_cash_transfer = 0)";
-			$rst_rw = $this->get_accounts($pc_exp_cond, $voucher_item_type_id);
+			//PC and BC Expenses Accounts
+			$non_civ_cond = "(accounts.AccGrp = 0 AND accounts.Active=1)";	
+			$civ_cond = "(accounts.AccGrp = 0 AND accounts.Active=0 AND civa.open=1 AND civa.closureDate>CURDATE() AND civa.is_direct_cash_transfer = 0)";
+			$rst_rw = $this->get_accounts($non_civ_cond, $civ_cond , $voucher_item_type_id);
 		}
 
 		if ($param1 === 'CR') {
 			//Revenue accounts
-			//$revenues_cond = "accounts.AccGrp = 1 AND (accounts.Active=1 OR civa.open=1 AND civa.closureDate>CURDATE())";
-			$revenues_cond = "(accounts.AccGrp = 1 AND accounts.Active=1) OR (accounts.AccGrp = 1 AND accounts.Active=0 AND civa.open=1 AND civa.closureDate>CURDATE())";
-			$rst_rw = $this->get_accounts($revenues_cond, $voucher_item_type_id);
+			$non_civ_cond = "(accounts.AccGrp = 1 AND accounts.Active=1)";
+			$civ_cond = "(accounts.AccGrp = 1 AND accounts.Active=0 AND civa.open=1 AND civa.closureDate>CURDATE())";
+			$rst_rw = $this->get_accounts($non_civ_cond, $civ_cond , $voucher_item_type_id);
 		}
 
 		if ($param1 === 'PCR') {
-			//Petty Cash rebanking account	
-			$rebank_cond = "accounts.AccGrp = 4 AND (accounts.Active=1 OR civa.open=1 AND civa.closureDate>CURDATE())";
-			$rst_rw = $this->get_accounts($rebank_cond, $voucher_item_type_id);
+			//Petty Cash rebanking account
+			$non_civ_cond = "accounts.AccGrp = 4 AND (accounts.Active=1 OR civa.open=1 AND civa.closureDate>CURDATE())";
+			$civ_cond = "accounts.AccGrp = 4 AND (accounts.Active=1 OR civa.open=1 AND civa.closureDate>CURDATE())";
+			$rst_rw = $this->get_accounts($non_civ_cond, $civ_cond , $voucher_item_type_id);
 		}
 
-		if ($param1 == 'UDCTB' || $param1 == 'UDCTC') {
-			$exp_cond = "(accounts.AccGrp = 0 AND accounts.is_direct_cash_transfer = 1 AND accounts.Active=1) OR (accounts.AccGrp = 0 AND accounts.is_direct_cash_transfer = 1 AND accounts.Active=0 AND civa.open=1 AND civa.closureDate>CURDATE() AND civa.is_direct_cash_transfer = 1)";
-			$rst_rw = $this->get_accounts($exp_cond, $voucher_item_type_id);
-		}
+		// if ($param1 == 'UDCTB' || $param1 == 'UDCTC') {
+		// 	$exp_cond = "(accounts.AccGrp = 0 AND accounts.is_direct_cash_transfer = 1 AND accounts.Active=1) OR (accounts.AccGrp = 0 AND accounts.is_direct_cash_transfer = 1 AND accounts.Active=0 AND civa.open=1 AND civa.closureDate>CURDATE() AND civa.is_direct_cash_transfer = 1)";
+		// 	$rst_rw = $this->get_accounts($exp_cond, $voucher_item_type_id);
+		// }
 
 		$rst = array();
 		foreach ($rst_rw as $civaAcc) :
 			
 			$untrimmed_explode_allocate = explode(',',$civaAcc['allocate']);
 			$trimmed_explode_allocate = array_map(array($this,'trim_spaces'),$untrimmed_explode_allocate);
-			
+			//$this->session->userdata('center_id')
 			if (is_numeric($civaAcc['civaID']) && in_array($this->session->userdata('center_id'),$trimmed_explode_allocate)) {
 				$rst['acc'][] = $civaAcc;
 			} elseif (!is_numeric($civaAcc['civaID'])) {
@@ -759,13 +788,14 @@ function reverse_cheque($param1=''){
 
 		$rst['voucher_type_effect'] = $this->db->get_where('voucher_type',array('voucher_type_abbrev'=>$param1))->row()->voucher_type_effect;
 
-		$rst['test']=$rst_rw;
+		//$rst['test']=$rst_rw;
 		
 		if($this->config->item('use_dct_detail_row')){
 			$rst['item_types'] = $this->dct_model->get_voucher_item_types();
 			$rst['support_modes'] = $this->dct_model->get_support_modes_for_voucher_type($param1);
 		}
 
+		//echo json_encode($rst);
 		$this->output->set_content_type('application/json');
 		$this->output->set_output(json_encode($rst));
 	}

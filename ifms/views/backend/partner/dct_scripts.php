@@ -108,9 +108,9 @@
 		var voucher_type_effect = response.voucher_type_effect;
 		var obj_support_mode = response.support_modes;
 
-		var current_selected_mode_id = 0;
+		//alert(obj[0].AccText);
 
-		//alert(voucher_type_effect.length);
+		var current_selected_mode_id = 0;
 
 		var show_voucher_item_type = voucher_type_effect == 'expense' && obj_support_mode.length > 0 ? true : false;
 

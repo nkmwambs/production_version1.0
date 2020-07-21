@@ -165,5 +165,13 @@ class Dct_model extends CI_Model {
         
         $this->db->where(array('voucher_item_type.voucher_item_type_id'=>$voucher_item_type_id));
     }
+
+    function get_civa_related_voucher_item_type(int $voucher_item_type_id=0){
+
+        $this->db->join('voucher_items_with_civa','voucher_items_with_civa.fk_civa_id=civa.civaID');
+        $this->db->join('voucher_item_type','voucher_items_with_civa.fk_voucher_item_type_id=voucher_item_type.voucher_item_type_id');
+        
+        $this->db->where(array('voucher_item_type.voucher_item_type_id'=>$voucher_item_type_id));
+    }
 }
 

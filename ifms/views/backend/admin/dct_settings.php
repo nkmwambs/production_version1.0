@@ -1,5 +1,5 @@
 <?php 
-//print_r($expense_accounts);
+//print_r($voucher_type_item_accounts_matrix);
 ?>
 <div class='row'>    
     <div class='col-xs-12'>

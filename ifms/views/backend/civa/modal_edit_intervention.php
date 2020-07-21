@@ -8,6 +8,10 @@ $param2 = $this->db->get_where('civa', array('AccNoCIVA' => $accNoCIVA,'civaID<>
 //$param2=$param2+1;
 ?>
 
+<script type="text/javascript" src="<?php echo base_url();?>assets/js/select2/select2.min.js"></script>
+<script type="text/javascript" src="<?php echo base_url();?>assets/js/selectboxit/jquery.selectBoxIt.min.js"></script>
+
+
 <div class="row">
 	<div class="col-sm-12">
 		<div class="panel panel-primary " data-collapsed="0">
@@ -95,7 +99,7 @@ $param2 = $this->db->get_where('civa', array('AccNoCIVA' => $accNoCIVA,'civaID<>
 					<label for="" class="col-xs-4 control-label"><?php echo get_phrase('recipient'); ?></label>
 					<div class="col-xs-8">
 						
-						<select class='form-control' name='recipient[]' multiple>
+						<select class='form-control select2_element' name='recipient[]' multiple>
 						  
 						  <?php foreach($all_recipients as $recipient){?>
 
@@ -113,7 +117,7 @@ $param2 = $this->db->get_where('civa', array('AccNoCIVA' => $accNoCIVA,'civaID<>
 					<label for="" class="col-xs-4 control-label"><?php echo get_phrase('support_modes'); ?></label>
 					<div class="col-xs-8">
 						
-						<select class='form-control ' name='support_mode[]' multiple>
+						<select class='form-control select2_element' name='support_mode[]' multiple>
 						  
 						  <?php foreach($all_support_modes as $support_mode){?>
                          
@@ -150,6 +154,9 @@ $param2 = $this->db->get_where('civa', array('AccNoCIVA' => $accNoCIVA,'civaID<>
 
 <script type="text/javascript">
 	$(document).ready(function() {
+		
+		$('.select2_element').select2();
+
 		$('.datepicker').datepicker({
 			format: 'yyyy-mm-dd'
 		});

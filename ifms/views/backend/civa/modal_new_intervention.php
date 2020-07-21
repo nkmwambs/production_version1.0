@@ -1,9 +1,6 @@
+<script type="text/javascript" src="<?php echo base_url();?>assets/js/select2/select2.min.js"></script>
+<script type="text/javascript" src="<?php echo base_url();?>assets/js/selectboxit/jquery.selectBoxIt.min.js"></script>
 
- <!-- <link type="text/css" rel="stylesheet" href="<?php echo base_url();?>assets/js/select2/select2-bootstrap.css">
-    <link type="text/css" rel="stylesheet" href="<?php echo base_url();?>assets/js/select2/select2.css">
-    <link type="text/css" rel="stylesheet" href="<?php echo base_url();?>assets/js/selectboxit/jquery.selectBoxIt.css"> -->
-<!-- <script type="text/javascript" src="<?php echo base_url();?>assets/js/select2/select2.min.js"></script>
-    <script type="text/javascript" src="<?php echo base_url();?>assets/js/selectboxit/jquery.selectBoxIt.min.js"></script> -->
 <div class="row">
 	<div class="col-sm-12">
 		<div class="panel panel-primary " data-collapsed="0">
@@ -74,7 +71,7 @@
 					<label for="" class="col-xs-4 control-label"><?php echo get_phrase('recipient'); ?></label>
 					<div class="col-xs-8">
 						
-						<select class='form-control' name='recipient[]' multiple>
+						<select class='form-control select2_element' name='recipient[]' multiple>
 						  
 						  <?php foreach($recipients as $recipient){?>
 
@@ -92,7 +89,7 @@
 					<label for="" class="col-xs-4 control-label"><?php echo get_phrase('support_modes'); ?></label>
 					<div class="col-xs-8">
 						
-						<select class='form-control ' name='support_mode[]' multiple>
+						<select class='form-control select2_element' name='support_mode[]' multiple>
 						  
 						  <?php foreach($support_modes as $support_mode){?>
 
@@ -130,9 +127,14 @@
 
 <script type="text/javascript">
 	$(document).ready(function() {
+
+		$('.select2_element').select2();
+
 		$('.datepicker').datepicker({
 			format: 'yyyy-mm-dd'
 		});
 
 	});
+
+
 </script>

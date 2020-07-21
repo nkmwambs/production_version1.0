@@ -108,9 +108,9 @@
 		var voucher_type_effect = response.voucher_type_effect;
 		var obj_support_mode = response.support_modes;
 
-		var current_selected_mode_id = 0;
+		//alert(obj[0].AccText);
 
-		//alert(voucher_type_effect.length);
+		var current_selected_mode_id = 0;
 
 		var show_voucher_item_type = voucher_type_effect == 'expense' && obj_support_mode.length > 0 ? true : false;
 
@@ -344,25 +344,33 @@
 		//Find the closest td with accounts dropdown
 		var accounts_dropdown = $(account_code_select).closest('tr').find('.td_accounts').find('select');
 		var voucher_item_type_value = $(account_code_select).val();
-
+		var vtype = $("#VTypeMain").val();
+		//alert(voucher_item_type_value);
 		//Get the accounts form server
-		var url = '<?= base_url() ?>ifms.php/dct/get_accounts_for_voucher_item_type/' + voucher_item_type_value;
+		var url = '<?= base_url() ?>ifms.php/partner/voucher_accounts/' + vtype + '/' + voucher_item_type_value;
 
-		$.get(url, function(response) {
+		$.get(url, function(response_object) {
 
-			var response_object = JSON.parse(response);
-
+			//var response_object = JSON.parse(response);
+			var obj = response_object['acc'];
 			var options = "<option value='0'><?= get_phrase('select_account'); ?></option>";
 			//Redraw the account dropdown with options
-			if (response_object.length > 0) {
+			
+			if (obj.length > 0) {
 
-				accounts_dropdown.removeAttr('disabled');
+					accounts_dropdown.removeAttr('disabled');
 
-				for (var index = 0; index < response_object.length; index++) {
-					options += "<option value='" + response_object[index].accno + "'>" + response_object[index].acctext + ' - ' + response_object[index].accname + "</option>";
-				}
+						for (i = 0; i < obj.length; i++) {
+							
+							if (obj[i].AccTextCIVA !== null && obj[i].open === "1") {
+								options += "<option value='" + obj[i].AccNo + "'>" + obj[i].AccTextCIVA + "</option>";
+							} else {
+								options += "<option value='" + obj[i].AccNo + "'>" + obj[i].AccText + ' - ' + obj[i].AccName + "</option>";
+							}
 
-				accounts_dropdown.html(options);
+						}
+
+						accounts_dropdown.html(options);
 
 			} else {
 				accounts_dropdown.prop('disabled', 'disabled');

@@ -173,5 +173,13 @@ class Dct_model extends CI_Model {
         
         $this->db->where(array('voucher_item_type.voucher_item_type_id'=>$voucher_item_type_id));
     }
+    /**
+     * @author: Onduso
+     * @Dated: 21/7/2020
+     */
+    function get_all_dct_recipients(){
+        $recipients=$this->db->select(array('voucher_item_type_id','voucher_item_type_name'))->get('voucher_item_type')->result_array();
+        return $recipients;
+    }
 }
 

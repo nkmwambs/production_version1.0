@@ -1,11 +1,8 @@
 <?php
 $civ = $this->db->get_where('civa', array('civaID' => $param2))->row();
+   
+$param2=$this->finance_model->get_civa_record_by_civa_account_number($civ->AccNoCIVA)->civaID;
 
-$accNoCIVA = $this->db->get_where('civa', array('civaID' => $param2))->row()->AccNoCIVA;
-
-$param2 = $this->db->get_where('civa', array('AccNoCIVA' => $accNoCIVA,'civaID<>'=>$param2))->row()->civaID;
-
-//$param2=$param2+1;
 ?>
 
 <script type="text/javascript" src="<?php echo base_url();?>assets/js/select2/select2.min.js"></script>

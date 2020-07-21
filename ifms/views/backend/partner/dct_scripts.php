@@ -160,7 +160,7 @@
 		cell1.appendChild(element1);
 
 
-		// Voucher Item Type/Rcipient
+		// Voucher Item Type/Recipient
 		var cell2 = row.insertCell(2);
 		cell2.className = 'td_voucher_item_type';
 		var x = document.createElement("select");
@@ -203,7 +203,7 @@
 		option1.text = "Select ...";
 		option1.value = "";
 		x.add(option1, x[0]);
-
+		
 		for (i = 0; i < obj.length; i++) {
 			var option = document.createElement("option");
 			if (obj[i].AccTextCIVA !== null && obj[i].open === "1") {
@@ -218,8 +218,8 @@
 
 		}
 		x.onchange = function() {
-			//alert("Hello!");  
-			document.getElementById("civaCode" + rowCount).value = obj[this.selectedIndex].civaID;
+			//alert(obj.length);  
+			//document.getElementById("civaCode" + rowCount).value = obj[2].civaID;
 			//check_pc_other_ac_mix(this);
 			build_support_mode_list(this);
 		};
@@ -326,6 +326,7 @@
 
 		//CIV Code Column
 		var cell8 = row.insertCell(8);
+		cell8.className = 'td_civacode';
 		var element8 = document.createElement("input");
 		element8.type = "text";
 		element8.name = "civaCode[]";
@@ -338,14 +339,36 @@
 	}
 
 
+	$(document).on('change','.acSelect',function(){
+		var selectedIndex = parseInt($(this).prop('selectedIndex')) - 1;
 
-
-	function populate_accounts(account_code_select) {
 		//Find the closest td with accounts dropdown
-		var accounts_dropdown = $(account_code_select).closest('tr').find('.td_accounts').find('select');
-		var voucher_item_type_value = $(account_code_select).val();
+		var voucher_item_type_value = $(this).closest('tr').find('.td_voucher_item_type').find('select').val();
+		var input_civa_code = $(this).closest('tr').find('.td_civacode').find('input');
 		var vtype = $("#VTypeMain").val();
-		//alert(voucher_item_type_value);
+
+		//Get the accounts form server
+		var url = '<?= base_url() ?>ifms.php/partner/voucher_accounts/' + vtype + '/' + voucher_item_type_value;
+
+		$.get(url,function(response){
+			if(response.acc[selectedIndex].civaID){
+				input_civa_code.val(response.acc[selectedIndex].civaID);
+			}else{
+				input_civa_code.val(0);
+			}
+		});
+
+	});
+
+
+
+	function populate_accounts(recipient_select) {
+		//Find the closest td with accounts dropdown
+		var accounts_dropdown = $(recipient_select).closest('tr').find('.td_accounts').find('select');
+		//var civa_code = $(recipient_select).closest('tr').('input.civaCode')
+		var voucher_item_type_value = $(recipient_select).val();
+		var vtype = $("#VTypeMain").val();
+
 		//Get the accounts form server
 		var url = '<?= base_url() ?>ifms.php/partner/voucher_accounts/' + vtype + '/' + voucher_item_type_value;
 
@@ -369,7 +392,8 @@
 							}
 
 						}
-
+						
+						
 						accounts_dropdown.html(options);
 
 			} else {
@@ -388,6 +412,7 @@
 
 	function build_support_mode_list(acSelect) {
 		var sibling_support_mode_select = $(acSelect).closest('tr').find('.td_support_mode').find('select');
+		//var civa_code = $(acSelect).closest('tr').find('input.civaCode');
 
 		//sibling_support_mode_select.removeAttr('disabled')
 		//alert(sibling_support_mode_select);

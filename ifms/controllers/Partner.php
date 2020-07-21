@@ -774,11 +774,16 @@ function reverse_cheque($param1=''){
 		// }
 
 		$rst = array();
+		
+		$rst['acc'] = [];
+
 		foreach ($rst_rw as $civaAcc) :
-			
+			// Do not show accounts list if there is not recipient selected and the config use_dct_detail_row is true
+			if($voucher_item_type_id == 0 && $this->config->item('use_dct_detail_row')) continue;
+
 			$untrimmed_explode_allocate = explode(',',$civaAcc['allocate']);
 			$trimmed_explode_allocate = array_map(array($this,'trim_spaces'),$untrimmed_explode_allocate);
-			//$this->session->userdata('center_id')
+			
 			if (is_numeric($civaAcc['civaID']) && in_array($this->session->userdata('center_id'),$trimmed_explode_allocate)) {
 				$rst['acc'][] = $civaAcc;
 			} elseif (!is_numeric($civaAcc['civaID'])) {
@@ -787,8 +792,6 @@ function reverse_cheque($param1=''){
 		endforeach;
 
 		$rst['voucher_type_effect'] = $this->db->get_where('voucher_type',array('voucher_type_abbrev'=>$param1))->row()->voucher_type_effect;
-
-		//$rst['test']=$rst_rw;
 		
 		if($this->config->item('use_dct_detail_row')){
 			$rst['item_types'] = $this->dct_model->get_voucher_item_types();

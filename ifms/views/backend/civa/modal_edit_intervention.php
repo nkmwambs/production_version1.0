@@ -47,30 +47,6 @@ $param2 = $this->db->get_where('civa', array('AccNoCIVA' => $accNoCIVA,'civaID<>
 				<?php
 				$rev_acc = $this->db->get_where('accounts', array('accID' => $civ->accID))->row();
 
-				//Recipients
-				$all_recipients=$this->db->select(array('voucher_item_type_id','voucher_item_type_name'))->get_where('voucher_item_type',array('voucher_type_item_is_active'=>1))->result_array();
-
-				
-				$selected_recipients = $this->db->select(array('voucher_item_type_id', 'voucher_item_type_name'))
-					->join('voucher_items_with_civa', 'voucher_items_with_civa.fk_voucher_item_type_id=voucher_item_type.voucher_item_type_id')
-					->join('civa', 'civa.civaID=voucher_items_with_civa.fk_civa_id')
-					->where(array('civaID' => $param2))
-					->get_where('voucher_item_type', array('voucher_type_item_is_active' => 1))->result_array();
-
-				$selected_voucher_item_type_ids=array_column($selected_recipients, 'voucher_item_type_id');
-				//Support modes
-				$all_support_modes=$this->db->select(array('support_mode_id','support_mode_name'))->get_where('support_mode',array('support_mode_is_active'=>1))->result_array();
-				
-				$selected_support_modes = $this->db->select(array('support_mode_id', 'support_mode_name'))
-					->join('civa_support_mode', 'civa_support_mode.fk_support_mode_id=support_mode.support_mode_id')
-					->join('civa', 'civa.civaID=civa_support_mode.fk_civa_id')
-					->where(array('civaID' => $param2))
-					->get_where('support_mode', array('support_mode_is_active' => 1))->result_array();
-
-			
-				$selected_support_mode_ids=array_column($selected_support_modes, 'support_mode_id');
-				
-
 				?>
 
 				<div id="" class="form-group">
@@ -93,6 +69,33 @@ $param2 = $this->db->get_where('civa', array('AccNoCIVA' => $accNoCIVA,'civaID<>
 					</div>
 				</div>
 
+					<?php 
+						if($this->config->item('use_dct_detail_row')){
+
+							//Recipients
+							$all_recipients=$this->db->select(array('voucher_item_type_id','voucher_item_type_name'))->get_where('voucher_item_type',array('voucher_type_item_is_active'=>1))->result_array();
+
+							
+							$selected_recipients = $this->db->select(array('voucher_item_type_id', 'voucher_item_type_name'))
+								->join('voucher_items_with_civa', 'voucher_items_with_civa.fk_voucher_item_type_id=voucher_item_type.voucher_item_type_id')
+								->join('civa', 'civa.civaID=voucher_items_with_civa.fk_civa_id')
+								->where(array('civaID' => $param2))
+								->get_where('voucher_item_type', array('voucher_type_item_is_active' => 1))->result_array();
+
+							$selected_voucher_item_type_ids=array_column($selected_recipients, 'voucher_item_type_id');
+							//Support modes
+							$all_support_modes=$this->db->select(array('support_mode_id','support_mode_name'))->get_where('support_mode',array('support_mode_is_active'=>1))->result_array();
+							
+							$selected_support_modes = $this->db->select(array('support_mode_id', 'support_mode_name'))
+								->join('civa_support_mode', 'civa_support_mode.fk_support_mode_id=support_mode.support_mode_id')
+								->join('civa', 'civa.civaID=civa_support_mode.fk_civa_id')
+								->where(array('civaID' => $param2))
+								->get_where('support_mode', array('support_mode_is_active' => 1))->result_array();
+
+						
+							$selected_support_mode_ids=array_column($selected_support_modes, 'support_mode_id');
+							
+					?>
 					<!-- Voucher Items Select-->
 
 					<div id="" class="form-group">
@@ -127,6 +130,10 @@ $param2 = $this->db->get_where('civa', array('AccNoCIVA' => $accNoCIVA,'civaID<>
 						</select>
 					</div>
 				</div>
+
+				<?php 
+						}
+				?>
 
 				<div id="" class="form-group">
 					<label for="" class="col-xs-4 control-label"><?php echo get_phrase('closure_date'); ?></label>

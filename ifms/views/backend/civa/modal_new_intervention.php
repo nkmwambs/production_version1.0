@@ -35,11 +35,6 @@
 
 				<?php
 				$rev_acc = $this->db->get_where('accounts', array('AccGrp' => '1', 'Active' => '0'))->result_object();
-				//Recipients
-				$recipients=$this->db->select(array('voucher_item_type_id','voucher_item_type_name'))->get_where('voucher_item_type',array('voucher_type_item_is_active'=>1))->result_array();
-
-				//Support modes
-				$support_modes=$this->db->select(array('support_mode_id','support_mode_name'))->get_where('support_mode',array('support_mode_is_active'=>1))->result_array();
 				
 				?>
 
@@ -66,6 +61,17 @@
 					</div>
 				</div>
 				<!-- Voucher Items Select-->
+
+				<?php 
+					if($this->config->item('use_dct_detail_row')){
+
+					//Recipients
+					$recipients=$this->db->select(array('voucher_item_type_id','voucher_item_type_name'))->get_where('voucher_item_type',array('voucher_type_item_is_active'=>1))->result_array();
+
+					//Support modes
+					$support_modes=$this->db->select(array('support_mode_id','support_mode_name'))->get_where('support_mode',array('support_mode_is_active'=>1))->result_array();
+					
+				?>
 
 				<div id="" class="form-group">
 					<label for="" class="col-xs-4 control-label"><?php echo get_phrase('recipient'); ?></label>
@@ -100,6 +106,9 @@
 					</div>
 				</div>
 
+				<?php 
+					}
+				?>			
 
 				<div id="" class="form-group">
 					<label for="" class="col-xs-4 control-label"><?php echo get_phrase('closure_date'); ?></label>

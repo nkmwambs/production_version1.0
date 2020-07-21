@@ -1,7 +1,18 @@
  <?php
- // Open CIVs
- $statement = "SELECT civa.civaID as civaID, civa.accID as accID,civa.AccNoCIVA as AccNoCIVA,civa.AccTextCIVA as AccTextCIVA,civa.allocate as allocate,civa.closureDate as closureDate FROM civa LEFT JOIN accounts ON civa.accID=accounts.accID WHERE accounts.AccGrp='1' AND civa.open='1' ORDER BY civa.closureDate ASC";
- $open_civs = $this->db->query($statement)->result_object();
+
+// Open CIVs
+ $this->db->select(array('civa.civaID as civaID', 'civa.accID as accID','civa.AccNoCIVA as AccNoCIVA','civa.AccTextCIVA as AccTextCIVA','civa.allocate as allocate','civa.closureDate as closureDate'));
+ //$this->db->select(array('voucher_item_type_name'));
+ $this->db->join('accounts','accounts.accID=civa.accID', 'LEFT');
+ 
+ //$this->db->join('voucher_items_with_civa', 'voucher_items_with_civa.fk_civa_id=civa.civaID','LEFT');
+ //$this->db->join('voucher_item_type','voucher_item_type.voucher_item_type_id=voucher_items_with_civa.fk_voucher_item_type_id','LEFT');
+ $this->db->where(array('accounts.AccGrp'=>1, 'civa.open'=>1));
+ $this->db->order_by('civa.closureDate');
+ $open_civs=$this->db->get('civa')->result_object();
+
+ //print_r($open_civs);
+
  
  //Closed CIVs
  
@@ -66,12 +77,19 @@
 							                    <div class="panel-body" style="padding:0px;overflow: auto;">
 							                    	
 							                    	<table class="table table striped datatable">
+													      
 							                    		<thead>
+														  
 							                    			<tr>
-							                    				<th class="col-sm-1"><?=get_phrase('action');?></th>
-							                    				<th class="col-sm-1"><?=get_phrase('intervention_code');?></th>
-							                    				<th class="col-sm-8"><?=get_phrase('projects_allocated');?></th>
-							                    				<th class="col-sm-2"><?=get_phrase('closure_date');?></th>
+							                    				<th><?=get_phrase('action');?></th>
+							                    				<th><?=get_phrase('intervention_code');?></th>
+							                    				<th><?=get_phrase('projects_allocated');?></th>
+																<?php 
+																 if($this->config->item('use_dct_detail_row')){?>
+																	<th><?=get_phrase('recipient');?></th> 
+																	<th><?=get_phrase('support_mode');?></th> 
+																<?php } ?>
+							                    				<th><?=get_phrase('closure_date');?></th>
 							                    			</tr>
 							                    		</thead>
 							                    		<tbody>
@@ -114,6 +132,15 @@
 							                    					</td>
 							                    					<td class="col-sm-1"><?=$row->AccNoCIVA;?></td>
 							                    					<td class="col-sm-8"><?=$row->allocate;?></td>
+
+																	<?php 
+																 if($this->config->item('use_dct_detail_row')){?>
+
+																     <td class="col-sm-8"><?=''?></td>
+																	 <td class="col-sm-8"><?=''?></td>
+
+																 <?php } ?>
+
 							                    					<td class="col-sm-2"><?=$row->closureDate;?></td>
 							                    				</tr>
 							                    			<?php

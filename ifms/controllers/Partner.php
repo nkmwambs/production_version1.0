@@ -781,7 +781,7 @@ function reverse_cheque($param1=''){
 			// Do not show accounts list if there is not recipient selected and the config use_dct_detail_row is true
 			if($voucher_item_type_id == 0 && $this->config->item('use_dct_detail_row')) continue;
 
-			$untrimmed_explode_allocate = explode(',',$civaAcc['allocate']);
+			$untrimmed_explode_allocate = isset($civaAcc['allocate'])?explode(',',$civaAcc['allocate']):[];
 			$trimmed_explode_allocate = array_map(array($this,'trim_spaces'),$untrimmed_explode_allocate);
 			
 			if (is_numeric($civaAcc['civaID']) && in_array($this->session->userdata('center_id'),$trimmed_explode_allocate)) {

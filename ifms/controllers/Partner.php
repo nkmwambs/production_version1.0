@@ -786,7 +786,7 @@ function reverse_cheque($param1=''){
 			
 			if (isset($civaAcc['civaID']) && is_numeric($civaAcc['civaID']) && in_array($this->session->userdata('center_id'),$trimmed_explode_allocate)) {
 				$rst['acc'][] = $civaAcc;
-			} elseif (!is_numeric($civaAcc['civaID'])) {
+			} elseif (!isset($civaAcc['civaID']) || !is_numeric($civaAcc['civaID'])) {
 				$rst['acc'][] = $civaAcc;
 			}
 		endforeach;

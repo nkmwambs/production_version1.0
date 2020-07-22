@@ -528,32 +528,6 @@ include "dct_scripts.php";
 
 			$('#VType').append('<INPUT TYPE="text" VALUE="' + val + '" name="VTypeMain" id="VTypeMain" class="form-control" readonly/>');
 
-			//Redirect to new code site if DCTC / DCTB
-
-			//if (val == 'UDCTC' || val == 'UDCTB') {
-			// var cnfrm = confirm("You will be redirected to another site to enter Direct Cash Transfer related vouchers. Please confirm if you want to do so");
-
-			// if(cnfrm){
-
-			// 	var url = "<?= $this->config->item('redirect_base_url'); ?>admin.php/login/reroute/<?= $this->session->session_id; ?>/new_voucher";
-			// 	window.open(url,'__blank');
-
-			// }else{
-			// 	alert('We can see that you have terminated the request. Note, we can\'t fill in Direct Cash Transfer vouchers in this voucher form');
-			// }
-
-			//dct_scripts_voucher_type_on_change(this);
-
-			//} else {
-			var url = '<?php echo base_url(); ?>ifms.php/partner/voucher_accounts/' + val;
-			//alert(url);
-			$.ajax({
-				url: url,
-				success: function(response) {
-					//alert(response);
-					obj = jQuery.parseJSON(response); // Global Accounts Variable
-				}
-			});
 
 			if (val === 'CHQ') {
 				$('#ChqNo').removeAttr('readonly');

@@ -93,11 +93,11 @@
             }
 
             this.on('completemultiple',function(){
-                $("#btn_save_uploads").removeAttr('disabled');
+                $("#btn_save_uploads").removeClass('disabled');
             });
 
             this.on("uploadprogress", function(file, progress, bytesSent) {
-                $("#btn_save_uploads").prop('disabled','disabled');
+                $("#btn_save_uploads").addClass('disabled');
                 
                 
                 // var alreadyUploadedTotalSize = getTotalPreviousUploadedFilesSize();   

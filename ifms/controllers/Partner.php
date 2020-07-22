@@ -921,7 +921,7 @@ public function multiple_vouchers($tym){
 			redirect(base_url(), 'refresh');
 
 		$allow_support_mode_and_recipient = $this->db->get_where('voucher_type',
-			array('voucher_type_abbrev'=>$this->input->post('Generated_VNumber')))->row()->allow_support_mode_and_recipient;	
+			array('voucher_type_abbrev'=>$this->input->post('VTypeMain')))->row()->allow_support_mode_and_recipient;	
 
 		$data['msg'] = get_phrase('voucher_posted_successfully');
 

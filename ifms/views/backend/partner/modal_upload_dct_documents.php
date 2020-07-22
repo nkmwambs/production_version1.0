@@ -92,12 +92,13 @@
                 done();
             }
 
+            this.on('completemultiple',function(){
+                $("#btn_save_uploads").show();
+            });
+
             this.on("uploadprogress", function(file, progress, bytesSent) {
                 $("#btn_save_uploads").hide();
-                if(progress == 100){
-                    //alert('Complete');
-                    $("#btn_save_uploads").show();
-                }
+                
                 
                 // var alreadyUploadedTotalSize = getTotalPreviousUploadedFilesSize();   
                 // var row_total_size = alreadyUploadedTotalSize + bytesSent;

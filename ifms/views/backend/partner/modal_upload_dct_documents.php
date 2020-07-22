@@ -92,22 +92,27 @@
                 done();
             }
 
-            // this.on("uploadprogress", function(file, progress, bytesSent) {
+            this.on("uploadprogress", function(file, progress, bytesSent) {
+                $("#btn_save_uploads").hide();
+                if(progress == 100){
+                    //alert('Complete');
+                    $("#btn_save_uploads").show();
+                }
                 
-            //     var alreadyUploadedTotalSize = getTotalPreviousUploadedFilesSize();   
-            //     var row_total_size = alreadyUploadedTotalSize + bytesSent;
-            //     compute_upload_size += parseInt(row_total_size);   
+                // var alreadyUploadedTotalSize = getTotalPreviousUploadedFilesSize();   
+                // var row_total_size = alreadyUploadedTotalSize + bytesSent;
+                // compute_upload_size += parseInt(row_total_size);   
 
-            //     //alert(compute_upload_size);      
+                // //alert(compute_upload_size);      
 
-            //     if (((alreadyUploadedTotalSize + bytesSent) > max_size_limit) || (compute_upload_size > parseInt(max_voucher_upload_files_size))) {
-            //         alert("Maximum file size reached");
-            //         this.removeFile(file);
-            //     }else{
-            //         retrieve_size_of_files_in_row(compute_upload_size);
-            //         done();
-            //     }
-            // });
+                // if (((alreadyUploadedTotalSize + bytesSent) > max_size_limit) || (compute_upload_size > parseInt(max_voucher_upload_files_size))) {
+                //     alert("Maximum file size reached");
+                //     this.removeFile(file);
+                // }else{
+                //     retrieve_size_of_files_in_row(compute_upload_size);
+                //     done();
+                // }
+            });
 
         },
         //End of addition

@@ -730,8 +730,16 @@ function reverse_cheque($param1=''){
 	private function get_accounts(String $non_civ_condition, String $civ_condition, int $voucher_item_type_id = 0): array
 	{
 		
-		$get_account_without_civs = $this->get_account_without_civs($non_civ_condition, $voucher_item_type_id);
-		$get_accounts_with_civs = $this->get_accounts_with_civs($civ_condition, $voucher_item_type_id);
+		$get_account_without_civs = [];
+		$get_accounts_with_civs = [];
+
+		if($non_civ_condition !== ""){
+			$get_account_without_civs = $this->get_account_without_civs($non_civ_condition, $voucher_item_type_id);
+		}
+
+		if($civ_condition !== ""){
+			$get_accounts_with_civs = $this->get_accounts_with_civs($civ_condition, $voucher_item_type_id);
+		}
 
 		return array_merge($get_account_without_civs,$get_accounts_with_civs);
 	}
@@ -763,8 +771,8 @@ function reverse_cheque($param1=''){
 
 		if ($param1 === 'PCR') {
 			//Petty Cash rebanking account
-			$non_civ_cond = "accounts.AccGrp = 4 AND (accounts.Active=1 OR civa.open=1 AND civa.closureDate>CURDATE())";
-			$civ_cond = "accounts.AccGrp = 4 AND (accounts.Active=1 OR civa.open=1 AND civa.closureDate>CURDATE())";
+			$non_civ_cond = "accounts.AccGrp = 4";
+			$civ_cond = "";
 			$rst_rw = $this->get_accounts($non_civ_cond, $civ_cond , $voucher_item_type_id);
 		}
 
@@ -777,9 +785,13 @@ function reverse_cheque($param1=''){
 		
 		$rst['acc'] = [];
 
+		// Check Voucher type allow_support_mode_and_recipient value
+		$allow_support_mode_and_recipient = $this->db->get_where('voucher_type',
+		array('voucher_type_abbrev'=>$param1))->row()->allow_support_mode_and_recipient;
+
 		foreach ($rst_rw as $civaAcc) :
 			// Do not show accounts list if there is not recipient selected and the config use_dct_detail_row is true
-			if($voucher_item_type_id == 0 && $this->config->item('use_dct_detail_row')) continue;
+			if($voucher_item_type_id == 0 && $this->config->item('use_dct_detail_row') && $allow_support_mode_and_recipient) continue;
 
 			$untrimmed_explode_allocate = isset($civaAcc['allocate'])?explode(',',$civaAcc['allocate']):[];
 			$trimmed_explode_allocate = array_map(array($this,'trim_spaces'),$untrimmed_explode_allocate);
@@ -908,11 +920,14 @@ public function multiple_vouchers($tym){
 		if ($this->session->userdata('admin_login') != 1)
 			redirect(base_url(), 'refresh');
 
+		$allow_support_mode_and_recipient = $this->db->get_where('voucher_type',
+			array('voucher_type_abbrev'=>$this->input->post('Generated_VNumber')))->row()->allow_support_mode_and_recipient;	
+
 		$data['msg'] = get_phrase('voucher_posted_successfully');
 
 		$hID = 0;
 
-		if($this->config->item('use_dct_detail_row')){
+		if($this->config->item('use_dct_detail_row') && $allow_support_mode_and_recipient){
 			
 			$hID = $this->dct_model->post_voucher();
 		}else{

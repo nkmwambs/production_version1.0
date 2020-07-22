@@ -648,8 +648,7 @@ include "dct_scripts.php";
 
 
 		/** Add a row */
-		$('#addrow,#addrow_footer').click(function() {
-
+		$('#addrow').click(function() {
 			if ($("#VType").hasClass('hidden') || $('#VTypeMain').is('select')) {
 				alert('Select a voucher type');
 				return false;
@@ -668,7 +667,7 @@ include "dct_scripts.php";
 
 
 		function add_detail_row(elem) {
-
+			
 			//Corrects the error of clicking the post before adding detail row when dct voucher type had bn selected
 			if ($('#error_msg').html() == 'Error: Voucher Missing Details') {
 
@@ -948,7 +947,7 @@ include "dct_scripts.php";
 						}
 						x.onchange = function() {
 							//alert("Hello!");  
-							document.getElementById("civaCode" + rowCount).value = obj[this.selectedIndex].civaID;
+							document.getElementById("civaCode" + rowCount).value = obj[this.selectedIndex].civaID?obj[this.selectedIndex].civaID:0;
 							//check_pc_other_ac_mix(this);
 						};
 						x.setAttribute('required', 'required');

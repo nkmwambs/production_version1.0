@@ -1,5 +1,5 @@
 <?php 
-print_r($voucher_type_support_mode_matrix);
+//print_r($voucher_type_support_mode_matrix);
 ?>
 <div class='row'>    
     <div class='col-xs-12'>

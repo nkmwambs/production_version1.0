@@ -14,7 +14,8 @@ class Admin extends CI_Controller {
 		$this->output->set_header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
 		$this->output->set_header('Pragma: no-cache');
 		
-    }
+	}
+	
 	public function dashboard()
 	{
 		
@@ -23,6 +24,16 @@ class Admin extends CI_Controller {
         $page_data['page_title'] = "Reports";
         $this->load->view('backend/index', $page_data);	
 	}
+	//Covid19
+	public function covid19_report()
+	{
+				
+        $page_data['page_name']  = __FUNCTION__;
+        $page_data['page_title'] = "Reports";
+		$this->load->view('backend/index', $page_data);	
+	}
+
+
 	
 	public function populate_fields(){
 		$record_type_id = $_POST['record_type_id'];

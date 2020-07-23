@@ -69,7 +69,16 @@ class Dct_model extends CI_Model {
         $acc = $this->input->post('acc');
         $civ = $this->input->post('civaCode');
         $voucher_item_type = $this->input->post('voucher_item_type');
-		$support_mode = $this->input->post('support_mode');
+        $support_mode = $this->input->post('support_mode');
+        
+        $uploads_required=false;
+
+        $get_all_support_modes=$this->db->get('support_mode')->result_array();
+
+        $array_of_support_mode_ids=array_column($get_all_support_modes,'support_mode_id');
+        $array_of_is_dct_flag=array_column($get_all_support_modes,'support_mode_is_dct');
+
+        $combined_support_mode_id_with_dct_flag=array_combine($array_of_support_mode_ids, $array_of_is_dct_flag);
 
         for ($i = 0; $i < sizeof($this->input->post('qty')); $i++) {
             $data2['hID'] = $hID;
@@ -87,18 +96,26 @@ class Dct_model extends CI_Model {
             $data2['civaCode'] = $civ[$i];
             $data2['fk_voucher_item_type_id'] = $voucher_item_type[$i];
             $data2['fk_support_mode_id'] = $support_mode[$i];
-            
+
+            //Check the dct flag is on
+            if($combined_support_mode_id_with_dct_flag[$support_mode[$i]]==1 && $uploads_required==false){
+                $uploads_required=true;
+            }
 
             $this->db->insert('voucher_body', $data2);
         }
-        if ($this->db->trans_status() === false || !file_exists($temp_dir_name)) {
+        if ($this->db->trans_status() === false || (!file_exists($temp_dir_name) && $uploads_required)) {
             $this->db->trans_rollback();
             $hID = 0;
         } 
         else {
 
-            $this->db->trans_commit();           
-            $this->move_temp_files_to_dct_document($temp_dir_name, $voucher_date, $voucher_number);
+            $this->db->trans_commit(); 
+             
+            if($uploads_required){
+                $this->move_temp_files_to_dct_document($temp_dir_name, $voucher_date, $voucher_number);
+            }         
+           
 
         }
     }

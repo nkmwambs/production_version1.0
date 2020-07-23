@@ -343,7 +343,7 @@
 		var selectedIndex = parseInt($(this).prop('selectedIndex')) - 1;
 
 		//Find the closest td with accounts dropdown
-		var voucher_item_type_value = $(this).closest('tr').find('.td_voucher_item_type').find('select').val();
+		var voucher_item_type_value =$(this).closest('tr').find('.td_voucher_item_type').length>0? $(this).closest('tr').find('.td_voucher_item_type').find('select').val():0;
 		var input_civa_code = $(this).closest('tr').find('.td_civacode').find('input');
 		var vtype = $("#VTypeMain").val();
 		var acSelect = $(this);

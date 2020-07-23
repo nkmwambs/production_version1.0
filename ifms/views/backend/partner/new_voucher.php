@@ -933,7 +933,7 @@ include "dct_scripts.php";
 						element6.type = "text";
 						element6.name = "civaCode[]";
 						element6.setAttribute('readonly', 'readonly');
-						element6.className = "civaCode form-control";
+						element6.className = "civaCode form-control td_civacode";
 						element6.id = "civaCode" + rowCount;
 						cell6.appendChild(element6);
 

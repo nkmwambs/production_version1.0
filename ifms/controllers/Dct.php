@@ -518,6 +518,24 @@ class Dct extends CI_Controller
 		return $matrix;
 	}
 
+	function voucher_type_support_mode_matrix(){
+		$this->db->select(array('voucher_type.voucher_type_id as voucher_type_id','voucher_type_name'));
+		$this->db->select(array('support_mode_id','support_mode_name','voucher_type_is_active','allow_support_mode_and_recipient'));
+		$this->db->join('voucher_type_support_mode','voucher_type_support_mode.fk_voucher_type_id=voucher_type.voucher_type_id','left');
+		$this->db->join('support_mode','support_mode.support_mode_id=voucher_type_support_mode.fk_support_mode_id','left');
+		$ungrouped_matrix = $this->db->get_where('voucher_type',array('allow_support_mode_and_recipient'=>1))->result_array();
+
+		$matrix = [];
+
+		foreach($ungrouped_matrix as $matrix_element){
+			$matrix[$matrix_element['voucher_type_id'].'-'.$matrix_element['voucher_type_name']]['support_modes'][$matrix_element['support_mode_id']] = $matrix_element['support_mode_name'];
+			$matrix[$matrix_element['voucher_type_id'].'-'.$matrix_element['voucher_type_name']]['status'] = $matrix_element['voucher_type_is_active'];
+			$matrix[$matrix_element['voucher_type_id'].'-'.$matrix_element['voucher_type_name']]['allow_support_mode_and_recipient'] = $matrix_element['allow_support_mode_and_recipient'];
+		}
+
+		return $matrix;
+	}
+
 	function support_mode_accounts_matrix(){
 		$this->db->select(array('support_mode.support_mode_id as support_mode_id','support_mode_name'));
 		$this->db->select(array('accID','AccText','support_mode_is_active','support_mode_is_dct'));
@@ -548,13 +566,26 @@ class Dct extends CI_Controller
 		return array_combine($accID,$accText);
 	}
 
+	function get_all_support_modes(){
+		$this->db->select(array('support_mode_id','support_mode_name'));
+		$this->db->where(array('support_mode_is_active'=>1));
+		$accounts = $this->db->get('support_mode')->result_array();
+
+		$support_mode_ids = array_column($accounts,'support_mode_id');
+		$support_mode_names = array_column($accounts,'support_mode_name');
+
+		return array_combine($support_mode_ids,$support_mode_names);
+	}
+
 	function dct_settings(){
 		if ($this->session->userdata('admin_login') != 1)
 			redirect(base_url(), 'refresh');
 		
 		$page_data['voucher_type_item_accounts_matrix'] = $this->voucher_type_item_accounts_matrix();
 		$page_data['support_mode_accounts_matrix'] = $this->support_mode_accounts_matrix();
+		$page_data['voucher_type_support_mode_matrix'] = $this->voucher_type_support_mode_matrix();
 		$page_data['expense_accounts'] = $this->get_all_expense_accounts();
+		$page_data['all_support_modes'] = $this->get_all_support_modes();
 		$page_data['account_type']= 'admin';
 		$page_data['page_name']  = 'dct_settings';
         $page_data['page_title'] = get_phrase('dct_settings');
@@ -583,7 +614,7 @@ class Dct extends CI_Controller
 				$this->db->where(array('fk_accounts_id'=>$used_account_id,'fk_support_mode_id'=>$mode_id));
 				$this->db->delete('accounts_support_mode');
 
-				$message = get_phrase('account_deleted_successfully');
+				$message = get_phrase('account_unlinked_successfully');
 			}
 		}
 
@@ -600,7 +631,55 @@ class Dct extends CI_Controller
 
 				$this->db->insert('accounts_support_mode',$insert_data);
 
-				$message = get_phrase('account_added_successfully');
+				$message = get_phrase('account_linked_successfully');
+			}
+		}
+		
+
+		echo $message;
+	}
+
+	function update_voucher_type_support_accounts(){
+		$post = $this->input->post();
+
+		$selected_support_mode_ids = $post['support_mode_ids'];
+		$typemode_id = $post['typemode_id'];
+
+		$message = get_phrase('error_occurred');
+
+		//Check if select mode is not there for the mode 
+		$this->db->select(array('fk_support_mode_id as support_mode_id'));
+		$all_support_modes_in_type_raw = $this->db->get_where('voucher_type_support_mode',
+			array('fk_voucher_type_id'=>$typemode_id))->result_array();	
+
+		$all_support_modes_in_type = array_column($all_support_modes_in_type_raw,'support_mode_id');
+
+		foreach($all_support_modes_in_type as $used_support_mode_id){
+
+			if(!in_array($used_support_mode_id,$selected_support_mode_ids)){
+				// Delete the record for this account
+				$this->db->where(array('fk_support_mode_id'=>$used_support_mode_id,
+				'fk_voucher_type_id'=>$typemode_id));
+				$this->db->delete('voucher_type_support_mode');
+
+				$message = get_phrase('support_unlinked_successfully');
+			}
+		}
+
+		foreach($selected_support_mode_ids as $selected_support_mode_id){
+
+			if(!in_array($selected_support_mode_id,$all_support_modes_in_type)){
+				// Insert the record for this account
+				$insert_data['fk_support_mode_id'] = $selected_support_mode_id;
+				$insert_data['fk_voucher_type_id'] = $typemode_id;
+				$insert_data['voucher_type_support_mode_created_by'] = $this->session->login_user_id;
+				$insert_data['voucher_type_support_mode_created_date'] = date('Y-md');
+				$insert_data['voucher_type_support_mode_last_modified_by'] = $this->session->login_user_id;
+				$insert_data['voucher_type_support_mode_last_modified_date'] =date('Y-m-d h:i:s');
+
+				$this->db->insert('voucher_type_support_mode',$insert_data);
+
+				$message = get_phrase('support_linked_successfully');
 			}
 		}
 		
@@ -630,7 +709,7 @@ class Dct extends CI_Controller
 				$this->db->where(array('accounts_id'=>$used_account_id,'voucher_item_type_id'=>$type_id));
 				$this->db->delete('voucher_items_with_accounts');
 
-				$message = get_phrase('account_deleted_successfully');
+				$message = get_phrase('account_unlinked_successfully');
 			}
 		}
 
@@ -647,7 +726,7 @@ class Dct extends CI_Controller
 
 				$this->db->insert('voucher_items_with_accounts',$insert_data);
 
-				$message = get_phrase('account_added_successfully');
+				$message = get_phrase('account_linked_successfully');
 			}
 		}
 		

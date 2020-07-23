@@ -1,5 +1,5 @@
 <?php 
-//print_r($voucher_type_item_accounts_matrix);
+print_r($voucher_type_support_mode_matrix);
 ?>
 <div class='row'>    
     <div class='col-xs-12'>
@@ -121,6 +121,47 @@
                 <tbody>
             </table>
         </div>
+
+        <hr/>
+
+        <div class='col-xs-12'>
+            <table class='table table-striped datatable'>
+                <thead>
+                    <tr>
+                        <th><?=get_phrase('voucher_type');?></th>
+                        <th><?=get_phrase('voucher_type_is_active');?></th>
+                        <th><?=get_phrase('allow_support_mode_and_recipient');?></th>
+                        <th><?=get_phrase('support_modes');?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach($voucher_type_support_mode_matrix as $voucher_type => $support_modes_and_status){
+                            $voucher_type_array = explode('-',$voucher_type);
+                            $id = array_shift($voucher_type_array);
+                        ?>
+                        <tr>
+                            <td><?=implode('-',$voucher_type_array);?></td>
+                            <td>
+                                <div class='label label-info'>
+                                    <?=$support_modes_and_status['status']?get_phrase('active'):get_phrase('inactive');?>
+                                </div>
+                            </td>
+                            <td><?=$support_modes_and_status['allow_support_mode_and_recipient']?get_phrase('yes'):get_phrase('no');?></td>
+                            <td>
+                                <select class='form-control select2 voucher_type_modes_selector' id='typemode_<?=$id;?>' multiple>
+                                    <?php foreach($all_support_modes as $support_mode_id => $support_mode_name){?>
+                                        <option value='<?=$support_mode_id;?>' <?php if(array_key_exists($support_mode_id,$support_modes_and_status['support_modes'])) echo "selected";?> >
+                                            <?=$support_mode_name;?> 
+                                        </option>
+                                    <?php }?>
+                                </select>
+                            </td>
+                        </tr>
+                    <?php }?>
+                <tbody>
+            </table>
+        </div>
+
     </div>
 </div>
 
@@ -158,6 +199,17 @@
         var type_id = $(this).attr('id').split('_')[1];
         var url = "<?=base_url();?>ifms.php/dct/update_voucher_item_type_accounts";
         var data = {'account_ids':account_ids,'type_id':type_id};
+        //alert(type_id);
+        $.post(url,data,function(response){
+            alert(response);
+        });
+    });
+
+    $(".voucher_type_modes_selector").on('change',function(){
+        var support_mode_ids = $(this).val();
+        var typemode_id = $(this).attr('id').split('_')[1];
+        var url = "<?=base_url();?>ifms.php/dct/update_voucher_type_support_accounts";
+        var data = {'support_mode_ids':support_mode_ids,'typemode_id':typemode_id};
         //alert(type_id);
         $.post(url,data,function(response){
             alert(response);

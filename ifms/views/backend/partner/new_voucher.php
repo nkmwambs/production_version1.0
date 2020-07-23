@@ -154,7 +154,7 @@
 											<!-- CHEQUE Number -->
 											<div class="col-sm-10 form-group hidden" id='ChqDiv'>
 												<label for="ChqNo" class="control-label"><span style="font-weight: bold;"><?php echo get_phrase('cheque_number'); ?>:</span></label>
-												<input class="form-control" type="number" id="ChqNo" name="ChqNo" minlength="2" readonly="readonly" />
+												<input class="form-control" type="text" id="ChqNo" name="ChqNo" minlength="2" readonly="readonly" />
 											</div>
 
 											<!-- MPESA REFERENCE NO -->
@@ -580,7 +580,7 @@ include "dct_scripts.php";
 
 
 
-		$('#ChqNo').keyup(function() {
+		$('#ChqNo').change(function() {
 			//alert('Hello');
 			var chqno = $(this).val();
 			var reversal = 'no';

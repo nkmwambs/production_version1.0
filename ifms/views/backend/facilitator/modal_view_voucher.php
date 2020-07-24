@@ -128,7 +128,9 @@ $icpNo = $record->icpNo;
     </div>
 </div>
 
-
+<?php
+	include VIEWPATH."backend/partner/dct_scripts.php";
+?>
 
 <script type="text/javascript">
 
@@ -147,4 +149,9 @@ $icpNo = $record->icpNo;
 		    formValues: true          
 		});
     }
+
+	$(document).ready(function(){
+		//alert('Hello');
+		load_dct_data_to_view_voucher('<?=$param2;?>');
+	});
 </script>

@@ -65,11 +65,12 @@
 
     });
 
-    $(document).ready(function() {
-        //$("#modal_dct_reference").val();
-    });
-
-    var totalsize = 0.0;
+    var max_voucher_upload_files_size = "<?=$this->config->item('max_voucher_upload_files_size');?>";
+    var compute_upload_size = parseInt($("#compute_upload_size").val());
+    var total_upload_count = 0;
+    var max_size_limit = '<?=$this->config->item('max_voucher_row_uploaded_files_size');?>';
+    var max_upload_file_count_limit = '<?=$this->config->item('max_voucher_row_upload_file_count');?>';
+    
     var myDropzone = new Dropzone("#myDropzone", {
         url: "<?= base_url() ?>ifms.php?/dct/create_uploads_temp",
         paramName: "fileToUpload", // The name that will be used to transfer the file
@@ -77,13 +78,13 @@
         uploadMultiple: true,
         addRemoveLinks: true,
         paralleluploads: 5,
-        maxFiles: 5,
+        maxFiles: max_upload_file_count_limit,
         acceptedFiles: 'image/*,application/pdf,.doc,.docx,.xls,.xlsx,.csv',
 
         //Added by Onduso on 7/8/2020 to allow only 2 files
-       
+
         accept: function(file, done) {
-            if (totalsize >= 2) {
+            if (total_upload_count >= parseInt(max_upload_file_count_limit)) {
                 file.status = Dropzone.CANCELED;
                 this._errorProcessing([file], "Max limit reached", null);
                 alert("Max limit reached");
@@ -91,16 +92,39 @@
                 done();
             }
 
+            this.on('completemultiple',function(){
+                $("#btn_save_uploads").removeClass('disabled');
+            });
+
+            this.on("uploadprogress", function(file, progress, bytesSent) {
+                $("#btn_save_uploads").addClass('disabled');
+                
+                
+                // var alreadyUploadedTotalSize = getTotalPreviousUploadedFilesSize();   
+                // var row_total_size = alreadyUploadedTotalSize + bytesSent;
+                // compute_upload_size += parseInt(row_total_size);   
+
+                // //alert(compute_upload_size);      
+
+                // if (((alreadyUploadedTotalSize + bytesSent) > max_size_limit) || (compute_upload_size > parseInt(max_voucher_upload_files_size))) {
+                //     alert("Maximum file size reached");
+                //     this.removeFile(file);
+                // }else{
+                //     retrieve_size_of_files_in_row(compute_upload_size);
+                //     done();
+                // }
+            });
+
         },
         //End of addition
 
         init: function() {
 
             var thisDropzone = this;
-            var url = "<?= base_url(); ?>ifms.php/dct/get_uploaded_support_mode_files/<?= $param3; ?>/<?=$param2;?>/<?=$param4;?>"; //get_uploaded_support_mode_files
-            
+            var url = "<?= base_url(); ?>ifms.php/dct/get_uploaded_support_mode_files/<?= $param3; ?>/<?= $param2; ?>/<?= $param4; ?>"; //get_uploaded_support_mode_files
+
             $.get(url, function(data) {
-                
+
                 $.each(data.uploaded_files, function(key, value) {
 
                     var mockFile = {
@@ -117,7 +141,7 @@
             });
 
             /**Added by Onduso on 7/8/2020**/
-            
+
             //[Check max files exceeded]
             this.on("maxfilesexceeded", function(file) {
                 alert("No more files please!");
@@ -125,11 +149,17 @@
 
             //[increase the totalsize by adding each file uploaded]
             this.on("addedfile", function(file) {
-                 totalsize += parseFloat((file.size / (1024 * 1024)).toFixed(2));
+                total_upload_count ++;//= parseFloat((file.size / (1024 * 1024)).toFixed(2));
 
-                $('#check_upload_size').val(totalsize);
-                
+                //$('#check_upload_size').val(totalsize);
+
             });
+
+            
+
+            //[increase the totalsize by adding each file uploaded]
+
+
             //[Reduce totalsize when file is removed]
             // this.on("removedfile", function(file) {
             //     if (file.upload.progress != 0) {
@@ -138,7 +168,7 @@
             // });
             //[On error reduce totalsize]
             this.on("error", function(file) {
-                totalsize -= parseFloat((file.size / (1024 * 1024)).toFixed(2));
+                total_upload_count --;//= parseFloat((file.size / (1024 * 1024)).toFixed(2));
             });
 
             // /**End of Onduso addition 7/8/2020 **/
@@ -184,7 +214,7 @@
                 'file_name': file_name
             },
             success: function(response) {
-                alert(response);
+                //alert(response);
                 var obj = JSON.parse(response);
 
                 alert('This file ' + obj.file_name + ' has been removed');
@@ -193,12 +223,29 @@
 
                 //Added by Onduso 7/8/2020
                 //var dct_file_size = $("#bodyTable tr").eq('<?= $param3; ?>').find('td.td_support_mode').find('input.dct_file_size');
-                totalsize -= parseFloat((file.size / (1024 * 1024)).toFixed(2));
-                $('#check_upload_size').val(totalsize)
+                total_upload_count --;//= parseFloat((file.size / (1024 * 1024)).toFixed(2));
+                //$('#check_upload_size').val(totalsize)
                 //End of Onduso addition
             },
 
         });
 
+    });
+
+
+
+    function getTotalPreviousUploadedFilesSize() {
+        var totalSize = 0;
+        myDropzone.getFilesWithStatus(Dropzone.SUCCESS).forEach(function(file) {
+            totalSize = totalSize + file.size;
+        });
+        return totalSize;
+    }
+
+    //Hide close button
+
+    $(document).ready(function(){
+        $(".modal-footer").hide();
+        $('.modal-header button').hide();
     });
 </script>

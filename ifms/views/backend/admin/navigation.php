@@ -44,7 +44,8 @@
         		if (
 	        			$page_name == 'opening_balances' ||
 	                    $page_name == 'finance_settings'||
-						$page_name == 'budget_settings'
+                        $page_name == 'budget_settings' ||
+                        $page_name == 'dct_settings'
 					)
                         echo 'opened active';
         ?> ">
@@ -70,6 +71,16 @@
                         <span><i class="fa fa-adjust"></i> <?php echo get_phrase('budget_settings'); ?></span>
                     </a>
                 </li> 
+
+                <?php if($this->config->item('use_dct_detail_row')){?>
+                
+                <li class="<?php if ($page_name == 'dct_settings') echo 'active'; ?> ">
+                    <a href="<?php echo base_url("ifms.php/dct/dct_settings"); ?>">
+                        <span><i class="fa fa-flag"></i> <?php echo get_phrase('dct_settings'); ?></span>
+                    </a>
+                </li> 
+                
+                <?php }?>
              
             </ul>
         </li>

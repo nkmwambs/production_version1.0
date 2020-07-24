@@ -13,3 +13,6 @@ $config['show_when_null'] = "Not Set";
 
 // Voucher configurations
 $config['use_dct_detail_row'] = true;
+$config['max_voucher_row_uploaded_files_size'] = 5000000; // In KB
+$config['max_voucher_row_upload_file_count'] = 5; 
+$config['max_voucher_upload_files_size'] = 10000000; // In KB

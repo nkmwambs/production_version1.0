@@ -342,33 +342,37 @@ function interventions($param1="",$param2="",$param3=""){
 		$exp_accid = $this->db->get_where('accounts',array('parentAccID'=>$this->input->post('accID')))->row()->accID;
 	
 		
-		$msg = "";
+		$msg = "Error Occurred";
 		
-		if($this->db->get_where("civa",array("AccNoCIVA"=>$this->input->post('AccNoCIVA')))->num_rows()===0){
+		if($this->db->get_where("civa",array("AccNoCIVA"=>$this->input->post('AccNoCIVA'),'accID'=>$inc_accid))->num_rows()===0){
 		
 			$accid_array = array('income'=>$inc_accid,'expense'=>$exp_accid);
 			
-				// for($k=0;$k<count($accid_array);$k++){
-				// 	$data4['accID'] = $accid_array[$k];
-				// 	$data4['AccNoCIVA'] =  $this->input->post('AccNoCIVA');
-				// 	$data4['is_direct_cash_transfer'] =  $this->input->post('is_direct_cash_transfer');
-				// 	$data4['AccTextCIVA'] =  $this->input->post('AccNoCIVA');
-				// 	$data4['allocate'] =  $allocate;
-				// 	$data4['closureDate'] =  $this->input->post('closureDate');
-				// 	$this->db->insert('civa',$data4);
-				// }	
-				
+			    $this->db->trans_start();
+				$civa_expense_id=0;
 				foreach($accid_array as $account_type => $account_id){
 					$data4['accID'] = $account_id;
 					$data4['AccNoCIVA'] =  $this->input->post('AccNoCIVA');
-					$data4['is_direct_cash_transfer'] =  $this->input->post('is_direct_cash_transfer');
+					//$data4['is_direct_cash_transfer'] =  $this->input->post('is_direct_cash_transfer');
 					$data4['AccTextCIVA'] =   $this->input->post('AccNoCIVA') .' ('.ucfirst($account_type).')';
 					$data4['allocate'] =  $allocate;
 					$data4['closureDate'] =  $this->input->post('closureDate');
 					$this->db->insert('civa',$data4);
+					if($account_type=='expense'){
+						$civa_expense_id=$this->db->insert_id();
+					}
+				}
+
+				$this->update_voucher_item_type_and_support_mode_on_civa_add($civa_expense_id);
+
+				$this->db->trans_complete();
+				if($this->db->trans_status()==true){
+
+					$msg = get_phrase('account_added_successfully');
+
 				}
 			
-			$msg = get_phrase('account_added_successfully');
+			
 		}else{
 			$get_allocate = $this->db->get_where('civa',array("AccNoCIVA"=>$this->input->post('AccNoCIVA')))->row()->allocate;
 			$new_allocate = $allocate.",".$get_allocate;
@@ -376,10 +380,22 @@ function interventions($param1="",$param2="",$param3=""){
 			$data2['allocate'] = $new_allocate;
 			$data2['closureDate'] = $this->input->post('closureDate');
 			
+			$this->db->trans_start();
 			
 			$this->db->update('civa',$data2,array('AccNoCIVA'=>$this->input->post('AccNoCIVA')));
+
+
+			$param2=$this->finance_model->get_civa_record_by_civa_account_number($this->input->post('AccNoCIVA'))->civaID;
+
+			$this->upsert_voucher_item_type_and_support_mode_on_civa_edit($param2);
+
+			$this->db->trans_complete();
+			if($this->db->trans_status()==true){
+
+				$msg = get_phrase('account_edited_successfully');
+
+			}
 			
-			$msg = get_phrase('account_edited_successfully');
 		}
 		
 			$this->session->set_flashdata('flash_message',$msg);
@@ -401,10 +417,20 @@ function interventions($param1="",$param2="",$param3=""){
 			$data6['closureDate'] = $this->input->post('closureDate');
 			$data6['is_direct_cash_transfer'] =  $this->input->post('is_direct_cash_transfer');
 			
+			$this->db->trans_start();
+
 			$this->db->update('civa',$data6,array('AccNoCIVA'=>$this->input->post('AccNoCIVA')));
+
+			// //Voucher Item Types
 			
-			$msg = get_phrase('account_edited_successfully');
-			
+			$this->upsert_voucher_item_type_and_support_mode_on_civa_edit($param2);
+
+			$this->db->trans_complete();
+			if($this->db->trans_status()==true){
+
+				$msg = get_phrase('account_edited_successfully');
+
+			}
 			$this->session->set_flashdata('flash_message',$msg);
 	
     		redirect(base_url().'ifms.php/civa/dashboard','refresh');
@@ -429,6 +455,107 @@ function interventions($param1="",$param2="",$param3=""){
 	$this->session->set_flashdata('flash_message',$msg);
 	
     redirect(base_url().'ifms.php/civa/dashboard','refresh');	
+}
+private function upsert_voucher_item_type_and_support_mode_on_civa_edit($param2){
+
+	//Voucher Item Types
+	$used_recipient_with_civa=$this->db->select(array('fk_voucher_item_type_id'))->get_where('voucher_items_with_civa',array('fk_civa_id'=>$param2));
+
+	if($this->config->item('use_dct_detail_row')){
+		if($this->input->post('recipient')){
+			$insert_array=[];
+			$used_recipient_ids=[];
+			if($used_recipient_with_civa->num_rows()>0){
+
+				$used_recipient_ids=array_column($used_recipient_with_civa->result_array(),'fk_voucher_item_type_id');
+
+			}
+			
+			foreach($this->input->post('recipient') as $recipient_id){
+
+				if(!in_array($recipient_id,$used_recipient_ids)){
+
+					$insert_array['fk_civa_id'] = $param2;
+					$insert_array['fk_voucher_item_type_id'] = $recipient_id;
+					$this->db->insert('voucher_items_with_civa', $insert_array);
+
+				}
+
+			}
+			foreach($used_recipient_ids as $used_recipient_id){
+				if(!in_array($used_recipient_id,$this->input->post('recipient'))){
+
+					$this->db->where(array('fk_voucher_item_type_id'=>$used_recipient_id,'fk_civa_id'=>$param2));
+					$this->db->delete('voucher_items_with_civa');
+
+				}
+			}
+
+		}
+		//Support mode
+		$used_support_modes_with_civa=$this->db->select(array('fk_support_mode_id'))->get_where('civa_support_mode',array('fk_civa_id'=>$param2));
+		if($this->input->post('support_mode')){
+
+			$insert_array_support_modes=[];
+			$used_support_mode_ids=[];
+			if($used_support_modes_with_civa->num_rows()>0){
+
+				$used_support_mode_ids=array_column($used_support_modes_with_civa->result_array(),'fk_support_mode_id');
+
+			}
+			
+			foreach($this->input->post('support_mode') as $support_mode_id){
+
+				if(!in_array($support_mode_id,$used_support_mode_ids)){
+
+					$insert_array_support_modes['fk_civa_id'] = $param2;
+					$insert_array_support_modes['fk_support_mode_id'] = $support_mode_id;
+					$this->db->insert('civa_support_mode', $insert_array_support_modes);
+
+				}
+
+			}
+			foreach($used_support_mode_ids as $used_support_mode_id){
+				if(!in_array($used_support_mode_id,$this->input->post('support_mode'))){
+
+					$this->db->where(array('fk_support_mode_id'=>$used_support_mode_id,'fk_civa_id'=>$param2));
+					$this->db->delete('civa_support_mode');
+
+				}
+			}
+
+		}
+	}
+
+}
+
+private function update_voucher_item_type_and_support_mode_on_civa_add($civa_expense_id=0){
+		if (
+			$civa_expense_id > 0 &&
+			$this->config->item('use_dct_detail_row')
+		) {
+			$insert_array = [];
+			if ($this->input->post('recipient')) {
+				foreach ($this->input->post('recipient') as $recipient_id) {
+
+					$insert_array['fk_civa_id'] = $civa_expense_id;
+					$insert_array['fk_voucher_item_type_id'] = $recipient_id;
+					$this->db->insert('voucher_items_with_civa', $insert_array);
+				}
+			}
+
+			if ($this->input->post('support_mode')) {
+
+				//Support mode
+				$insert_array_support_modes = [];
+				foreach ($this->input->post('support_mode') as $support_mode_id) {
+
+					$insert_array_support_modes['fk_civa_id'] = $civa_expense_id;
+					$insert_array_support_modes['fk_support_mode_id'] = $support_mode_id;
+					$this->db->insert('civa_support_mode', $insert_array_support_modes);
+				}
+			}
+		}
 }
 
 function civ_report_query($civ_status='open'){

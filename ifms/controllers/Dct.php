@@ -31,34 +31,7 @@ class Dct extends CI_Controller
 		
 	}
 	
-	function dct_documents_download($fcp_number, $tym, $vnumber)
-	{
-
-		if (file_exists('uploads/dct_documents/' . $fcp_number . '/' . date('Y-m', $tym) . '/' . $vnumber . '/')) {
-			$map = directory_map('uploads/dct_documents/' . $fcp_number . '/' . date('Y-m', $tym) . '/' . $vnumber . '/', FALSE, TRUE);
-
-			foreach ($map as $row) :
-
-				$path = 'uploads/dct_documents/' . $fcp_number . '/' . date('Y-m', $tym) . '/' . '/' . $vnumber . '/' . $row;
-
-				$data = file_get_contents($path);
-
-				$this->zip->add_data($row, $data);
-			endforeach;
-
-
-			// Write the zip file to a folder on your server. Name it "my_backup.zip"
-			$this->zip->archive('downloads/my_backup_' . $this->session->login_user_id . '.zip');
-
-			// Download the file to your desktop. Name it "my_backup.zip"
-
-			$backup_file = 'downloads_' . $this->session->login_user_id . date("Y_m_d_H_i_s") . '.zip';
-
-			$this->zip->download($backup_file);
-
-			unlink('downloads/' . $backup_file);
-		}
-	}
+	
 	
 	
 	function temp_folder_hash($voucher_number){
@@ -132,36 +105,8 @@ class Dct extends CI_Controller
 		
 	}
 
-	// function remove_dct_files_in_temp($voucher_number, $voucher_detail_row_index, $support_mode_id)
-	// {
 
-	// 	//Folder path
-	// 	$detail_folder_name = $voucher_number .'_'. $voucher_detail_row_index .'_'. $support_mode_id;
-	// 	$storeFolder = BASEPATH . DS . '..' . DS . 'uploads' . DS . 'temps' . DS . $this->dct_model->temp_folder_hash($voucher_number). DS . $detail_folder_name;
-	// 	$output = [];
-
-	// 	//Loop the $hash directory and delete the selected file
-	// 	$data = $this->input->post('file_name');
-
-	// 	foreach (new DirectoryIterator($storeFolder) as $fileInfo) {
-	// 		if ($fileInfo->isDot()) continue;
-
-	// 		if ($fileInfo->getFilename() == $data) {
-
-	// 			unlink($storeFolder . DS . $fileInfo);
-
-	// 			//echo $fileInfo->getFilename(); //for ajax use
-	// 			$output['file_name'] = $fileInfo->getFilename();
-	// 		}
-	// 	}
-
-	// 	$output['count_of_files'] = $this->count_files_in_temp_dir($voucher_detail_row_number);
-
-	// 	echo json_encode($output);
-	// }
-
-
-	function remove_dct_files_in_temp($voucher_number, $voucher_detail_row_number, $support_mode_id)
+	function remove_dct_files_in_temp($voucher_number, $voucher_detail_row_number, $support_mode_id,$remove_all_files=false)
 	{
 
 		$output = [];
@@ -171,22 +116,48 @@ class Dct extends CI_Controller
 		
 		//Loop the $hash directory and delete the selected file
 		$data = $this->input->post('file_name');
-	
-		foreach (new DirectoryIterator($storeFolder) as $fileInfo) {
-			if ($fileInfo->isDot()) continue;
 
-			if ($fileInfo->getFilename() == $data) {
+        //If true loop and delete all files in Temp
+		if($remove_all_files==true){
+			
+			foreach (new DirectoryIterator($storeFolder) as $fileInfo) {
+				if ($fileInfo->isDot()) continue;
 
-				unlink($storeFolder . DS . $fileInfo);
 
-				$output['file_name'] = $fileInfo->getFilename();
-				//echo $fileInfo->getFilename(); //for ajax use
+					unlink($storeFolder . DS . $fileInfo);
+
+					$output['file_name'] = 'All';
+				
 			}
-		}
 
-		$output['count_of_files'] = $this->count_files_in_temp_dir($voucher_detail_row_number);
+		}
+		else{
+
+			foreach (new DirectoryIterator($storeFolder) as $fileInfo) {
+				if ($fileInfo->isDot()) continue;
+
+				if ($fileInfo->getFilename() == $data) {
+
+					unlink($storeFolder . DS . $fileInfo);
+
+					$output['file_name'] = $fileInfo->getFilename();
+				}
+			}
+
+		}
+	
+		
+
+        //Onduso comment: When echo is used in this 'count_files_in_temp_dir' "count_of_files" =null so we have to use return for to count of files
+		$output['count_of_files'] = $this->count_files_in_temp_dir($voucher_detail_row_number,$voucher_number,$support_mode_id, true);
 
 		echo json_encode($output);
+	}
+	
+	function check_if_support_requires_upload($support_mode_id){
+		$is_support_mode_require_upload=$this->db->get_where('support_mode', array('support_mode_id'=>$support_mode_id))->row()->support_mode_is_dct;
+
+		echo $is_support_mode_require_upload;
 	}
 	
 	private function get_bank_code()
@@ -308,13 +279,22 @@ class Dct extends CI_Controller
 
 		$voucher_type_abbrev = $this->input->post('voucher_type_abbrev');
 		$accno = $this->input->post('accno');
+		$civa_id = $this->input->post('civa_id');
 
 		$this->db->select(array('support_mode_id','support_mode_name','support_mode_is_dct'));
 		
 		$this->db->join('voucher_type_support_mode','voucher_type_support_mode.fk_support_mode_id=support_mode.support_mode_id');
 		$this->db->join('voucher_type','voucher_type.voucher_type_id=voucher_type_support_mode.fk_voucher_type_id');
-		$this->db->join('accounts_support_mode','accounts_support_mode.fk_support_mode_id=support_mode.support_mode_id');
-		$this->db->join('accounts','accounts.accID=accounts_support_mode.fk_accounts_id');
+		
+		if($civa_id > 0){
+			$this->db->join('civa_support_mode','civa_support_mode.fk_support_mode_id=support_mode.support_mode_id');
+			$this->db->join('civa','civa.civaID=civa_support_mode.fk_civa_id');
+			$this->db->join('accounts','accounts.accID=civa.accID');
+		}else{
+			$this->db->join('accounts_support_mode','accounts_support_mode.fk_support_mode_id=support_mode.support_mode_id');
+			$this->db->join('accounts','accounts.accID=accounts_support_mode.fk_accounts_id');
+		}
+		
 		
 		$this->db->where(array('support_mode_is_active'=>1,'voucher_type_abbrev'=>$voucher_type_abbrev,'AccNo'=>$accno));
 		
@@ -329,56 +309,93 @@ class Dct extends CI_Controller
 		echo json_encode($support_modes);
 	}
 
-	function remove_all_dct_files_in_temp($voucher_number, $voucher_detail_row_number, $support_mode_id){
-		// $hash = $this->dct_model->temp_folder_hash($voucher_number); //.random_int(10,1000000);
-		// $detail_folder = $voucher_number.'_'.$voucher_detail_row_number.'_'.$support_mode_id;
-		// //$hash = md5($hash_folder_name);
-
-		// //Folder path
-		// $storeFolder = BASEPATH . DS . '..' . DS . 'uploads' . DS . 'temps' . DS . $hash . DS . $detail_folder;
+	function remove_all_temp_files($voucher_number){
+		$hash = $this->dct_model->temp_folder_hash($voucher_number); 
+		$cnt = 0;
 		
-		// $cnt = 0;
 		
-		// $count_files_in_temp_dir = $this->count_files_in_temp_dir($voucher_detail_row_number);
+		$temp_hashed_directory_path = BASEPATH . DS . '..' . DS . 'uploads' . DS . 'temps' . DS . $hash;
 
-		// if($count_files_in_temp_dir > 0){
+        if(file_exists($temp_hashed_directory_path)){
+
+			foreach (new DirectoryIterator($temp_hashed_directory_path) as $detail_temp_directory) {
+				if ($detail_temp_directory->isDot()) continue;
+				
+				$this->rrmdir($temp_hashed_directory_path .DS. $detail_temp_directory);
+			}		
 	
-		// 		foreach (new DirectoryIterator($storeFolder) as $fileInfo) {
-		// 			if ($fileInfo->isDot()) continue;
-		
-		// 			if ($fileInfo->isFile()) {
-		// 				unlink($storeFolder . DS . $fileInfo);
-		// 				$cnt++;
-		// 			}
-		// 		}
-		// 		rmdir($storeFolder);
-			
-		// }
+			rmdir($temp_hashed_directory_path);
 
-		// echo $cnt;
+		}
+		echo $cnt;
+
+	}
+
+	function rrmdir($dir) { 
+		if (is_dir($dir)) { 
+		  $objects = scandir($dir);
+		  foreach ($objects as $object) { 
+			if ($object != "." && $object != "..") { 
+			  if (is_dir($dir. DIRECTORY_SEPARATOR .$object) && !is_link($dir."/".$object))
+				rrmdir($dir. DIRECTORY_SEPARATOR .$object);
+			  else
+				unlink($dir. DIRECTORY_SEPARATOR .$object); 
+			} 
+		  }
+		  rmdir($dir); 
+		} 
+	  }
+	
+
+	function remove_voucher_row_dct_files_in_temp($voucher_number, $voucher_detail_row_number, $support_mode_id){
+		$hash = $this->dct_model->temp_folder_hash($voucher_number); 
+		$detail_folder = $voucher_number.'_'.$voucher_detail_row_number.'_'.$support_mode_id;
+
+		//Folder path
+		$storeFolder = BASEPATH . DS . '..' . DS . 'uploads' . DS . 'temps' . DS . $hash . DS . $detail_folder;
+		
+		$cnt = 0;
+		
+		$count_files_in_temp_dir = $this->count_files_in_temp_dir($voucher_detail_row_number, $voucher_number, $support_mode_id);
+
+		if($count_files_in_temp_dir > 0){
+	
+				foreach (new DirectoryIterator($storeFolder) as $fileInfo) {
+					if ($fileInfo->isDot()) continue;
+		
+					if ($fileInfo->isFile()) {
+						unlink($storeFolder . DS . $fileInfo);
+						$cnt++;
+					}
+				}
+				rmdir($storeFolder);
+			
+		}
+
+		echo $cnt;
 		
 	}
 
-	function count_files_in_temp_dir($voucher_detail_row_index,$voucher_number, $support_mode_id){
-		
+	private function count_files_in_temp_dir($voucher_detail_row_index,$voucher_number, $support_mode_id){
+
 		$filecount = 0;
 
-		//if ($this->session->upload_session) {
-			
-			//$voucher_detail_row_index--;
-			$detail_folder_name = $voucher_number .'_'. $voucher_detail_row_index .'_'. $support_mode_id;
-			$storeFolder = BASEPATH . DS . '..' . DS . 'uploads' . DS . 'temps' . DS . $this->dct_model->temp_folder_hash($voucher_number) . DS . $detail_folder_name;
-			$files2 = glob($storeFolder . "/*.*");
+		$detail_folder_name = $voucher_number . '_' . $voucher_detail_row_index . '_' . $support_mode_id;
+		$storeFolder = BASEPATH . DS . '..' . DS . 'uploads' . DS . 'temps' . DS . $this->dct_model->temp_folder_hash($voucher_number) . DS . $detail_folder_name;
+		$files2 = glob($storeFolder . "/*.*");
 
-			if( $files2 ) { 
-				$filecount = count($files2); 
-			} 
-			  
-		//}
+		if ($files2) {
+			$filecount = count($files2);
+		}  
+		return $filecount; 
+	    
+	}
 
-		echo $filecount; 
-		//echo $this->session->$session_name;
-		//echo $voucher_detail_row_index;
+	function count_files_in_temp_dir_for_ajax_use($voucher_detail_row_index,$voucher_number, $support_mode_id){
+
+		$count_of_files=$this->count_files_in_temp_dir($voucher_detail_row_index,$voucher_number, $support_mode_id);
+
+		echo $count_of_files;
 	}
 
 	function check_if_mode_is_dct($support_mode_id){
@@ -415,5 +432,305 @@ class Dct extends CI_Controller
 		header('Content-type: text/json');              
 		header('Content-type: application/json');
 		echo json_encode($result);
+	}
+	
+	function load_dct_data_to_view_voucher($voucher_id){
+		$data = [];
+		$page_view = [];
+
+		
+		$this->db->select(array('voucher_header.icpNo as icpNo','voucher_header.VNumber as VNumber','voucher_header.chqNo as chqNo'));
+		$this->db->select(array('voucher_header.TDate as TDate','voucher_header.Payee as Payee','voucher_header.Address as Address'));
+		$this->db->select(array('voucher_header.TDescription as TDescription','voucher_header.VType as VType'));
+		$this->db->select(array('voucher_body.Qty as Qty','voucher_item_type.voucher_item_type_name as voucher_item_type_name'));
+		$this->db->select(array('support_mode.support_mode_name as support_mode_name','voucher_body.Details as Details'));
+		$this->db->select(array('voucher_body.UnitCost as UnitCost','voucher_body.Cost as Cost','voucher_body.AccNo as AccNo'));
+		$this->db->select(array('accounts.AccText as AccText','support_mode.support_mode_is_dct as support_mode_is_dct','support_mode.support_mode_id as support_mode_id'));
+
+		$this->db->join('voucher_header','voucher_header.hID=voucher_body.hID');
+		$this->db->join('accounts','accounts.AccNo=voucher_body.AccNo');
+		$this->db->join('voucher_item_type','voucher_item_type.voucher_item_type_id=voucher_body.fk_voucher_item_type_id');
+        $this->db->join('support_mode','support_mode.support_mode_id=voucher_body.fk_support_mode_id');
+		$voucher_details_obj = $this->db->get_where('voucher_body',array('voucher_header.hID'=>$voucher_id));
+
+		// Check if the voucher has support mode/ voucher item type not zero
+		if($voucher_details_obj->num_rows() > 0){
+			$data['record'] = $voucher_details_obj->row_array();
+			$data['body'] = $voucher_details_obj->result_array();
+			$page_view['dct_view'] = $this->load->view('backend/partner/dct_view_voucher',$data,true);
+		}
+
+		echo json_encode($page_view);
+	}
+
+
+	function dct_documents_download($fcp_number, $tym, $vnumber, $detail_folder = '')
+	{
+
+		$uploads_path = 'uploads/dct_documents/' . $fcp_number . '/' . date('Y-m', $tym) . '/' . $vnumber . '/';
+
+		if($detail_folder !== ''){
+			$uploads_path = 'uploads/dct_documents/' . $fcp_number . '/' . date('Y-m', $tym) . '/' . $vnumber . '/'. $detail_folder .'/';
+		}
+
+		if (file_exists($uploads_path)) {
+			$map = directory_map($uploads_path, FALSE, TRUE);
+
+			foreach ($map as $row) :
+
+				$path = $uploads_path . $row;
+				
+				$data = file_get_contents($path);
+
+				$this->zip->add_data($row, $data);
+			endforeach;
+
+
+			// Write the zip file to a folder on your server. Name it "my_backup.zip"
+			$this->zip->archive('downloads/my_backup_' . $this->session->login_user_id . '.zip');
+
+			// Download the file to your desktop. Name it "my_backup.zip"
+
+			$backup_file = 'downloads_' . $this->session->login_user_id . date("Y_m_d_H_i_s") . '.zip';
+
+			$this->zip->download($backup_file);
+
+			unlink('downloads/' . $backup_file);
+		}
+	}
+
+	function voucher_type_item_accounts_matrix(){
+		$this->db->select(array('voucher_item_type.voucher_item_type_id as voucher_item_type_id','voucher_item_type_name'));
+		$this->db->select(array('accID','AccText','voucher_type_item_is_active','voucher_type_item_is_beneficiary','voucher_type_item_is_household'));
+		$this->db->join('voucher_items_with_accounts','voucher_items_with_accounts.voucher_item_type_id=voucher_item_type.voucher_item_type_id','left');
+		$this->db->join('accounts','accounts.accID=voucher_items_with_accounts.accounts_id','left');
+		$ungrouped_matrix = $this->db->get('voucher_item_type')->result_array();
+
+		$matrix = [];
+
+		foreach($ungrouped_matrix as $matrix_element){
+			$matrix[$matrix_element['voucher_item_type_id'].'-'.$matrix_element['voucher_item_type_name']]['accounts'][$matrix_element['accID']] = $matrix_element['AccText'];
+			$matrix[$matrix_element['voucher_item_type_id'].'-'.$matrix_element['voucher_item_type_name']]['status'] = $matrix_element['voucher_type_item_is_active'];
+			$matrix[$matrix_element['voucher_item_type_id'].'-'.$matrix_element['voucher_item_type_name']]['is_beneficiary'] = $matrix_element['voucher_type_item_is_beneficiary'];
+			$matrix[$matrix_element['voucher_item_type_id'].'-'.$matrix_element['voucher_item_type_name']]['is_household'] = $matrix_element['voucher_type_item_is_household'];
+		}
+
+		return $matrix;
+	}
+
+	function voucher_type_support_mode_matrix(){
+		$this->db->select(array('voucher_type.voucher_type_id as voucher_type_id','voucher_type_name'));
+		$this->db->select(array('support_mode_id','support_mode_name','voucher_type_is_active','allow_support_mode_and_recipient'));
+		$this->db->join('voucher_type_support_mode','voucher_type_support_mode.fk_voucher_type_id=voucher_type.voucher_type_id','left');
+		$this->db->join('support_mode','support_mode.support_mode_id=voucher_type_support_mode.fk_support_mode_id','left');
+		$ungrouped_matrix = $this->db->get_where('voucher_type',array('allow_support_mode_and_recipient'=>1))->result_array();
+
+		$matrix = [];
+
+		foreach($ungrouped_matrix as $matrix_element){
+			$matrix[$matrix_element['voucher_type_id'].'-'.$matrix_element['voucher_type_name']]['support_modes'][$matrix_element['support_mode_id']] = $matrix_element['support_mode_name'];
+			$matrix[$matrix_element['voucher_type_id'].'-'.$matrix_element['voucher_type_name']]['status'] = $matrix_element['voucher_type_is_active'];
+			$matrix[$matrix_element['voucher_type_id'].'-'.$matrix_element['voucher_type_name']]['allow_support_mode_and_recipient'] = $matrix_element['allow_support_mode_and_recipient'];
+		}
+
+		return $matrix;
+	}
+
+	function support_mode_accounts_matrix(){
+		$this->db->select(array('support_mode.support_mode_id as support_mode_id','support_mode_name'));
+		$this->db->select(array('accID','AccText','support_mode_is_active','support_mode_is_dct'));
+		$this->db->join('accounts_support_mode','accounts_support_mode.fk_support_mode_id=support_mode_id','left');
+		$this->db->join('accounts','accounts.accID=accounts_support_mode.fk_accounts_id','left');
+		$ungrouped_matrix = $this->db->get('support_mode')->result_array();
+
+		$matrix = [];
+
+		foreach($ungrouped_matrix as $matrix_element){
+			$matrix[$matrix_element['support_mode_id'].'-'.$matrix_element['support_mode_name']]['accounts'][$matrix_element['accID']] = $matrix_element['AccText'];
+			$matrix[$matrix_element['support_mode_id'].'-'.$matrix_element['support_mode_name']]['status'] = $matrix_element['support_mode_is_active'];
+			$matrix[$matrix_element['support_mode_id'].'-'.$matrix_element['support_mode_name']]['is_dct'] = $matrix_element['support_mode_is_dct'];
+		}
+
+		return $matrix;
+	}
+
+	function get_all_expense_accounts(){
+		$this->db->select(array('accID','AccText'));
+		$this->db->where_in('AccGrp',array(0,3));
+		$this->db->where(array('Active'=>1));
+		$accounts = $this->db->get('accounts')->result_array();
+
+		$accID = array_column($accounts,'accID');
+		$accText = array_column($accounts,'AccText');
+
+		return array_combine($accID,$accText);
+	}
+
+	function get_all_support_modes(){
+		$this->db->select(array('support_mode_id','support_mode_name'));
+		$this->db->where(array('support_mode_is_active'=>1));
+		$accounts = $this->db->get('support_mode')->result_array();
+
+		$support_mode_ids = array_column($accounts,'support_mode_id');
+		$support_mode_names = array_column($accounts,'support_mode_name');
+
+		return array_combine($support_mode_ids,$support_mode_names);
+	}
+
+	function dct_settings(){
+		if ($this->session->userdata('admin_login') != 1)
+			redirect(base_url(), 'refresh');
+		
+		$page_data['voucher_type_item_accounts_matrix'] = $this->voucher_type_item_accounts_matrix();
+		$page_data['support_mode_accounts_matrix'] = $this->support_mode_accounts_matrix();
+		$page_data['voucher_type_support_mode_matrix'] = $this->voucher_type_support_mode_matrix();
+		$page_data['expense_accounts'] = $this->get_all_expense_accounts();
+		$page_data['all_support_modes'] = $this->get_all_support_modes();
+		$page_data['account_type']= 'admin';
+		$page_data['page_name']  = 'dct_settings';
+        $page_data['page_title'] = get_phrase('dct_settings');
+        $this->load->view('backend/index', $page_data);	
+	}
+
+	function update_support_mode_accounts(){
+		$post = $this->input->post();
+
+		$selected_account_ids = $post['account_ids'];
+		$mode_id = $post['mode_id'];
+
+		$message = get_phrase('error_occurred');
+
+		//Check if account is not there for the mode and 
+		$this->db->select(array('fk_accounts_id as account_id'));
+		$all_accounts_in_mode_raw = $this->db->get_where('accounts_support_mode',
+			array('fk_support_mode_id'=>$mode_id))->result_array();	
+
+		$all_accounts_in_mode = array_column($all_accounts_in_mode_raw,'account_id');
+
+		foreach($all_accounts_in_mode as $used_account_id){
+
+			if(!in_array($used_account_id,$selected_account_ids)){
+				// Delete the record for this account
+				$this->db->where(array('fk_accounts_id'=>$used_account_id,'fk_support_mode_id'=>$mode_id));
+				$this->db->delete('accounts_support_mode');
+
+				$message = get_phrase('account_unlinked_successfully');
+			}
+		}
+
+		foreach($selected_account_ids as $selected_account_id){
+
+			if(!in_array($selected_account_id,$all_accounts_in_mode)){
+				// Insert the record for this account
+				$insert_data['fk_accounts_id'] = $selected_account_id;
+				$insert_data['fk_support_mode_id'] = $mode_id;
+				$insert_data['accounts_support_mode_created_by'] = $this->session->login_user_id;
+				$insert_data['accounts_support_mode_create_date'] = date('Y-md');
+				$insert_data['accounts_support_mode_last_modified_by'] = $this->session->login_user_id;
+				$insert_data['accounts_support_mode_last_modified_date'] =date('Y-m-d h:i:s');
+
+				$this->db->insert('accounts_support_mode',$insert_data);
+
+				$message = get_phrase('account_linked_successfully');
+			}
+		}
+		
+
+		echo $message;
+	}
+
+	function update_voucher_type_support_accounts(){
+		$post = $this->input->post();
+
+		$selected_support_mode_ids = $post['support_mode_ids'];
+		$typemode_id = $post['typemode_id'];
+
+		$message = get_phrase('error_occurred');
+
+		//Check if select mode is not there for the mode 
+		$this->db->select(array('fk_support_mode_id as support_mode_id'));
+		$all_support_modes_in_type_raw = $this->db->get_where('voucher_type_support_mode',
+			array('fk_voucher_type_id'=>$typemode_id))->result_array();	
+
+		$all_support_modes_in_type = array_column($all_support_modes_in_type_raw,'support_mode_id');
+
+		foreach($all_support_modes_in_type as $used_support_mode_id){
+
+			if(!in_array($used_support_mode_id,$selected_support_mode_ids)){
+				// Delete the record for this account
+				$this->db->where(array('fk_support_mode_id'=>$used_support_mode_id,
+				'fk_voucher_type_id'=>$typemode_id));
+				$this->db->delete('voucher_type_support_mode');
+
+				$message = get_phrase('support_unlinked_successfully');
+			}
+		}
+
+		foreach($selected_support_mode_ids as $selected_support_mode_id){
+
+			if(!in_array($selected_support_mode_id,$all_support_modes_in_type)){
+				// Insert the record for this account
+				$insert_data['fk_support_mode_id'] = $selected_support_mode_id;
+				$insert_data['fk_voucher_type_id'] = $typemode_id;
+				$insert_data['voucher_type_support_mode_created_by'] = $this->session->login_user_id;
+				$insert_data['voucher_type_support_mode_created_date'] = date('Y-md');
+				$insert_data['voucher_type_support_mode_last_modified_by'] = $this->session->login_user_id;
+				$insert_data['voucher_type_support_mode_last_modified_date'] =date('Y-m-d h:i:s');
+
+				$this->db->insert('voucher_type_support_mode',$insert_data);
+
+				$message = get_phrase('support_linked_successfully');
+			}
+		}
+		
+
+		echo $message;
+	}
+
+	function update_voucher_item_type_accounts(){
+		$post = $this->input->post();
+
+		$selected_account_ids = $post['account_ids'];
+		$type_id = $post['type_id'];
+
+		$message = get_phrase('error_occurred');
+
+		//Check if account is not there for the mode 
+		$this->db->select(array('accounts_id as account_id'));
+		$all_accounts_in_type_raw = $this->db->get_where('voucher_items_with_accounts',
+			array('voucher_item_type_id'=>$type_id))->result_array();	
+
+		$all_accounts_in_type = array_column($all_accounts_in_type_raw,'account_id');
+
+		foreach($all_accounts_in_type as $used_account_id){
+
+			if(!in_array($used_account_id,$selected_account_ids)){
+				// Delete the record for this account
+				$this->db->where(array('accounts_id'=>$used_account_id,'voucher_item_type_id'=>$type_id));
+				$this->db->delete('voucher_items_with_accounts');
+
+				$message = get_phrase('account_unlinked_successfully');
+			}
+		}
+
+		foreach($selected_account_ids as $selected_account_id){
+
+			if(!in_array($selected_account_id,$all_accounts_in_type)){
+				// Insert the record for this account
+				$insert_data['accounts_id'] = $selected_account_id;
+				$insert_data['voucher_item_type_id'] = $type_id;
+				$insert_data['voucher_items_with_accounts_created_by'] = $this->session->login_user_id;
+				$insert_data['voucher_items_with_accounts_created_date'] = date('Y-md');
+				$insert_data['voucher_items_with_accounts_created_by'] = $this->session->login_user_id;
+				$insert_data['voucher_items_with_accounts_last_modified_date'] =date('Y-m-d h:i:s');
+
+				$this->db->insert('voucher_items_with_accounts',$insert_data);
+
+				$message = get_phrase('account_linked_successfully');
+			}
+		}
+		
+
+		echo $message;
 	}
 }

@@ -67,12 +67,12 @@ $icpNo = $record->icpNo;
 									<td colspan="6"><span style="font-weight: bold;">Description: </span> <?php echo $record->TDescription;?></td>
 								</tr>
 								
-								<tr style="font-weight: bold;">
-									<td>Quantity</td>
-									<td colspan="2">Items Purchased/ Service Received</td>
-									<td>Unit Cost</td>
-									<td>Cost</td>
-									<td>Account</td>
+								<tr style="font-weight: bold;" id="tr_header">
+									<td><?=get_phrase('quantity');?></td>
+									<td colspan="2"><?=get_phrase('items_Purchased_service_received');?></td>
+									<td><?=get_phrase('unit_cost');?></td>
+									<td><?=get_phrase('cost');?></td>
+									<td><?=get_phrase('account');?></td>
 								</tr>
 								
 								<?php
@@ -129,7 +129,9 @@ $icpNo = $record->icpNo;
     </div>
 </div>
 
-
+<?php
+include "dct_scripts.php";
+?>
 
 <script type="text/javascript">
 
@@ -148,4 +150,11 @@ $icpNo = $record->icpNo;
 		    formValues: true          
 		});
     }
+
+	$(document).ready(function(){
+		load_dct_data_to_view_voucher('<?=$param2;?>');
+	});
+
 </script>
+
+

@@ -29,8 +29,90 @@ class Admin extends CI_Controller {
 	{
 				
         $page_data['page_name']  = __FUNCTION__;
-        $page_data['page_title'] = "Reports";
+		$page_data['page_title'] = "Reports";
+		$page_data['report_result']=$this->covid19_report_array();
+		$page_data['utilised_accounts']=$this->utilised_support_modes($this->covid19_report_array())['support_modes_with_utilised_accs'];
 		$this->load->view('backend/index', $page_data);	
+	}
+	function utilised_support_modes($report_result){
+
+		$support_modes_with_utilised_accs=[];
+
+		foreach($report_result as $support_modes_and_accounts){
+
+		  $holder_of_accounts=[];
+		  foreach($support_modes_and_accounts as $support_mode =>$accounts){
+		
+			$holder_of_accounts=array_merge($holder_of_accounts,array_keys($accounts));
+		
+			$support_modes_with_utilised_accs[$support_mode]=array_unique($holder_of_accounts);
+		
+		  }
+	   
+		}
+
+		return ['support_modes_with_utilised_accs'=>$support_modes_with_utilised_accs];
+
+	}
+
+	function covid19_report_array(){
+
+		return [
+			'Kiambu' => [
+				'UDCT Via MPesa' => [
+					'E45' => 24,
+					'E200' => 560,
+					'E320' => 8
+				],
+				'Food Basket' => [
+					'E45' => 2,
+					'E365' => 89
+					
+				],
+				'Hygiene Kit' => [
+					'E45' => 20,
+					'E30' => 56.87,
+					'E320' => 102,
+					'E300'=>450
+				]
+			],
+
+			'Lake Basin' => [
+				'UDCT Via MPesa' => [
+					'E200' => 50.6,
+					'E320' => 8.6,
+					'E310'=>60,
+					'E50'=>77
+				],
+				'Food Basket' => [
+					'E45' => 2.94,
+				],
+				'Hygiene Kit' => [
+					'E365' => 294,
+					'E300' => 561,
+					'E320' => 86.9
+				]
+			],
+
+			'Mombasa' => [
+				'UDCT Via MPesa' => [
+					'E45' => 12,
+					'E200' => 52,
+					'E320' => 57
+				],
+				'Food Basket' => [
+					'E45' => 24,
+					'E40' => 59,
+					'E415' => 806.0
+				],
+				'Hygiene Kit' => [
+					'E45' => 21,
+					'E30' => 50,
+					'E320' => 86.90,
+					'E330'=>54
+				]
+			]
+		];
 	}
 
 

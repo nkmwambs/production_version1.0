@@ -29,7 +29,7 @@
     <table id='tbl_covid19' class='table table-striped datatable'>
       <thead>
         <tr>
-          <th rowspan='2'><?= get_phrase('cluster'); ?></th>
+          <th rowspan='2' style="background-color:gray; color:white;"><?= get_phrase('cluster'); ?></th>
           <th colspan='3' style="background-color:green; color:white;">UDCT Via MPesa</th>
           <th colspan='3' style="background-color:gray; color:white;">Food Baskets</th>
           <th colspan='3' style="background-color:brown; color:white;">Hygiene Kits</th>
@@ -54,7 +54,7 @@
       </thead>
       <tbody>
         <tr>
-          <td>Kiambu</td>
+          <td style="background-color:gray; color:white;">Kiambu</td>
           <td>23</td>
           <td>20</td>
           <td>345</td>
@@ -69,7 +69,7 @@
         </tr>
 
         <tr>
-          <td>Lake Basin</td>
+          <td style="background-color:gray; color:white;">Lake Basin</td>
           <td>12</td>
           <td>2</td>
           <td>33</td>
@@ -84,7 +84,7 @@
         </tr>
 
         <tr>
-          <td>Mombasa</td>
+          <td style="background-color:gray; color:white;">Mombasa</td>
           <td>111.56</td>
           <td>2</td>
           <td>3</td>
@@ -101,7 +101,7 @@
       </tbody>
       <tfoot>
         <tr>
-          <th>Grand Totals:</th>
+          <th style="background-color:gray; color:white;">Grand Totals:</th>
           <th>0.0</th>
           <th>0.0</th>
           <th>0.0</th>
@@ -139,12 +139,34 @@
 
           total += Number($(td).html());
         }
-       
+
       });
-      //Display the total
+      //Display the total of all td to last td
       $(tr).find('td').last().html(total);
 
     });
 
   });
+
+  //Sum vertically each row
+  $(document).ready(function() {
+    $('#tbl_covid19  thead th').each(function(i) {
+      calculateColumnTotals(i);
+    });
+  });
+
+  function calculateColumnTotals(index) {
+    var total = 0;
+    $('#tbl_covid19  tr').each(function() {
+      var value = Number($('td', this).eq(index).html());
+      if (!isNaN(value)) {
+        total += value;
+      }
+    });
+    if (total != 0) {
+
+      $('#tbl_covid19 tfoot th').eq(index).html('<b>'+total+'</b>');
+    } 
+
+  }
 </script>

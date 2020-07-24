@@ -146,15 +146,14 @@
 
     });
 
-  });
-
-  //Sum vertically each row
-  $(document).ready(function() {
-    $('#tbl_covid19  thead th').each(function(i) {
-      calculateColumnTotals(i);
+    //Sum vertically each row
+    $('#tbl_covid19  thead th').each(function(index) {
+      calculateColumnTotals(index);
     });
+
   });
 
+  //Calculate the totals for tds
   function calculateColumnTotals(index) {
     var total = 0;
     $('#tbl_covid19  tr').each(function() {

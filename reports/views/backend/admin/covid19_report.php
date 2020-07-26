@@ -37,12 +37,20 @@ print_r($report_result);
 
           <th rowspan='2' style="background-color:gray; color:white;"><?= get_phrase('cluster'); ?></th>
           <!-- Draw the Support modes in  a table -->
-          <?php foreach ($utilised_accounts as $support_mode=>$accounts) { ?>
+
+          <?php 
+          $footer_count_of_tds=0;
+          
+          foreach ($utilised_accounts as $support_mode=>$accounts) { 
+            
+            $footer_count_of_tds+=count($accounts);
+            
+            ?>
  
             <th colspan='<?=count($accounts);?>' style="background-color:<?=rand_color();?>; color:white;"><?= $support_mode; ?></th>
 
           <?php } ?>
-          <th rowspan='2'><?= get_phrase('Total'); ?></th>
+          <th rowspan='2' style="background-color:gray; color:white;"><?= get_phrase('Total'); ?></th>
         </tr>
         
         <tr>
@@ -52,7 +60,7 @@ print_r($report_result);
           
           ?>
 
-          <th><?=$account;?></th>
+          <th><b><?=$account;?></b></th>
 
         <?php } }?>
 
@@ -75,28 +83,20 @@ print_r($report_result);
             <td><?=$count_of_grouped_elements?></td>
           <?php } }?>
           <td></td>
-
-          
-
         </tr>
 
        <?php }?>
 
-        
-
       </tbody>
       <tfoot>
         <tr>
+        <!-- Draw the footer th -->
           <th style="background-color:gray; color:white;">Grand Totals:</th>
-          <th>0.0</th>
-          <th>0.0</th>
-          <th>0.0</th>
-          <th>0.0</th>
-          <th>0.0</th>
-          <th>0.0</th>
-          <th>0.0</th>
-          <th>0.0</th>
-          <th>0.0</th>
+
+          <?php for($i=0;$i<$footer_count_of_tds;$i++){ ?>
+            <th><b>0.0</b></th>
+          <?php } ?>
+
           <th>0.0</th>
         </tr>
 
@@ -128,7 +128,9 @@ print_r($report_result);
 
       });
       //Display the total of all td to last td
-      $(tr).find('td').last().html(total);
+      $(tr).find('td').last().html(total.toFixed(2));
+      $(tr).find('td:last-child').css({backgroundColor:'gray',color:'white'});
+      
 
     });
 
@@ -150,7 +152,8 @@ print_r($report_result);
     });
     if (total != 0) {
 
-      $('#tbl_covid19 tfoot th').eq(index).html('<b>' + total + '</b>');
+      $('#tbl_covid19 tfoot th').eq(index).html('<b>' + total.toFixed(2) + '</b>');
+      $('#tbl_covid19 tfoot th:last-child').css({backgroundColor:'gray',color:'white'});
     }
 
   }

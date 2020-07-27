@@ -33,7 +33,7 @@ class Admin extends CI_Controller {
 
         $page_data['page_name']  = __FUNCTION__;
 		$page_data['page_title'] = "Reports";
-		$page_data['covid19_data']=$covid19_data;
+		$page_data['covid19_data']=$this->utilised_support_modes($covid19_data)['support_modes_with_utilised_accs'];
 		$page_data['report_result']=$covid19_data;
 		$page_data['utilised_accounts']=$this->utilised_support_modes($covid19_data)['support_modes_with_utilised_accs'];
 		//$page_data['report_result']=$this->covid19_report_array();
@@ -43,17 +43,22 @@ class Admin extends CI_Controller {
 	function utilised_support_modes($report_result){
 
 		$support_modes_with_utilised_accs=[];
-
+		
+        $holder_of_accounts=[];
 		foreach($report_result as $support_modes_and_accounts){
-
-		  $holder_of_accounts=[];
+			
+			
+		  
 		  foreach($support_modes_and_accounts as $support_mode =>$accounts){
 		
+
 			$holder_of_accounts=array_merge($holder_of_accounts,array_keys($accounts));
 		
 			$support_modes_with_utilised_accs[$support_mode]=array_unique($holder_of_accounts);
-		
+
+		    
 		  }
+
 	   
 		}
 

@@ -1,7 +1,10 @@
 <?php
 
 
-print_r($report_result);
+//print_r($report_result);
+print_r($covid19_data);
+
+
 ?>
 <div class='row'>
   <div class='col-xs-12'>

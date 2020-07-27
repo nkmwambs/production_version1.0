@@ -46,22 +46,14 @@ class Admin extends CI_Controller {
 		
         $holder_of_accounts=[];
 		foreach($report_result as $support_modes_and_accounts){
-			
-			
 		  
 		  foreach($support_modes_and_accounts as $support_mode =>$accounts){
-		
 
 			$holder_of_accounts=array_merge($holder_of_accounts,array_keys($accounts));
 		
 			$support_modes_with_utilised_accs[$support_mode]=array_unique($holder_of_accounts);
-
-		    
 		  }
-
-	   
 		}
-
 		return ['support_modes_with_utilised_accs'=>$support_modes_with_utilised_accs];
 
 	}

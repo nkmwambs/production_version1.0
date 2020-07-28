@@ -351,7 +351,8 @@
 		//Get the accounts form server
 		var url = '<?= base_url() ?>ifms.php/partner/voucher_accounts/' + vtype + '/' + voucher_item_type_value;
 		var civa_id = 0;
-
+		input_civa_code.val(0);
+		
 		$.get(url,function(response){
 			//console.log(response);
 			//console.log(selectedIndex);

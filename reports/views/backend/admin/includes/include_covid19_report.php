@@ -74,7 +74,17 @@
     
       $(document).ready(function() {
 
-    //var datatable = $(".datatable").DataTable();
+    var datatable = $(".datatable").DataTable(
+
+        {
+            buttons: [
+		         'csv', 'excel', 'print'
+		    ],	      
+		    stateSave: true,
+
+            dom: '<"row"l><Bf><"col-sm-12"rt><ip>',
+        }
+    );
 
     //Find the table tr and loop all the tr
     var tbody_rows = $('#tbl_covid19 tbody tr');
@@ -122,5 +132,6 @@
     }
 
   }
+
     
     </script>

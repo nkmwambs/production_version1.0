@@ -28,7 +28,7 @@ class Admin extends CI_Controller {
 	//Covid19
 	public function covid19_report()
 	{
-		$reporting_month='2018-06-30';
+		$reporting_month='2019-06-01';
 		$group_report_by='beneficiary';
 		
 		if($this->input->post()){

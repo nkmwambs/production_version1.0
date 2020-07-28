@@ -18,10 +18,25 @@ class DCT_model extends CI_Model {
 		// $this->db->select(array('clusters.clustername','accounts.acctext','voucher_body.icpno','cost','support_mode.support_mode_name','voucher_body.fk_voucher_item_type_id'));
 		$this->db->select(array('clusters.clustername','accounts.acctext','support_mode.support_mode_name'));
 
-		if($group_report_by=='beneficiary'){
+		if($group_report_by=='household'){
 			//$group_by_array=array_push($group_by_array,'voucher_item_type.voucher_item_type_id');
 			  $group_by_array=array('voucher_item_type.voucher_item_type_id','clusters.clustername','accounts.accno','support_mode.support_mode_id');
-			  $this->db->select_sum('voucher_body.qty');
+			  //$this->db->select_sum('voucher_body.qty');
+			  $this->db->select('sum(voucher_body.qty) as '.$group_report_by);
+			  $this->db->where(array('voucher_body.fk_voucher_item_type_id'=>2));
+		}
+		else if($group_report_by=='fcp'){
+			
+			  $this->db->select('count(voucher_body.icpno) as '.$group_report_by);
+		}
+		else if($group_report_by=='amount'){
+			$this->db->select('sum(voucher_body.cost) as '.$group_report_by);
+		}
+		else{
+			//$group_by_array=array_push($group_by_array,'voucher_item_type.voucher_item_type_id');
+			  $group_by_array=array('voucher_item_type.voucher_item_type_id','clusters.clustername','accounts.accno','support_mode.support_mode_id');
+			  //$this->db->select_sum('voucher_body.qty');
+			  $this->db->select('sum(voucher_body.qty) as '.$group_report_by);
 			  $this->db->where(array('voucher_body.fk_voucher_item_type_id'=>1));
 		}
 		

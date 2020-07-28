@@ -86,6 +86,8 @@ class Admin extends CI_Controller {
 		
 	}
 
+	
+
 	function covid19_report_array(){
 
 

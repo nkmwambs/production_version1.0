@@ -2,7 +2,7 @@
 
 
 //print_r($report_result);
-print_r($covid19_data);
+//print_r($this->dct_model->covid19_data_query('2018-06-01','household'));
 
 
 ?>
@@ -14,14 +14,14 @@ print_r($covid19_data);
       <div class='col-xs-8'>
         <select class='form-control' id='report_grouping'>
           <option value=''><?= get_phrase('select_grouping'); ?></option>
-          <option value='beneficiary'><?= get_phrase('beneficiary_count'); ?></option>
-          <option value='household'><?= get_phrase('household_count'); ?></option>
-          <option value='fcp'><?= get_phrase('fcp_count'); ?></option>
-          <option value='amount'><?= get_phrase('amount_spent'); ?></option>
+          <option value='beneficiary' <?php if($group_report_by == 'beneficiary') echo 'selected';?> ><?= get_phrase('beneficiary_count'); ?></option>
+          <option value='household' <?php if($group_report_by == 'household') echo 'selected';?> ><?= get_phrase('household_count'); ?></option>
+          <option value='fcp' <?php if($group_report_by == 'fcp') echo 'selected';?> ><?= get_phrase('fcp_count'); ?></option>
+          <option value='amount' <?php if($group_report_by == 'amount') echo 'selected';?> ><?= get_phrase('amount_spent'); ?></option>
         </select>
       </div>
       <div class='col-xs-2'>
-        <button class='btn btn-primary'><?= get_phrase('load_report'); ?></button>
+        <button class='btn btn-primary' id='load_report'><?= get_phrase('load_report'); ?></button>
       </div>
 
     </div>
@@ -32,132 +32,117 @@ print_r($covid19_data);
 </div>
 <hr />
 <div class='row'>
-  <div class='col-xs-12'>
-
-    <table id='tbl_covid19' class='table table-striped datatable'>
-      <thead>
-        <tr>
-
-          <th rowspan='2' style="background-color:gray; color:white;"><?= get_phrase('cluster'); ?></th>
-          <!-- Draw the Support modes in  a table -->
-
-          <?php 
-          $footer_count_of_tds=0;
-          
-          foreach ($utilised_accounts as $support_mode=>$accounts) { 
-            
-            $footer_count_of_tds+=count($accounts);
-            
-            ?>
- 
-            <th colspan='<?=count($accounts);?>' style="background-color:<?=rand_color();?>; color:white;"><?= $support_mode; ?></th>
-
-          <?php } ?>
-          <th rowspan='2' style="background-color:gray; color:white;"><?= get_phrase('Total'); ?></th>
-        </tr>
-        
-        <tr>
-        <?php foreach($utilised_accounts as $support_mode=> $accounts){
-          
-          foreach($accounts as $account){
-          
-          ?>
-
-          <th><b><?=$account;?></b></th>
-
-        <?php } }?>
-
-         
-
-        </tr>
-
-      </thead>
-      <tbody>
-       <?php foreach($report_result as $cluster =>$support_modes_and_accounts){?>
-        <tr>
-          <td style="background-color:gray; color:white;"><?=$cluster;?></td>
-          <?php foreach($utilised_accounts as $utilised_support_mode =>$accounts){
-             foreach($accounts as $account){
-               $count_of_grouped_elements=0;
-               if(isset($support_modes_and_accounts[$utilised_support_mode][$account])){
-                $count_of_grouped_elements=$support_modes_and_accounts[$utilised_support_mode][$account];
-               }
-            ?>
-            <td><?=$count_of_grouped_elements?></td>
-          <?php } }?>
-          <td></td>
-        </tr>
-
-       <?php }?>
-
-      </tbody>
-      <tfoot>
-        <tr>
-        <!-- Draw the footer th -->
-          <th style="background-color:gray; color:white;">Grand Totals:</th>
-
-          <?php for($i=0;$i<$footer_count_of_tds;$i++){ ?>
-            <th><b>0.0</b></th>
-          <?php } ?>
-
-          <th>0.0</th>
-        </tr>
-
-      </tfoot>
-    </table>
-
-
-
+  <div class='col-xs-12' id='report_holder'>
+    <?php
+      include "includes/include_covid19_report.php";
+    ?>
   </div>
 
 </div>
 <script>
-  $(document).ready(function() {
+  // $(document).ready(function() {
 
-    //Find the table tr and loop all the tr
-    var tbody_rows = $('#tbl_covid19 tbody tr')
+  //   //var datatable = $(".datatable").DataTable();
 
-    $.each(tbody_rows, function(i, tr) {
+  //   //Find the table tr and loop all the tr
+  //   var tbody_rows = $('#tbl_covid19 tbody tr');
 
-      var tds = $(tr).find('td');
-      var total = 0;
+  //   $.each(tbody_rows, function(i, tr) {
 
-      //Loop each td as you sum up the inner html
-      $.each(tds, function(x, td) {
-        if (x != 0) {
+  //     var tds = $(tr).find('td');
+  //     var total = 0;
 
-          total += Number($(td).html());
-        }
+  //     //Loop each td as you sum up the inner html
+  //     $.each(tds, function(x, td) {
+  //       if (x != 0) {
 
-      });
-      //Display the total of all td to last td
-      $(tr).find('td').last().html(total.toFixed(2));
-      $(tr).find('td:last-child').css({backgroundColor:'gray',color:'white'});
+  //         total += Number($(td).html());
+  //       }
+
+  //     });
+  //     //Display the total of all td to last td
+  //     $(tr).find('td').last().html(total.toFixed(2));
+  //     $(tr).find('td:last-child').css({backgroundColor:'gray',color:'white'});
       
 
-    });
+  //   });
 
-    //Sum vertically each row
-    $('#tbl_covid19  thead th').each(function(index) {
-      calculateColumnTotals(index);
-    });
+  //   //Sum vertically each row
+  //   $('#tbl_covid19  thead th').each(function(index) {
+  //     calculateColumnTotals(index);
+  //   });
 
+  // });
+
+  // //Calculate the totals for tds
+  // function calculateColumnTotals(index) {
+  //   var total = 0;
+  //   $('#tbl_covid19  tr').each(function() {
+  //     var value = Number($('td', this).eq(index).html());
+  //     if (!isNaN(value)) {
+  //       total += value;
+  //     }
+  //   });
+  //   if (total != 0) {
+
+  //     $('#tbl_covid19 tfoot th').eq(index).html('<b>' + total.toFixed(2) + '</b>');
+  //     $('#tbl_covid19 tfoot th:last-child').css({backgroundColor:'gray',color:'white'});
+  //   }
+
+  // }
+
+  $("#load_report").on('click',function(){
+    var report_grouping = $("#report_grouping").val();
+
+    if(report_grouping !== ""){
+      var url = "<?=base_url();?>reports.php/admin/covid19_report";
+      var data = {'group_name':report_grouping};
+
+      $.post(url,data,function(response){
+        $('#report_holder').html(response);
+      });
+    }
+    
   });
 
-  //Calculate the totals for tds
-  function calculateColumnTotals(index) {
-    var total = 0;
-    $('#tbl_covid19  tr').each(function() {
-      var value = Number($('td', this).eq(index).html());
-      if (!isNaN(value)) {
-        total += value;
-      }
-    });
-    if (total != 0) {
+</script>
 
-      $('#tbl_covid19 tfoot th').eq(index).html('<b>' + total.toFixed(2) + '</b>');
-      $('#tbl_covid19 tfoot th:last-child').css({backgroundColor:'gray',color:'white'});
-    }
 
-  }
+<style>
+#overlay{
+    position: fixed; /* Sit on top of the page content */
+    display: none; /* Hidden by default */
+    width: 100%; /* Full width (cover the whole page) */
+    height: 100%; /* Full height (cover the whole page) */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.5); /* Black background with opacity */
+    z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
+    cursor: pointer; /* Add a pointer on hover */
+}
+
+#overlay img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+}
+</style>
+
+<div id="overlay"><img src='<?php echo base_url()."uploads/preloader4.gif";?>'/></div>
+
+<script>
+$( document ).ajaxSend(function() {
+  $("#overlay").css("display","block");
+});
+
+$(document).ajaxSuccess(function() {
+    $("#overlay").css("display","none");
+});
+
+$(document).ajaxError(function(xhr) {
+    alert('Error has occurred');
+});
+
 </script>

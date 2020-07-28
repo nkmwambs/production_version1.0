@@ -14,7 +14,8 @@ class Admin extends CI_Controller {
 		$this->output->set_header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
 		$this->output->set_header('Pragma: no-cache');
 		
-    }
+	}
+	
 	public function dashboard()
 	{
 		
@@ -23,6 +24,153 @@ class Admin extends CI_Controller {
         $page_data['page_title'] = "Reports";
         $this->load->view('backend/index', $page_data);	
 	}
+	//Covid19
+	public function covid19_report()
+	{
+		$reporting_month='2019-06-30';
+		$group_report_by='beneficiary';
+		$covid19_data=$this->covid19_report_array_test($this->covid19_data_query($reporting_month,$group_report_by));
+
+        $page_data['page_name']  = __FUNCTION__;
+		$page_data['page_title'] = "Reports";
+		$page_data['covid19_data']=$this->utilised_support_modes($covid19_data)['support_modes_with_utilised_accs'];
+		$page_data['report_result']=$covid19_data;
+		$page_data['utilised_accounts']=$this->utilised_support_modes($covid19_data)['support_modes_with_utilised_accs'];
+		//$page_data['report_result']=$this->covid19_report_array();
+		//$page_data['utilised_accounts']=$this->utilised_support_modes($this->covid19_report_array())['support_modes_with_utilised_accs'];
+		$this->load->view('backend/index', $page_data);	
+	}
+	function utilised_support_modes($report_result){
+
+		$support_modes_with_utilised_accs=[];
+		
+        $holder_of_accounts=[];
+		foreach($report_result as $support_modes_and_accounts){
+		  
+		  foreach($support_modes_and_accounts as $support_mode =>$accounts){
+
+			$holder_of_accounts=array_merge($holder_of_accounts,array_keys($accounts));
+		
+			$support_modes_with_utilised_accs[$support_mode]=array_unique($holder_of_accounts);
+		  }
+		}
+		return ['support_modes_with_utilised_accs'=>$support_modes_with_utilised_accs];
+
+	}
+	function covid19_data_query($reporting_month,$group_report_by='beneficiary'){
+
+		$start_date='2019-06-01';
+		$end_date='2019-06-30';
+
+		//$group_report_by='beneficiary';//FCP,Cost, Household
+		$group_by_array=array('accounts.accno','support_mode.support_mode_id');
+
+		// $this->db->select(array('clusters.clustername','accounts.acctext','voucher_body.icpno','cost','support_mode.support_mode_name','voucher_body.fk_voucher_item_type_id'));
+		$this->db->select(array('clusters.clustername','accounts.acctext','support_mode.support_mode_name'));
+
+		if($group_report_by=='beneficiary'){
+			//$group_by_array=array_push($group_by_array,'voucher_item_type.voucher_item_type_id');
+			  $group_by_array=array('voucher_item_type.voucher_item_type_id','clusters.clustername','accounts.accno','support_mode.support_mode_id');
+			  $this->db->select_sum('voucher_body.qty');
+			  $this->db->where(array('voucher_body.fk_voucher_item_type_id'=>1));
+		}
+		
+		$this->db->join('projectsdetails', 'projectsdetails.icpno = voucher_body.icpno');
+		$this->db->join('clusters','clusters.clusters_id = projectsdetails.cluster_id');
+		$this->db->join('accounts','accounts.accno=voucher_body.accno');
+		$this->db->join('accounts_support_mode','accounts_support_mode.fk_accounts_id=accounts.accId');
+		$this->db->join('support_mode','support_mode.support_mode_id=accounts_support_mode.fk_support_mode_id');
+		$this->db->join('voucher_item_type','voucher_item_type.voucher_item_type_id=voucher_body.fk_voucher_item_type_id');
+
+		$this->db->group_by($group_by_array);
+		
+		$this->db->where(array('TDate >='=>$start_date,'TDate <='=>$end_date,'AccGrp'=>0));
+		//$this->db->where(array('voucher_body.icpno'=>'KE202'));
+		//$this->db->where_in('voucher_body.icpno',array('KE202','KE206','KE200'));
+
+		//$this->db->limit(5);
+		$covid19_report_data=$this->db->get('voucher_body')->result_array();
+
+		return $covid19_report_data;
+	}
+
+	function covid19_report_array_test(Array $covid19_report_result,String $grouping_column='qty'){
+
+		$cluster_support_mode_counts=[];
+
+		foreach($covid19_report_result as  $count_array){
+			$cluster_support_mode_counts[$count_array['clustername']][$count_array['support_mode_name']][$count_array['acctext']]=$count_array[$grouping_column];
+		}
+		return $cluster_support_mode_counts;
+		//return $this->covid19_report_array();
+
+
+
+		
+	}
+
+	function covid19_report_array(){
+
+
+		return [
+			'Kiambu' => [
+				'UDCT Via MPesa' => [
+					'E45' => 24,
+					'E200' => 560,
+					'E320' => 8
+				],
+				'Food Basket' => [
+					'E45' => 2,
+					'E365' => 89
+					
+				],
+				'Hygiene Kit' => [
+					'E45' => 20,
+					'E30' => 56.87,
+					'E320' => 102,
+					'E300'=>450
+				]
+			],
+
+			'Lake Basin' => [
+				'UDCT Via MPesa' => [
+					'E200' => 50.6,
+					'E320' => 8.6,
+					'E310'=>60,
+					'E50'=>77
+				],
+				'Food Basket' => [
+					'E45' => 2.94,
+				],
+				'Hygiene Kit' => [
+					'E365' => 294,
+					'E300' => 561,
+					'E320' => 86.9
+				]
+			],
+
+			'Mombasa' => [
+				'UDCT Via MPesa' => [
+					'E45' => 12,
+					'E200' => 52,
+					'E320' => 57
+				],
+				'Food Basket' => [
+					'E45' => 24,
+					'E40' => 59,
+					'E415' => 806.0
+				],
+				'Hygiene Kit' => [
+					'E45' => 21,
+					'E30' => 50,
+					'E320' => 86.90,
+					'E330'=>54
+				]
+			]
+		];
+	}
+
+
 	
 	public function populate_fields(){
 		$record_type_id = $_POST['record_type_id'];

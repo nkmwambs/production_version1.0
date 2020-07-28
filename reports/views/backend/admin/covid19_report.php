@@ -21,7 +21,7 @@
         </select>
       </div>
       <div class='col-xs-2'>
-        <input type='text' class='form-control datepicker' id='reporting_month' data-format="yyyy-mm-dd" />
+        <input type='text' class='form-control datepicker' id='reporting_month' data-format="yyyy-mm-dd" readonly />
       </div>
       <div class='col-xs-2'>
         <button class='btn btn-primary' id='load_report'><?= get_phrase('load_report'); ?></button>

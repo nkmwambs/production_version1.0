@@ -11,7 +11,7 @@
 
     <div class='form-group'>
       <label class='control-label col-xs-2'><?= get_phrase('choose_grouping'); ?></label>
-      <div class='col-xs-8'>
+      <div class='col-xs-6'>
         <select class='form-control' id='report_grouping'>
           <option value=''><?= get_phrase('select_grouping'); ?></option>
           <option value='beneficiary' <?php if($group_report_by == 'beneficiary') echo 'selected';?> ><?= get_phrase('beneficiary_count'); ?></option>
@@ -19,6 +19,9 @@
           <option value='fcp' <?php if($group_report_by == 'fcp') echo 'selected';?> ><?= get_phrase('fcp_count'); ?></option>
           <option value='amount' <?php if($group_report_by == 'amount') echo 'selected';?> ><?= get_phrase('amount_spent'); ?></option>
         </select>
+      </div>
+      <div class='col-xs-2'>
+        <input type='text' class='form-control datepicker' id='reporting_month' data-format="yyyy-mm-dd"  />
       </div>
       <div class='col-xs-2'>
         <button class='btn btn-primary' id='load_report'><?= get_phrase('load_report'); ?></button>
@@ -93,10 +96,11 @@
 
   $("#load_report").on('click',function(){
     var report_grouping = $("#report_grouping").val();
+    var reporting_month = $("#reporting_month").val();
 
     if(report_grouping !== ""){
       var url = "<?=base_url();?>reports.php/admin/covid19_report";
-      var data = {'group_name':report_grouping};
+      var data = {'group_name':report_grouping,'reporting_month':reporting_month};
 
       $.post(url,data,function(response){
         $('#report_holder').html(response);
@@ -143,6 +147,12 @@ $(document).ajaxSuccess(function() {
 
 $(document).ajaxError(function(xhr) {
     alert('Error has occurred');
+});
+
+$(document).ready(function(){
+  $('.datepicker').datepicker({
+			format: 'yyyy-mm-dd'
+		});
 });
 
 </script>

@@ -28,11 +28,12 @@ class Admin extends CI_Controller {
 	//Covid19
 	public function covid19_report()
 	{
-		$reporting_month='2019-06-01';
+		$reporting_month=date('Y-m-01');
 		$group_report_by='beneficiary';
 		
 		if($this->input->post()){
 			$group_report_by = $this->input->post('group_name');
+			$reporting_month = $this->input->post('reporting_month');
 		}	
 
 		$grouping_column = $group_report_by;

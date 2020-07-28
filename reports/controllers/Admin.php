@@ -7,7 +7,8 @@ class Admin extends CI_Controller {
 	{
 		parent::__construct();
 		$this->load->database();
-        $this->load->library('session');
+		$this->load->library('session');
+		$this->load->model('dct_model');
 
 		
        /*cache control*/
@@ -27,20 +28,33 @@ class Admin extends CI_Controller {
 	//Covid19
 	public function covid19_report()
 	{
-		$reporting_month='2019-06-30';
+		$reporting_month='2019-06-01';
 		$group_report_by='beneficiary';
-		$covid19_data=$this->covid19_report_array_test($this->covid19_data_query($reporting_month,$group_report_by));
+		
+		if($this->input->post()){
+			$group_report_by = $this->input->post('group_name');
+		}	
 
-        $page_data['page_name']  = __FUNCTION__;
+		$grouping_column = $group_report_by;
+		
+		$covid19_data=$this->covid19_report_array_test($this->dct_model->covid19_data_query($reporting_month,$group_report_by),$grouping_column);
+
+		$page_data['page_name']  = __FUNCTION__;
+		$page_data['group_report_by'] = $group_report_by;
 		$page_data['page_title'] = "Reports";
 		$page_data['covid19_data']=$this->utilised_support_modes($covid19_data)['support_modes_with_utilised_accs'];
 		$page_data['report_result']=$covid19_data;
 		$page_data['utilised_accounts']=$this->utilised_support_modes($covid19_data)['support_modes_with_utilised_accs'];
-		//$page_data['report_result']=$this->covid19_report_array();
-		//$page_data['utilised_accounts']=$this->utilised_support_modes($this->covid19_report_array())['support_modes_with_utilised_accs'];
-		$this->load->view('backend/index', $page_data);	
+		
+		if($this->input->post()){
+			echo $this->load->view('backend/admin/includes/include_covid19_report', $page_data, true);	
+		}else{
+			$this->load->view('backend/index', $page_data);	
+		}
 	}
 	function utilised_support_modes($report_result){
+
+		//print_r($report_result); exit();
 
 		$support_modes_with_utilised_accs=[];
 		
@@ -54,47 +68,14 @@ class Admin extends CI_Controller {
 			$support_modes_with_utilised_accs[$support_mode]=array_unique($holder_of_accounts);
 		  }
 		}
+
+		//print_r($support_modes_with_utilised_accs); exit();
 		return ['support_modes_with_utilised_accs'=>$support_modes_with_utilised_accs];
 
 	}
-	function covid19_data_query($reporting_month,$group_report_by='beneficiary'){
+	
 
-		$start_date='2019-06-01';
-		$end_date='2019-06-30';
-
-		//$group_report_by='beneficiary';//FCP,Cost, Household
-		$group_by_array=array('accounts.accno','support_mode.support_mode_id');
-
-		// $this->db->select(array('clusters.clustername','accounts.acctext','voucher_body.icpno','cost','support_mode.support_mode_name','voucher_body.fk_voucher_item_type_id'));
-		$this->db->select(array('clusters.clustername','accounts.acctext','support_mode.support_mode_name'));
-
-		if($group_report_by=='beneficiary'){
-			//$group_by_array=array_push($group_by_array,'voucher_item_type.voucher_item_type_id');
-			  $group_by_array=array('voucher_item_type.voucher_item_type_id','clusters.clustername','accounts.accno','support_mode.support_mode_id');
-			  $this->db->select_sum('voucher_body.qty');
-			  $this->db->where(array('voucher_body.fk_voucher_item_type_id'=>1));
-		}
-		
-		$this->db->join('projectsdetails', 'projectsdetails.icpno = voucher_body.icpno');
-		$this->db->join('clusters','clusters.clusters_id = projectsdetails.cluster_id');
-		$this->db->join('accounts','accounts.accno=voucher_body.accno');
-		$this->db->join('accounts_support_mode','accounts_support_mode.fk_accounts_id=accounts.accId');
-		$this->db->join('support_mode','support_mode.support_mode_id=accounts_support_mode.fk_support_mode_id');
-		$this->db->join('voucher_item_type','voucher_item_type.voucher_item_type_id=voucher_body.fk_voucher_item_type_id');
-
-		$this->db->group_by($group_by_array);
-		
-		$this->db->where(array('TDate >='=>$start_date,'TDate <='=>$end_date,'AccGrp'=>0));
-		//$this->db->where(array('voucher_body.icpno'=>'KE202'));
-		//$this->db->where_in('voucher_body.icpno',array('KE202','KE206','KE200'));
-
-		//$this->db->limit(5);
-		$covid19_report_data=$this->db->get('voucher_body')->result_array();
-
-		return $covid19_report_data;
-	}
-
-	function covid19_report_array_test(Array $covid19_report_result,String $grouping_column='qty'){
+	function covid19_report_array_test(Array $covid19_report_result,String $grouping_column){
 
 		$cluster_support_mode_counts=[];
 
@@ -108,6 +89,8 @@ class Admin extends CI_Controller {
 
 		
 	}
+
+	
 
 	function covid19_report_array(){
 

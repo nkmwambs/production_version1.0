@@ -1,8 +1,8 @@
 <?php
 
 
-//print_r($report_result);
-//print_r($this->dct_model->covid19_data_query('2018-06-01','household'));
+//print_r($utilised_accounts);
+//print_r($this->dct_model->covid19_data_query('2019-06-01','fcp'));
 
 
 ?>

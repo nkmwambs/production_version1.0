@@ -1,3 +1,4 @@
+<?php if(count($report_result)>0) {?>
 <table id='tbl_covid19' class='table table-striped datatable'>
       <thead>
         <tr>
@@ -69,6 +70,13 @@
 
       </tfoot>
     </table>
+
+          <?php } else{?>
+
+          <div class='well'>Data Not Available in specified month</div>
+
+
+          <?php }?>
 
     <script >
     

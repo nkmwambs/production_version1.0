@@ -27,3 +27,5 @@ Stack trace:
 [14-May-2020 09:43:44 UTC] PHP Fatal error:  Maximum execution time of 3000 seconds exceeded in /home/compatl8/public_html/tools/system/libraries/Session/drivers/Session_files_driver.php on line 212
 [25-May-2020 10:24:27 UTC] PHP Fatal error:  Maximum execution time of 3000 seconds exceeded in /home/compatl8/public_html/tools/system/libraries/Session/drivers/Session_files_driver.php on line 420
 [26-May-2020 08:00:49 UTC] PHP Fatal error:  Maximum execution time of 3000 seconds exceeded in /home/compatl8/public_html/tools/system/libraries/Session/drivers/Session_files_driver.php on line 212
+[22-Jul-2020 10:29:08 UTC] PHP Warning:  POST Content-Length of 257516852 bytes exceeds the limit of 52428800 bytes in Unknown on line 0
+[22-Jul-2020 11:33:11 UTC] PHP Warning:  POST Content-Length of 257516852 bytes exceeds the limit of 52428800 bytes in Unknown on line 0

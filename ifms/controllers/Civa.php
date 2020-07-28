@@ -566,7 +566,8 @@ function civ_report_query($civ_status='open'){
 	$this->db->join('accounts','accounts.AccNo=voucher_body.AccNo');
 	$this->db->join('civa','civa.civaID=voucher_body.civaCode');
 	$this->db->group_by(array('icpNo','civaID'));
-	$this->db->where(array('open'=>$civ_status=='open'?1:0));
+	//$this->db->where(array('open'=>$civ_status=='open'?1:0));
+	$this->db->where(array('open'=>$civ_status=='closed'?0:1));
 	$icps_civs_open_income = $this->db->get('voucher_body')->result_object();
 	
 	$refined_arr = array();

@@ -21,7 +21,7 @@
         </select>
       </div>
       <div class='col-xs-2'>
-        <input type='text' class='form-control datepicker' id='reporting_month' data-format="yyyy-mm-dd"  />
+        <input type='text' class='form-control datepicker' id='reporting_month' data-format="yyyy-mm-dd" readonly='readonly' value='<?=date('Y-m-01');?>' />
       </div>
       <div class='col-xs-2'>
         <button class='btn btn-primary' id='load_report'><?= get_phrase('load_report'); ?></button>
@@ -151,8 +151,22 @@ $(document).ajaxError(function(xhr) {
 
 $(document).ready(function(){
   $('.datepicker').datepicker({
-			format: 'yyyy-mm-dd'
+			format: 'yyyy-mm-dd',
+      beforeShowDay: function(d){
+        if( d.getDate() === 1 ){
+          return true;
+        }
+        return false;
+      },
+      startDate: addYears(-10),
+      endDate: addYears(2)
 		});
 });
+
+function addYears(num){
+  var currYear = new Date().getFullYear();
+  var currMonth = new Date().getMonth();
+  return new Date(currYear+num, currMonth, 1);
+}
 
 </script>

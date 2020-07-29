@@ -1,11 +1,3 @@
-<?php
-
-
-//print_r($utilised_accounts);
-//print_r($this->dct_model->covid19_data_query('2019-06-01','fcp'));
-
-
-?>
 <div class='row'>
   <div class='col-xs-12'>
 

@@ -1,3 +1,6 @@
+<?php
+//print_r($utilised_accounts);
+?>
 <script src="http://www.jqueryscript.net/demo/Export-Html-Table-To-Excel-Spreadsheet-using-jQuery-table2excel/src/jquery.table2excel.js"></script>
 <?php if(count($report_result)>0) {?>
 <table id='tbl_covid19' class='table table-striped datatable'>

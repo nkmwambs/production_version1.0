@@ -974,7 +974,7 @@ include "dct_scripts.php";
 
 <script>
 $( document ).ajaxSend(function() {
-  //$("#overlay").css("display","block");
+  $("#overlay").css("display","block");
 });
 
 $(document).ajaxSuccess(function() {

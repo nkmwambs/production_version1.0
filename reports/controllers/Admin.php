@@ -55,8 +55,6 @@ class Admin extends CI_Controller {
 	}
 	function utilised_support_modes($report_result){
 
-		//print_r($report_result); exit();
-
 		$support_modes_with_utilised_accs=[];
 		
         $holder_of_accounts=[];
@@ -70,7 +68,6 @@ class Admin extends CI_Controller {
 		  }
 		}
 
-		//print_r($support_modes_with_utilised_accs); exit();
 		return ['support_modes_with_utilised_accs'=>$support_modes_with_utilised_accs];
 
 	}

@@ -27,18 +27,33 @@ class Claims extends CI_Controller
 		
     }
 	
+	//Modified by Onduso on 7/29/2020 to resolve SN ticket [INC0162871]
 
 	function get_child_name($param1=""){
-		$ben = $this->db->get_where("childdetails",array('childNo'=>$param1))->row();
+		$ben = $this->db->get_where("childdetails",array('childNo'=>$param1))->row_array();
 		
 		$name = get_phrase('name_not_found');
 		
-		if(sizeof($ben)>0){
-			$name = $ben->childName;
+		if(count($ben)>0){
+			$name = $ben['childName'];
 		}
 
 		echo $name;
 	}	
+
+	// function get_child_name($param1=""){
+	// 	$ben = $this->db->get_where("childdetails",array('childNo'=>$param1))->row();
+		
+	// 	$name = get_phrase('name_not_found');
+		
+	// 	if(sizeof($ben)>0){
+	// 		$name = $ben->childName;
+	// 	}
+
+	// 	echo $name;
+	// }	
+
+	
 	
 	
 }

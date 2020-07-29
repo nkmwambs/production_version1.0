@@ -343,6 +343,7 @@
 					jQuery('#progress').html('<div style="text-align:center;"><img width="160" height="100" src="<?php echo base_url();?>uploads/preloader2.gif" /></div>');
 				},
 			success:function(data, textStatus, jqXHR){
+				alert(data);
 				$("#childName").val($.trim(data));
 				jQuery('#progress').html('');
 			},

@@ -1,3 +1,4 @@
+<script src="http://www.jqueryscript.net/demo/Export-Html-Table-To-Excel-Spreadsheet-using-jQuery-table2excel/src/jquery.table2excel.js"></script>
 <?php if(count($report_result)>0) {?>
 <table id='tbl_covid19' class='table table-striped datatable'>
       <thead>
@@ -82,11 +83,28 @@
     
       $(document).ready(function() {
 
-    var datatable = $(".datatable").DataTable(
+//         var datatable= $(".datatable").table2excel({
+// 					exclude: ".noExl",
+// 					name: "Excel Document Name",
+// 					filename: "myFileName",
+// 					exclude_img: true,
+// 					exclude_links: true,
+// 					exclude_inputs: true
+// });
+
+    $(".datatable").DataTable(
 
         {
+            orderCellsTop: true,
             buttons: [
-		         'csv', 'excel', 'print'
+		         //'csv', 'excel', 'print'
+
+            { extend: 'excelHtml5', footer: true },
+            { extend: 'copyHtml5', footer: true },
+            { extend: 'csvHtml5', footer: true },
+            { extend: 'pdfHtml5', footer: true },
+
+                 
 		    ],	      
 		    stateSave: true,
 

@@ -340,7 +340,7 @@
 
 
 	$(document).on('change','.acSelect',function(){
-		var selectedIndex = parseInt($(this).prop('selectedIndex'));
+		var selectedIndex = parseInt($(this).prop('selectedIndex')) - 1;
 
 		//Find the closest td with accounts dropdown
 		var voucher_item_type_value = $(this).closest('tr').find('.td_voucher_item_type').length > 0 ? $(this).closest('tr').find('.td_voucher_item_type').find('select').val() : 0;

@@ -21,11 +21,7 @@
         </select>
       </div>
       <div class='col-xs-2'>
-<<<<<<< HEAD
         <input type='text' class='form-control datepicker' id='reporting_month' data-format="yyyy-mm-dd" readonly='readonly' value='<?=date('Y-m-01');?>' />
-=======
-        <input type='text' class='form-control datepicker' id='reporting_month' data-format="yyyy-mm-dd" readonly />
->>>>>>> datatable_download_all
       </div>
       <div class='col-xs-2'>
         <button class='btn btn-primary' id='load_report'><?= get_phrase('load_report'); ?></button>
@@ -162,25 +158,15 @@
     alert('Error has occurred');
   });
 
-<<<<<<< HEAD
 $(document).ready(function(){
   $('.datepicker').datepicker({
 			format: 'yyyy-mm-dd',
       beforeShowDay: function(d){
         if( d.getDate() === 1 ){
-=======
-  //Restrict Date selection to 1st day of the month
-
-  $(document).ready(function() {
-    $('.datepicker').datepicker({
-      beforeShowDay: function(d) {
-        if (d.getDate() === 1) {
->>>>>>> datatable_download_all
           return true;
         }
         return false;
       },
-<<<<<<< HEAD
       startDate: addYears(-10),
       endDate: addYears(2)
 		});
@@ -192,16 +178,4 @@ function addYears(num){
   return new Date(currYear+num, currMonth, 1);
 }
 
-=======
-      startDate: addYears(-20),
-      endDate: addYears(2)
-    });
-  });
-
-  function addYears(num) {
-    var currYear = new Date().getFullYear();
-    var currMonth = new Date().getMonth();
-    return new Date(currYear + num, currMonth, 1);
-  }
->>>>>>> datatable_download_all
 </script>

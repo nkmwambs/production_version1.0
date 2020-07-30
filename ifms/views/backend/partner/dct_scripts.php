@@ -1,13 +1,12 @@
 <script>
-
 	function check_if_dct_upload_empty() {
 
-		var upload_count_inputs= $('.check_upload_count');
-        var upload_is_empty=true;
-		$.each(upload_count_inputs,function(i, el){
+		var upload_count_inputs = $('.check_upload_count');
+		var upload_is_empty = true;
+		$.each(upload_count_inputs, function(i, el) {
 
-			if($(el).val()==0){
-				upload_is_empty=false;
+			if ($(el).val() == 0) {
+				upload_is_empty = false;
 				return false;
 			}
 		});
@@ -64,9 +63,9 @@
 			}
 		});
 	}
-	
 
-	function retrieve_size_of_files_in_row(file_size){
+
+	function retrieve_size_of_files_in_row(file_size) {
 		//alert('Hello size:' + file_size);
 		$("#compute_upload_size").val(file_size);
 	}
@@ -83,12 +82,11 @@
 		var url = '<?= base_url() ?>ifms.php/dct/check_if_support_requires_upload/' + support_mode_id;
 		$.get(url, function(response) {
 
-			if (response==1 && upload_count_inputs.length == 0) {
+			if (response == 1 && upload_count_inputs.length == 0) {
 
 				parent_td_support_mode.append('<input type="hidden" value="0" class="check_upload_count">');
 
-			}
-			else if(response==0 && upload_count_inputs.length >0 ){
+			} else if (response == 0 && upload_count_inputs.length > 0) {
 
 				parent_td_support_mode.find('input.check_upload_count').remove();
 
@@ -203,7 +201,7 @@
 		option1.text = "Select ...";
 		option1.value = "";
 		x.add(option1, x[0]);
-		
+
 		for (i = 0; i < obj.length; i++) {
 			var option = document.createElement("option");
 			if (obj[i].AccTextCIVA !== null && obj[i].open === "1") {
@@ -239,19 +237,19 @@
 		option1.text = "Select ...";
 		option1.value = "";
 		x.add(option1, x[0]);
-		x.onclick = function(){
-		
-			current_selected_mode_id = $(this).val();
-		},
-		x.onchange = function() {
-			
+		x.onclick = function() {
 
-			remove_voucher_row_dct_files_in_temp(this,current_selected_mode_id);
+				current_selected_mode_id = $(this).val();
+			},
+			x.onchange = function() {
 
-			create_uploaded_files_count_input(this);
 
-			
-		};
+				remove_voucher_row_dct_files_in_temp(this, current_selected_mode_id);
+
+				create_uploaded_files_count_input(this);
+
+
+			};
 		x.setAttribute('required', 'required');
 		cell4.appendChild(x);
 
@@ -339,8 +337,8 @@
 	}
 
 
-	$(document).on('change','.acSelect',function(){
-		var selectedIndex = parseInt($(this).prop('selectedIndex')) - 1;
+	$(document).on('change', '.acSelect', function() {
+		var selectedIndex = parseInt($(this).prop('selectedIndex'));
 
 		//Find the closest td with accounts dropdown
 		var voucher_item_type_value = $(this).closest('tr').find('.td_voucher_item_type').length > 0 ? $(this).closest('tr').find('.td_voucher_item_type').find('select').val() : 0;
@@ -352,19 +350,26 @@
 		var url = '<?= base_url() ?>ifms.php/partner/voucher_accounts/' + vtype + '/' + voucher_item_type_value;
 		var civa_id = 0;
 		input_civa_code.val(0);
-		
-		$.get(url,function(response){
-			//console.log(response);
-			//console.log(selectedIndex);
-			if(response.acc[selectedIndex].hasOwnProperty('civaID')){
-				civa_id = response.acc[selectedIndex].civaID;
-				input_civa_code.val(civa_id);
-			}else{
-				input_civa_code.val(0);
+
+		$.get(url, function(response) {
+
+			if (selectedIndex <= response['acc'].length - 1) {
+
+				// console.log(response['acc']);
+				// console.log(selectedIndex);
+
+				if (response.acc[selectedIndex].hasOwnProperty('civaID')) {
+					civa_id = response.acc[selectedIndex].civaID;
+					input_civa_code.val(civa_id);
+				} else {
+					input_civa_code.val(0);
+				}
+
 			}
 
+
 			build_support_mode_list(acSelect, civa_id);
-			
+
 		});
 
 	});
@@ -387,23 +392,23 @@
 			var obj = response_object['acc'];
 			var options = "<option value='0'><?= get_phrase('select_account'); ?></option>";
 			//Redraw the account dropdown with options
-			
+
 			if (obj.length > 0) {
 
-					accounts_dropdown.removeAttr('disabled');
+				accounts_dropdown.removeAttr('disabled');
 
-						for (i = 0; i < obj.length; i++) {
-							
-							if (obj[i].AccTextCIVA !== null && obj[i].open === "1") {
-								options += "<option value='" + obj[i].AccNo + "'>" + obj[i].AccTextCIVA + "</option>";
-							} else {
-								options += "<option value='" + obj[i].AccNo + "'>" + obj[i].AccText + ' - ' + obj[i].AccName + "</option>";
-							}
+				for (i = 0; i < obj.length; i++) {
 
-						}
-						
-						
-						accounts_dropdown.html(options);
+					if (obj[i].AccTextCIVA !== null && obj[i].open === "1") {
+						options += "<option value='" + obj[i].AccNo + "'>" + obj[i].AccTextCIVA + "</option>";
+					} else {
+						options += "<option value='" + obj[i].AccNo + "'>" + obj[i].AccText + ' - ' + obj[i].AccName + "</option>";
+					}
+
+				}
+
+
+				accounts_dropdown.html(options);
 
 			} else {
 				accounts_dropdown.prop('disabled', 'disabled');
@@ -433,7 +438,7 @@
 		var data = {
 			'accno': accno,
 			'voucher_type_abbrev': voucher_type_abbrev,
-			'civa_id':civa_id,
+			'civa_id': civa_id,
 		};
 
 		$.post(url, data, function(response) {
@@ -511,7 +516,7 @@
 		var support_mode_id = $("#bodyTable tr").eq(voucher_detail_row_index).find('td.td_support_mode').find('select').val();
 
 
-		
+
 		//alert(support_mode_id);
 
 		//alert(dct_uploads_count_label.hasClass('badge'));
@@ -523,7 +528,7 @@
 			dct_uploads_count_label.html(response + " files [Click here to Update]");
 
 			dct_uploads_count_label.siblings('input.check_upload_count').val(response);
-            //var file_size=10;
+			//var file_size=10;
 			//retrieve_size_of_uploaded_files(file_size,voucher_detail_row_index);
 
 		});
@@ -538,11 +543,11 @@
 		var voucher_number = $("#Generated_VNumber").val();
 
 		var url = "<?= base_url() ?>ifms.php/dct/remove_voucher_row_dct_files_in_temp/" + voucher_number + "/" + voucher_detail_row_index + "/" + initial_support_mode_id;
-		
-		if(initial_support_mode_id > 0){
+
+		if (initial_support_mode_id > 0) {
 			var cfrm = confirm('Are you sure you want to change the support mode? You will loose file already uploaded for this row if accepted!');
 
-			if(cfrm){
+			if (cfrm) {
 				$.get(url, function(response) {
 					if (response == 0) {
 						alert('All files are removed');
@@ -550,36 +555,36 @@
 					show_upload_area(modes_select);
 				});
 			}
-			
-		}else{
+
+		} else {
 			show_upload_area(modes_select);
 		}
 
 	}
 
 
-	function remove_all_temp_files(){
-		var url = '<?=base_url();?>ifms.php/dct/remove_all_temp_files/'+$("#Generated_VNumber").val();
+	function remove_all_temp_files() {
+		var url = '<?= base_url(); ?>ifms.php/dct/remove_all_temp_files/' + $("#Generated_VNumber").val();
 
-		$.get(url,function(response){
+		$.get(url, function(response) {
 			//alert(response);
 		});
 	}
 
-	function load_dct_data_to_view_voucher(voucher_id){
-		var use_dct_detail_row =  <?=$this->config->item('use_dct_detail_row');?>;
-		
+	function load_dct_data_to_view_voucher(voucher_id) {
+		var use_dct_detail_row = <?= $this->config->item('use_dct_detail_row'); ?>;
 
-			var url = "<?=base_url();?>ifms.php/dct/load_dct_data_to_view_voucher/"+voucher_id;
-			$.get(url,function(response){
-				var obj = JSON.parse(response);
 
-				if(obj.dct_view.length > 0){
-					$('#voucher_print').html(obj.dct_view);
-				}
-				
-			})
-		
-		
+		var url = "<?= base_url(); ?>ifms.php/dct/load_dct_data_to_view_voucher/" + voucher_id;
+		$.get(url, function(response) {
+			var obj = JSON.parse(response);
+
+			if (obj.dct_view.length > 0) {
+				$('#voucher_print').html(obj.dct_view);
+			}
+
+		})
+
+
 	}
 </script>

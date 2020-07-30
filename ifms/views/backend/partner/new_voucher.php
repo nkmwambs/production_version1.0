@@ -921,7 +921,7 @@ include "dct_scripts.php";
 						}
 						x.onchange = function() {
 							//alert("Hello!");  
-							document.getElementById("civaCode" + rowCount).value = obj[this.selectedIndex].civaID?obj[this.selectedIndex].civaID:0;
+							//document.getElementById("civaCode" + rowCount).value = obj[this.selectedIndex].civaID?obj[this.selectedIndex].civaID:0;
 							//check_pc_other_ac_mix(this);
 						};
 						x.setAttribute('required', 'required');
@@ -933,7 +933,8 @@ include "dct_scripts.php";
 						element6.type = "text";
 						element6.name = "civaCode[]";
 						element6.setAttribute('readonly', 'readonly');
-						element6.className = "civaCode form-control td_civacode";
+						element6.className = "civaCode form-control";
+						cell6.className='td_civacode';
 						element6.id = "civaCode" + rowCount;
 						cell6.appendChild(element6);
 

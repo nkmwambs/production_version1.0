@@ -338,6 +338,7 @@
 
 
 	$(document).on('change', '.acSelect', function() {
+
 		var selectedIndex = parseInt($(this).prop('selectedIndex'));
 
 		//Find the closest td with accounts dropdown
@@ -353,19 +354,32 @@
 
 		$.get(url, function(response) {
 
-			if (selectedIndex <= response['acc'].length - 1) {
+			// if (selectedIndex >= response['acc'].length - 1) {
 
-				// console.log(response['acc']);
-				// console.log(selectedIndex);
+			// 	// console.log(response['acc']);
+			// 	// console.log(selectedIndex);
 
-				if (response.acc[selectedIndex].hasOwnProperty('civaID')) {
-					civa_id = response.acc[selectedIndex].civaID;
+			// 	if (response.acc[selectedIndex].hasOwnProperty('civaID')) {
+			// 		civa_id = response.acc[selectedIndex].civaID;
+			// 		input_civa_code.val(civa_id);
+			// 	} else {
+			// 		input_civa_code.val(0);
+			// 	}
+
+			// }
+
+			/* MODIFIED BY ONDUSO ON 8/1/2020*/
+			if (selectedIndex <= response['acc'].length) {
+
+				if (response.acc[selectedIndex - 1].hasOwnProperty('civaID')) {
+					civa_id = response.acc[selectedIndex - 1].civaID;
 					input_civa_code.val(civa_id);
 				} else {
 					input_civa_code.val(0);
 				}
 
 			}
+
 
 
 			build_support_mode_list(acSelect, civa_id);

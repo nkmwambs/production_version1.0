@@ -368,10 +368,7 @@
 
 			// }
 
-
-
-			// MODIFIED BY ONDUSO ON 8/1/2020
-
+			/* MODIFIED BY ONDUSO ON 8/1/2020*/
 			if (selectedIndex <= response['acc'].length) {
 
 				if (response.acc[selectedIndex - 1].hasOwnProperty('civaID')) {

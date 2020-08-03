@@ -43,6 +43,7 @@ class Admin extends CI_Controller {
 		$page_data['page_name']  = __FUNCTION__;
 		$page_data['group_report_by'] = $group_report_by;
 		$page_data['page_title'] = "Reports";
+		$page_data['account_type'] = "admin";
 		$page_data['covid19_data']=$this->utilised_support_modes($covid19_data)['support_modes_with_utilised_accs'];
 		$page_data['report_result']=$covid19_data;
 		$page_data['utilised_accounts']=$this->utilised_support_modes($covid19_data)['support_modes_with_utilised_accs'];

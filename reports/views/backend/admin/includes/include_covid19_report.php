@@ -111,7 +111,9 @@
 		    ],	      
 		    stateSave: true,
 
-            dom: '<"row"l><Bf><"col-sm-12"rt><ip>',
+        dom: '<"row"l><Bf><"col-sm-12"rt><ip>',
+        bPaginate: false
+
         }
     );
 

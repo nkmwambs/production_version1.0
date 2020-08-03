@@ -37,6 +37,14 @@
                 <span><?php echo get_phrase('reports'); ?></span>
             </a>
         </li>
+
+        <!-- Covid19 report -->
+        <li class="<?php if ($page_name == 'covid19_report') echo 'active'; ?> ">
+            <a href="<?php echo base_url(); ?>reports.php/admin/covid19_report">
+                <i class="fa fa-flag"></i>
+                <span><?php echo get_phrase('covid19_report'); ?></span>
+            </a>
+        </li>
         
   	
      

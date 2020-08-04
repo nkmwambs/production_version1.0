@@ -290,6 +290,7 @@ class Dct extends CI_Controller
 			$this->db->join('civa_support_mode','civa_support_mode.fk_support_mode_id=support_mode.support_mode_id');
 			$this->db->join('civa','civa.civaID=civa_support_mode.fk_civa_id');
 			$this->db->join('accounts','accounts.accID=civa.accID');
+			$this->db->where(array('civaID'=>$civa_id));
 		}else{
 			$this->db->join('accounts_support_mode','accounts_support_mode.fk_support_mode_id=support_mode.support_mode_id');
 			$this->db->join('accounts','accounts.accID=accounts_support_mode.fk_accounts_id');

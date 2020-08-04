@@ -444,7 +444,9 @@
 		};
 
 		$.post(url, data, function(response) {
+			
 			var obj = JSON.parse(response);
+			console.log(obj);
 
 			var options = "<option value='0'><?= get_phrase('select_support_mode'); ?></option>";
 

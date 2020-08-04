@@ -354,33 +354,19 @@
 
 		$.get(url, function(response) {
 
-			// if (selectedIndex >= response['acc'].length - 1) {
+			// console.log(response['acc']);
+			// console.log('Index '+selectedIndex);
+			// console.log('Length '+response['acc'].length);
 
-			// 	// console.log(response['acc']);
-			// 	// console.log(selectedIndex);
-
-			// 	if (response.acc[selectedIndex].hasOwnProperty('civaID')) {
-			// 		civa_id = response.acc[selectedIndex].civaID;
-			// 		input_civa_code.val(civa_id);
-			// 	} else {
-			// 		input_civa_code.val(0);
-			// 	}
-
-			// }
-
-			/* MODIFIED BY ONDUSO ON 8/1/2020*/
-			if (selectedIndex <= response['acc'].length) {
-
-				if (response.acc[selectedIndex - 1].hasOwnProperty('civaID')) {
-					civa_id = response.acc[selectedIndex - 1].civaID;
+			if (selectedIndex <= response['acc'].length - 1) {
+				if (response.acc[selectedIndex].hasOwnProperty('civaID')) {
+					civa_id = response.acc[selectedIndex].civaID;
 					input_civa_code.val(civa_id);
 				} else {
 					input_civa_code.val(0);
 				}
 
 			}
-
-
 
 			build_support_mode_list(acSelect, civa_id);
 
@@ -404,7 +390,7 @@
 
 			//var response_object = JSON.parse(response);
 			var obj = response_object['acc'];
-			var options = "<option value='0'><?= get_phrase('select_account'); ?></option>";
+			var options = '';
 			//Redraw the account dropdown with options
 
 			if (obj.length > 0) {
@@ -412,6 +398,7 @@
 				accounts_dropdown.removeAttr('disabled');
 
 				for (i = 0; i < obj.length; i++) {
+					
 
 					if (obj[i].AccTextCIVA !== null && obj[i].open === "1") {
 						options += "<option value='" + obj[i].AccNo + "'>" + obj[i].AccTextCIVA + "</option>";
@@ -421,6 +408,7 @@
 
 				}
 
+				options += "<option value=''><?= get_phrase('select_account'); ?></option>";
 
 				accounts_dropdown.html(options);
 

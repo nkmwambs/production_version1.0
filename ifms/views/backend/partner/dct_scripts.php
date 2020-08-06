@@ -448,7 +448,7 @@
 			var obj = JSON.parse(response);
 			console.log(obj);
 
-			var options = "<option value='0'><?= get_phrase('select_support_mode'); ?></option>";
+			var options = "<option value=''><?= get_phrase('select_support_mode'); ?></option>";
 
 			if (obj.length > 0) {
 				sibling_support_mode_select.removeAttr('disabled');

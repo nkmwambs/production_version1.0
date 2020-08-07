@@ -23,7 +23,7 @@
 						<div class="form-group">
 							<label for="" class="col-xs-4 control-label"><?php echo get_phrase('project_number');?></label>
 							<div class="col-xs-8">
-								<input type="text" class="form-control" id="icpNo" name="icpNo" />
+								<input type="text" class="form-control" maxlength='5' placeholder='FCP Number format: KE333 (Without leading Zero)' id="icpNo" name="icpNo" />
 							</div>
 						</div>
 						

@@ -230,15 +230,33 @@ class Admin extends CI_Controller
 		
 	}
 	
+	// function populate_projects($param1=""){
+		
+	// 	$opt = '<option value="">'.get_phrase("select").'</option>';
+
+	// 	$projects = $this->db->get_where('users',array('cname'=>$param1,'department'=>'0','userlevel'=>'1'))->result_object();
+										
+	// 		foreach($projects as $row):
+
+	// 			$opt .= '<option value="'.$row->fname.'">'.$row->fname.'</option>';
+	
+	// 		endforeach;
+		
+	// 	echo $opt;	
+	// }
+
 	function populate_projects($param1=""){
 		
 		$opt = '<option value="">'.get_phrase("select").'</option>';
 
-		$projects = $this->db->get_where('users',array('cname'=>$param1,'department'=>'0','userlevel'=>'1'))->result_object();
+		$this->db->select(array('icpNo'));
+		$this->db->join('clusters','clusters.clusters_id=projectsdetails.cluster_id');
+		$projects = $this->db->get_where('projectsdetails',
+		array('clusterName'=>$param1))->result_object();
 										
 			foreach($projects as $row):
 
-				$opt .= '<option value="'.$row->fname.'">'.$row->fname.'</option>';
+				$opt .= '<option value="'.$row->icpNo.'">'.$row->icpNo.'</option>';
 	
 			endforeach;
 		
@@ -617,13 +635,17 @@ class Admin extends CI_Controller
 					$data2['lname'] = $this->input->post('icpName');
 					$data2['cname'] = $this->db->get_where('clusters',array('clusters_id'=>$this->input->post('cluster_id')))->row()->clusterName;
 					$data2['auth'] = '0';
-					$data2['password'] = md5('compassion12');	
+					$data2['password'] = substr( md5( rand(100000000,20000000000) ) , 0,7);	
 		            $data2['department'] = '0';		
 					
 					$query2 = $this->db->get_where('users',array('fname'=>$this->input->post('icpNo')));	
 					
 					if($query2->num_rows() === 0){
 						$this->db->insert('users',$data2);
+
+						// Send an email to the new account user email
+						$account_type = 'Partner';
+						$this->email_model->account_opening_email($account_type, $this->input->post('email'));
 					}		 
 				 
 				/****/

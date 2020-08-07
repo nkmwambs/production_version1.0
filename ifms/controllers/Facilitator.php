@@ -110,7 +110,7 @@ class Facilitator extends CI_Controller
 public function delete_voucher($project="",$voucher_id="",$month=""){
 	//echo "Voucher ID ".$voucher_id." delete successful";
 	
-	$mfr_submitted = $this->finance_model->mfr_submitted($project,date('Y-m-t',$month));
+	$mfr_submitted = $this->finance_model->mfr_submitted($project,date('Y-m-t',$month),1);
 	
 	$voucher_number  = $this->db->get_where('voucher_header',array('hID'=>$voucher_id))->row()->VNumber;
 	
@@ -118,12 +118,14 @@ public function delete_voucher($project="",$voucher_id="",$month=""){
 	$this->db->where("TDate <= ",date('Y-m-t',$month));
 	$this->db->where("icpNo",$project);
 	
-	$set_of_vouchers = $this->db->get('voucher_header')->result_object();
+	$set_of_vouchers = $this->db->order_by('hID')->get('voucher_header')->result_object();
 	
 	$msg = "Could not delete the voucher number " .$voucher_number;
-	
+
 	if($mfr_submitted=== '0'){
 		
+		$this->db->trans_start();
+
 		$this->db->delete('voucher_header',array('hID'=>$voucher_id));
 		
 		$this->db->delete('voucher_body',array('hID'=>$voucher_id));
@@ -136,11 +138,11 @@ public function delete_voucher($project="",$voucher_id="",$month=""){
 				
 				$current_voucher_pointer = $this->db->get_where('voucher_header',array('hID'=>$rename->hID))->row()->VNumber;
 				
-				$voucher_frame = substr($current_voucher_pointer, 0,4);
+				$voucher_frame = substr($current_voucher_pointer, 0,4);// Year and Month of the voucher number
 				
-				$voucher_serial = substr($current_voucher_pointer, 4)-1; 
+				$voucher_serial = substr($current_voucher_pointer, 4)-1; // Resetting the voucher serials with 1 digit backward
 				
-				$new_voucher_pointer =  $voucher_frame.$voucher_serial." ";
+				$new_voucher_pointer =  $voucher_serial > 9 ? $voucher_frame.$voucher_serial." ": $voucher_frame.'0'.$voucher_serial." ";
 				
 				$data['VNumber'] = $new_voucher_pointer;
 				
@@ -150,7 +152,14 @@ public function delete_voucher($project="",$voucher_id="",$month=""){
 			}			
 		}
 
-		$msg = "Voucher ".$deleted_voucher->VNumber." deleted. ".count($set_of_vouchers)." vouchers re-numbered";
+		$this->remove_fund_balance_records_if_month_has_no_voucher($project,$month);
+
+		$this->db->trans_commit();
+
+		if($this->db->trans_status() == true){
+			$msg = "Voucher ".$deleted_voucher->VNumber." deleted. ".count($set_of_vouchers)." vouchers re-numbered";
+		
+		}
 	}	
 	
 	echo $msg;
@@ -158,7 +167,7 @@ public function delete_voucher($project="",$voucher_id="",$month=""){
 }
 
 function remove_duplicate($project="",$voucher_id="",$month=""){
-	$mfr_submitted = $this->finance_model->mfr_submitted($project,date('Y-m-t',$month));
+	$mfr_submitted = $this->finance_model->mfr_submitted($project,date('Y-m-t',$month),1);
 	
 	$voucher_number  = $this->db->get_where('voucher_header',array('hID'=>$voucher_id))->row()->VNumber;
 	
@@ -169,13 +178,20 @@ function remove_duplicate($project="",$voucher_id="",$month=""){
 	$msg = "Could not delete the voucher number " .$voucher_number;
 
 	
-	if($mfr_submitted=== '0' && $duplicates > 0){
-		
+	if($mfr_submitted=== '0' && $duplicates > 1){
+		$this->db->trans_start();
 		$this->db->delete('voucher_header',array('hID'=>$voucher_id));
 		
 		$this->db->delete('voucher_body',array('hID'=>$voucher_id));
+
+		$this->remove_fund_balance_records_if_month_has_no_voucher($project,$month);
 		
-		$msg = "Voucher ".$voucher_number." deleted";
+		$this->db->trans_commit();
+
+		if($this->db->trans_status() == true){
+			$msg = "Voucher ".$voucher_number." deleted";
+		
+		}
 	}	
 	
 	echo $msg;
@@ -183,24 +199,63 @@ function remove_duplicate($project="",$voucher_id="",$month=""){
 
 public function delete_all_vouchers($project="",$voucher_id="",$month=""){
 		
-	$mfr_submitted = $this->finance_model->mfr_submitted($project,date('Y-m-t',$month));
+	$mfr_submitted = $this->finance_model->mfr_submitted($project,date('Y-m-t',$month),1);
 	
 	$voucher_number  = $this->db->get_where('voucher_header',array('hID'=>$voucher_id))->row()->VNumber;
 	
 	$msg = "Could not delete the voucher number " .$voucher_number;
 	
 	if($mfr_submitted=== '0'){
-			
+		
+		$this->db->trans_start();
+
 		$num_of_vouchers = $this->db->get_where('voucher_header',array('hID>='=>$voucher_id,'icpNo'=>$project))->num_rows();
 		
 		$this->db->delete('voucher_header',array('hID>='=>$voucher_id,'icpNo'=>$project));
 		
 		$this->db->delete('voucher_body',array('hID>='=>$voucher_id,'icpNo'=>$project));
+
+		$this->remove_fund_balance_records_if_month_has_no_voucher($project,$month);
+
+		$this->db->trans_commit();
+
+		if($this->db->trans_status() == true){
+			$msg = $num_of_vouchers." vouchers deleted successful";	
+		}
 		
-		$msg = $num_of_vouchers." vouchers deleted successful";	
 	}
 
 	echo $msg;
+}
+
+private function remove_fund_balance_records_if_month_has_no_voucher($fcp_number,$month_timestamp){
+	$month_start_date = date('Y-m-01',$month_timestamp);
+	$month_end_date = date('Y-m-t',$month_timestamp);
+
+	$count_vouchers_in_month = $this->db->get_where('voucher_header',
+	array('icpNo'=>$fcp_number,'TDate<='=>$month_end_date,'TDate>='=>$month_start_date))->num_rows();
+
+	if($count_vouchers_in_month == 0){
+
+
+		$condition = array('icpNo'=>$fcp_number,'closureDate'=>$month_end_date);
+
+		$balHdID = $this->db->select(array('balHdID'))->get_where('opfundsbalheader',$condition)->row()->balHdID;
+
+		// cashbal, statementbal, opfundsbal to be deleted
+		$this->db->where(array('balHdID'=>$balHdID));
+		$this->db->delete('opfundsbal');
+
+		$this->db->where(array('month'=>$month_end_date,'icpNo'=>$fcp_number));
+		$this->db->delete('statementbal');
+
+		$this->db->where(array('month'=>$month_end_date,'icpNo'=>$fcp_number));
+		$this->db->delete('cashbal');
+
+		$this->db->where($condition);
+		$this->db->delete('opfundsbalheader');		
+
+	}
 }
 
 public function validate_mfr($project,$tym,$code){

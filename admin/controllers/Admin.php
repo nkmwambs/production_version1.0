@@ -616,6 +616,7 @@ class Admin extends CI_Controller
 			$data['icpName'] = $this->input->post('icpName');
 			$data['cluster_id'] = $this->input->post('cluster_id');
 			$data['email'] = $this->input->post('email');
+			$data['system_start_date'] = $this->input->post('system_start_date');
 			
 			$this->db->where(array('icpNo'=>$this->input->post('icpNo')));
 			$this->db->or_where(array('email'=>$this->input->post('email')));

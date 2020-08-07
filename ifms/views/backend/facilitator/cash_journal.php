@@ -450,7 +450,7 @@ tr.shown td.details-control {
 								                        <li>
 								                        	<a href="#" id="" onclick="delete_all_vouchers('<?=$project;?>','<?=$row['hID'];?>');">
 								                            	<i class="entypo-trash"></i>
-																	<?php echo get_phrase('delete_this_and_above');?>
+																	<?php echo get_phrase('delete_this_number_and_greater_than');?>
 								                               	</a>
 								                        </li>
 								                        <li class="divider"></li>

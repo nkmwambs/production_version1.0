@@ -634,8 +634,9 @@ class Admin extends CI_Controller
 					$data2['fname'] = $this->input->post('icpNo');	
 					$data2['lname'] = $this->input->post('icpName');
 					$data2['cname'] = $this->db->get_where('clusters',array('clusters_id'=>$this->input->post('cluster_id')))->row()->clusterName;
-					$data2['auth'] = '0';
-					$data2['password'] =  md5(substr( rand(100000000,20000000000), 0,7));
+					$data2['auth'] = '1';
+					$new_password = substr( md5(rand(100000000,20000000000)) , 0,7); 
+					$data2['password'] =  md5($new_password);
 		            $data2['department'] = '0';		
 					
 					$query2 = $this->db->get_where('users',array('fname'=>$this->input->post('icpNo')));	
@@ -645,7 +646,7 @@ class Admin extends CI_Controller
 
 						// Send an email to the new account user email
 						$account_type = 'Partner';
-						$this->email_model->account_opening_email($account_type, $this->input->post('email'));
+						$this->email_model->account_opening_email($account_type, $this->input->post('email'),$new_password);
 					}		 
 				 
 				/****/
@@ -695,14 +696,15 @@ class Admin extends CI_Controller
 			}	
 	
 			$data['auth'] = '1';
-			$data['password'] = md5($this->input->post('password'));	
+			$new_password = substr( md5(rand(100000000,20000000000)) , 0,7);
+			$data['password'] = md5($new_password);//md5($this->input->post('password'));	
             $data['department'] = $this->input->post('department');
 			
 			if($this->db->get_where('users',array('email'=>$this->input->post('email')))->num_rows()===0 && 
 				$this->db->get_where('users',array('username'=>$this->input->post('username')))->num_rows()===0
 			){
 				$this->db->insert('users', $data);
-				$this->email_model->account_opening_email($this->db->get_where("positions",array("pstID"=>$this->input->post('userlevel')))->row()->dsgn , $this->input->post('email'));
+				$this->email_model->account_opening_email($this->db->get_where("positions",array("pstID"=>$this->input->post('userlevel')))->row()->dsgn , $this->input->post('email'),$new_password);
 				$this->session->set_flashdata('flash_message', get_phrase('user_created'));
 			}else{
 				$this->session->set_flashdata('flash_message', get_phrase('user_not_created:_duplicate_email_or_username'));

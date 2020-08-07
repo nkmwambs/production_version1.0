@@ -96,7 +96,7 @@
 							</div>
 						</div>
 						
-						<div id="_password" class="form-group hidden">
+						<!-- <div id="_password" class="form-group hidden">
                                 <label class="col-xs-4 control-label"><?php echo get_phrase('password');?></label>
                                 <div class="col-xs-8">
                                     <input type="password" class="form-control" name="password" id="password" required="required"/>
@@ -106,10 +106,9 @@
                         <div id="_result" class="form-group hidden">
                                 <label class="col-xs-4 control-label"><?php echo get_phrase('password_strength');?></label>
                                 <div class="col-xs-8">
-                                    <!--<input type="password" class="form-control" name="password" id="password"/>-->
                                     <div id="result"></div>
                                 </div>
-                        </div>
+                        </div> -->
                         
                         
 						

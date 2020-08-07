@@ -7,14 +7,20 @@ class Email_model extends CI_Model {
         parent::__construct();
     }
 
-	function account_opening_email($account_type = '' , $email = '')
+	function account_opening_email($account_type = '' , $email = '', $password = '')
 	{
 		$system_name	=	$this->db->get_where('settings' , array('type' => 'system_name'))->row()->description;
 		
 		$email_msg		=	"Welcome to ".$system_name."<br />";
 		$email_msg		.=	"Your account type : ".$account_type."<br />";
 		$email_msg		.=	"Your account email : ".$email."<br />";
-		$email_msg		.=	"Your login password : ".$this->db->get_where("users" , array('email' => $email))->row()->password."<br />";
+
+		if($password != ''){
+			$email_msg		.=	"Your login password : ".$password."<br />";
+		}else{
+			$email_msg		.=	"Your login password : ".$this->db->get_where("users" , array('email' => $email))->row()->password."<br />";
+		}
+		
 		$email_msg		.=	"Login Here : ".base_url()."<br />";
 		
 		$email_sub		=	"Account opening email";

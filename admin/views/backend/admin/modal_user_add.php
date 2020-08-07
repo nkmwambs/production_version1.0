@@ -73,11 +73,13 @@
 								<select required="required" class="form-control" name="cname" id="cname"  onchange="populate_projects(this);">
 									<option value=""><?php echo get_phrase('select');?></option>
 									<?php
-										$clusters = $this->db->get_where('users',array('userlevel'=>'2'))->result_object();
+										$this->db->select(array('clusterName'));
+										$this->db->order_by('clusterName');
+										$clusters = $this->db->get('clusters')->result_object();//$this->db->get_where('users',array('userlevel'=>'2'))->result_object();
 										
 										foreach($clusters as $row):
 									?>
-										<option value="<?php echo $row->cname;?>"><?php echo $row->cname;?></option>
+										<option value="<?php echo $row->clusterName;?>"><?php echo $row->clusterName;?></option>
 									<?php
 									 	endforeach;
 									?>
@@ -96,7 +98,7 @@
 							</div>
 						</div>
 						
-						<div id="_password" class="form-group hidden">
+						<!-- <div id="_password" class="form-group hidden">
                                 <label class="col-xs-4 control-label"><?php echo get_phrase('password');?></label>
                                 <div class="col-xs-8">
                                     <input type="password" class="form-control" name="password" id="password" required="required"/>
@@ -106,10 +108,9 @@
                         <div id="_result" class="form-group hidden">
                                 <label class="col-xs-4 control-label"><?php echo get_phrase('password_strength');?></label>
                                 <div class="col-xs-8">
-                                    <!--<input type="password" class="form-control" name="password" id="password"/>-->
                                     <div id="result"></div>
                                 </div>
-                        </div>
+                        </div> -->
                         
                         
 						

@@ -51,6 +51,13 @@
 								<input type="email" class="form-control" id="email" name="email" />
 							</div>
 						</div>
+
+						<div class="form-group">
+							<label for="" class="col-xs-4 control-label"><?php echo get_phrase('project_start_date');?></label>
+							<div class="col-xs-8">
+								<input type="text" class="form-control datepicker" data-format='yyyy-mm-dd' readonly='readonly' id="system_start_date" name="system_start_date" />
+							</div>
+						</div>
 						
 						<div class="form-group">
 							<div class="col-xs-12">

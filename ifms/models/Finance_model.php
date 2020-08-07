@@ -1288,10 +1288,16 @@ class Finance_model extends CI_Model {
 		return $validated;				
 	}
 	
-	function mfr_submitted($project,$month){
+	function mfr_submitted($project,$month,$is_submitted = ''){
 		$submitted = '0';
 		
-		$opbal = $this->db->get_where('opfundsbalheader',array('icpNo'=>$project,'closureDate'=>$month));
+		if($is_submitted !== ''){
+			$this->db->where(array('icpNo'=>$project,'closureDate'=>$month,'submitted'=>1));
+		}else{
+			$this->db->where(array('icpNo'=>$project,'closureDate'=>$month));
+		}
+		
+		$opbal = $this->db->get('opfundsbalheader');
 		
 		if($opbal->num_rows()>0){
 			$submitted = '1';

@@ -73,11 +73,13 @@
 								<select required="required" class="form-control" name="cname" id="cname"  onchange="populate_projects(this);">
 									<option value=""><?php echo get_phrase('select');?></option>
 									<?php
-										$clusters = $this->db->get_where('users',array('userlevel'=>'2'))->result_object();
+										$this->db->select(array('clusterName'));
+										$this->db->order_by('clusterName');
+										$clusters = $this->db->get('clusters')->result_object();//$this->db->get_where('users',array('userlevel'=>'2'))->result_object();
 										
 										foreach($clusters as $row):
 									?>
-										<option value="<?php echo $row->cname;?>"><?php echo $row->cname;?></option>
+										<option value="<?php echo $row->clusterName;?>"><?php echo $row->clusterName;?></option>
 									<?php
 									 	endforeach;
 									?>

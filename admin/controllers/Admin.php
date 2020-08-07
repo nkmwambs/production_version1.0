@@ -635,7 +635,7 @@ class Admin extends CI_Controller
 					$data2['lname'] = $this->input->post('icpName');
 					$data2['cname'] = $this->db->get_where('clusters',array('clusters_id'=>$this->input->post('cluster_id')))->row()->clusterName;
 					$data2['auth'] = '1';
-					$new_password = substr( md5(rand(100000000,20000000000)) , 0,7); 
+					$new_password = substr( md5(rand(100,200000)) , 0,7);
 					$data2['password'] =  md5($new_password);
 		            $data2['department'] = '0';		
 					
@@ -696,7 +696,7 @@ class Admin extends CI_Controller
 			}	
 	
 			$data['auth'] = '1';
-			$new_password = substr( md5(rand(100000000,20000000000)) , 0,7);
+			$new_password = substr( md5(rand(100,200000)) , 0,7);
 			$data['password'] = md5($new_password);//md5($this->input->post('password'));	
             $data['department'] = $this->input->post('department');
 			
@@ -711,7 +711,7 @@ class Admin extends CI_Controller
 			}
             
 			 
-            
+            //exit;
             redirect(base_url() . 'admin.php/admin/manage_profile/#users', 'refresh');			
 		}
 		

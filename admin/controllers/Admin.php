@@ -635,7 +635,7 @@ class Admin extends CI_Controller
 					$data2['lname'] = $this->input->post('icpName');
 					$data2['cname'] = $this->db->get_where('clusters',array('clusters_id'=>$this->input->post('cluster_id')))->row()->clusterName;
 					$data2['auth'] = '0';
-					$data2['password'] = substr( md5( rand(100000000,20000000000) ) , 0,7);	
+					$data2['password'] =  md5(substr( rand(100000000,20000000000), 0,7));
 		            $data2['department'] = '0';		
 					
 					$query2 = $this->db->get_where('users',array('fname'=>$this->input->post('icpNo')));	

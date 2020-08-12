@@ -2,6 +2,14 @@
     extract($record);
 ?>
 
+<style>
+@media print {
+  a[href]:after {
+    content: none !important;
+  }
+}
+</style>
+
 <table class="table table-striped datatable">
     <thead>
         <tr>

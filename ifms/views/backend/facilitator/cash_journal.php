@@ -405,23 +405,31 @@ tr.shown td.details-control {
 											<!-- Petty Cash Income and Expenses -->
 											
 											<?php
-												
-												$get_body = $this->db->select_sum('Cost')->select(array("AccNo","VType"))->get_where("voucher_body",array("hID"=>$row['hID']))->result_array();
-												//print_r($get_body);
-													$pcr = '0';
-													$pc = '0';
-												foreach($get_body as $rows):
-													
-													if($rows['AccNo']==='2000' || $rows['AccNo']==='2001') $pcr = $rows['Cost'];
-													if($rows['VType']==='PC' || $rows['VType']==='PCR') $pc = $rows['Cost'];
-													$pc_balance += $pcr-$pc; 
-											?>
-												<td><?php echo number_format($pcr,2);?></td>
-												<td><?php echo number_format($pc,2);?></td>
-												<td><?php echo number_format($begin_pc+$pc_balance,2);?></td>
-											<?php		
-												endforeach;
-											?>
+														
+														$this->db->where_not_in('AccNo',['2000','2001']);
+														$pc_get_body = $this->db->select_sum('Cost')->select(array("AccNo","VType"))	
+														->get_where("voucher_body",array("hID"=>$row['hID']))->row_array();
+														
+														$this->db->where_in('AccNo',['2000','2001']);
+														$pcr_get_body = $this->db->select_sum('Cost')->select(array("AccNo","VType"))
+														->get_where("voucher_body",array("hID"=>$row['hID']))->row_array();
+														
+															$pcr = '0';
+															$pc = '0';
+															
+														//foreach($get_body as $rows):
+															
+															if($pcr_get_body['AccNo']==='2000' || $pcr_get_body['AccNo']==='2001') $pcr = $pcr_get_body['Cost'];
+															if($pc_get_body['VType']==='PC' || $pc_get_body['VType']==='PCR' || $pc_get_body['VType'] === 'UDCTC') $pc = $pc_get_body['Cost'];
+															
+															$pc_balance += $pcr-$pc; 
+													?>
+														<td><?php echo number_format($pcr,2);?></td>
+														<td><?php echo number_format($pc,2);?></td>
+														<td><?php echo number_format($begin_pc+$pc_balance,2);?></td>
+													<?php		
+														//endforeach;
+													?>
 												
 											<td>
 												<div class="btn-group">

@@ -338,7 +338,7 @@
 
 
 	$(document).on('change', '.acSelect', function() {
-
+		
 		var selectedIndex = parseInt($(this).prop('selectedIndex'));
 
 		//Find the closest td with accounts dropdown
@@ -368,6 +368,18 @@
 
 			}
 
+			// Remove all options that are not PC Deposit
+			if(acSelect.val() === '2000'){
+				acSelect.find('option').each(function(indx,elm){
+					if(indx !== selectedIndex){
+						$(elm).remove();
+					}
+				});
+			}else{
+				acSelect.find("option[value='2000']").remove();
+				//acSelect.find("option[value='2001']").remove();
+			}
+
 			build_support_mode_list(acSelect, civa_id);
 
 		});
@@ -383,6 +395,20 @@
 		var voucher_item_type_value = $(recipient_select).val();
 		var vtype = $("#VTypeMain").val();
 
+		// Count of PC Deposit Account selected
+		if($('.acSelect').length > 0){
+			var has_pc_deposit = false;
+
+			$('.acSelect').each(function(indx,elm){
+				if($(elm).val() === '2000'){
+					has_pc_deposit = true;
+					return false;
+				}
+			});
+
+		}
+		
+
 		//Get the accounts form server
 		var url = '<?= base_url() ?>ifms.php/partner/voucher_accounts/' + vtype + '/' + voucher_item_type_value;
 
@@ -392,12 +418,19 @@
 			var obj = response_object['acc'];
 			var options = '';
 			//Redraw the account dropdown with options
-
+			
 			if (obj.length > 0) {
 
 				accounts_dropdown.removeAttr('disabled');
 
 				for (i = 0; i < obj.length; i++) {
+
+					if((has_pc_deposit && obj[i].AccNo !== '2000')) {
+						continue;
+					}
+					else if(!has_pc_deposit && (obj[i].AccNo == '2000') && $('.acSelect').length > 1 ){
+						continue;
+					}
 					
 
 					if (obj[i].AccTextCIVA !== null && obj[i].open === "1") {
@@ -408,7 +441,7 @@
 
 				}
 
-				options += "<option value=''><?= get_phrase('select_account'); ?></option>";
+				options += "<option value='' selected='selected'><?= get_phrase('select_account'); ?></option>";
 
 				accounts_dropdown.html(options);
 

@@ -440,24 +440,27 @@ tr.shown td.details-control {
 								                        <!-- Delete a Voucher -->
 								                      
 								                        <li>
-								                        	<a href="#" id="" onclick="delete_voucher('<?=$project;?>','<?=$row['hID'];?>');">
-								                            	<i class="entypo-cancel"></i>
+								                        	<!-- <a href="#" class='btn_delete' id="" onclick="delete_voucher('<?=$project;?>','<?=$row['hID'];?>');"> -->
+								                            <a href="#" class='btn_delete' id="">
+																<i class="entypo-cancel"></i>
 																	<?php echo get_phrase('delete_this_voucher');?>
 								                               	</a>
 								                        </li>
 								                        <li class="divider"></li>
 								                        
 								                         <li>
-								                        	<a href="#" id="" onclick="remove_duplicate('<?=$project;?>','<?=$row['hID'];?>');">
-								                            	<i class="entypo-attention"></i>
+								                        	<!-- <a href="#" class='btn_delete' id="" onclick="remove_duplicate('<?=$project;?>','<?=$row['hID'];?>');"> -->
+								                            <a href="#" class='btn_delete' id="">
+																<i class="entypo-attention"></i>
 																	<?php echo get_phrase('remove_duplicate');?>
 								                               	</a>
 								                        </li>
 								                        <li class="divider"></li>
 								                        
 								                        <li>
-								                        	<a href="#" id="" onclick="delete_all_vouchers('<?=$project;?>','<?=$row['hID'];?>');">
-								                            	<i class="entypo-trash"></i>
+								                        	<!-- <a href="#" class='btn_delete' id="" onclick="delete_all_vouchers('<?=$project;?>','<?=$row['hID'];?>');"> -->
+															<a href="#" class='btn_delete' id="">
+														    	<i class="entypo-trash"></i>
 																	<?php echo get_phrase('delete_this_number_and_greater_than');?>
 								                               	</a>
 								                        </li>
@@ -520,6 +523,10 @@ tr.shown td.details-control {
 		
 <script>
 
+	$(".btn_delete").on('click',function(ev){
+		alert('Sorry, voucher delete actions have temporarily been suspended. Contact your country administrator');
+		ev.preventDefault();
+	});
 
 	$('#chkAll').click(function(){
 		$(this).toggleClass('selected','not-selected');

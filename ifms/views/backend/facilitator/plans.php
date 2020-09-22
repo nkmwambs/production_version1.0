@@ -666,7 +666,7 @@ $(document).ready(function(){
 		      title:'Notes',  
 		      content:fetchNotes,
 		      html:true,  
-		      placement:'bottom'  
+		      placement:'right'  
 		}); 
 	
             

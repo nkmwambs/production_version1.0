@@ -636,7 +636,7 @@ $(document).ready(function(){
 		      title:'Comments',  
 		      content:fetchData,
 		      html:true,  
-		      placement:'bottom'  
+		      placement:'right'  
 		}); 
 	
             

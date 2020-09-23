@@ -341,4 +341,15 @@ class Admin extends CI_Controller {
 		return $fields;		
 
 	}
+
+
+	function dct_report(){
+		if ($this->session->userdata('admin_login') != 1)
+			redirect(base_url(), 'refresh');
+
+	
+        $page_data['page_name']  = __FUNCTION__;
+        $page_data['page_title'] = "DCT Expense Report";
+        $this->load->view('backend/index', $page_data);	
+	}
 }

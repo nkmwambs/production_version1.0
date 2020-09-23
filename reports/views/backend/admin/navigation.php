@@ -45,6 +45,14 @@
                 <span><?php echo get_phrase('covid19_report'); ?></span>
             </a>
         </li>
+
+        <!-- UDCT report -->
+        <li class="<?php if ($page_name == 'dct_report') echo 'active'; ?> ">
+            <a href="<?php echo base_url(); ?>reports.php/admin/dct_report">
+                <i class="fa fa-list"></i>
+                <span><?php echo get_phrase('DCT_expense_report'); ?></span>
+            </a>
+        </li>
         
   	
      

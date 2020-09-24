@@ -342,12 +342,21 @@ class Admin extends CI_Controller {
 
 	}
 
+	function ajax_load_dct_expense_report(){
+		$aggregation_type = $this->input->post('aggregation_type');
+		$group_by = $this->input->post('group_by');
+		$month = $this->input->post('month');
+
+		$page_data['data'] = $this->dct_model->dct_report($aggregation_type,$group_by,$month);
+
+		echo $this->load->view('backend/admin/includes/include_dct_expense_report',$page_data,true);
+	}
 
 	function dct_report(){
 		if ($this->session->userdata('admin_login') != 1)
 			redirect(base_url(), 'refresh');
 
-	
+
         $page_data['page_name']  = __FUNCTION__;
         $page_data['page_title'] = "DCT Expense Report";
         $this->load->view('backend/index', $page_data);	

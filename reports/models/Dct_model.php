@@ -61,6 +61,34 @@ class DCT_model extends CI_Model {
 		return $covid19_report_data;
 	}
 
+
+	function dct_report($aggregation_type,$group_by,$month){
+		$dct_data = [
+			'header_keys'=>$group_by == 1 ? ['E10','E45','E320','E330','E410','E420','E430'] : ($group_by == 2 ? ['EDU-107','WTP-105','DRF-109','DRF-171','HH-112','EDU-124','DRF-119'] : ['M-Pesa','Airtel Money','Normal Transaction','Food Basket','Hygiene Kits','Food Distribution','Food Packs']),
+			'KE200'=>[
+				'cluster_name'=>'Ishiara',
+				'values'=>$aggregation_type == 1 ? [456000,0,654790.32,0,543211,215600,654600] : ($aggregation_type == 2 ? [112,0,89,0,96,154,211]: [23,0,76,0,12,15,26]) 
+			],
+			'KE201'=>[
+				'cluster_name'=>'Ishiara',
+				'values'=>$aggregation_type == 1 ? [432780,676150.12,120000,78900,20000,0,65400] : ($aggregation_type == 2 ? [45,12,32,8,0,0,65]: [1,4,66,7,1,5,0])  
+			],
+			'KE450'=>[
+				'cluster_name'=>'Kakamega',
+				'values'=>$aggregation_type == 1 ? [23400,2500,0,0,0,18400,45300.23] : ($aggregation_type == 2 ? [150,82,95,117,34,71,108]: [0,0,0,0,9,36,18]) 
+			],
+			'KE331'=>[
+				'cluster_name'=>'Kisumu',
+				'values'=>$aggregation_type == 1 ? [0,0,0,0,167500.45,185430,33200] : ($aggregation_type == 2 ? [115,23,104,117,0,0,118]: [32,0,0,0,0,65,34]) 
+			],
+			'KE782'=>[
+				'cluster_name'=>'Kisumu',
+				'values'=>$aggregation_type == 1 ? [223400,345600,112340,0,65400,234500,34500] : ($aggregation_type == 2 ? [56,72,52,11,106,86,104]: [46,21,32,57,89,31,55])  
+			]
+		];
+
+		return $dct_data;
+	}
 	
 }
 

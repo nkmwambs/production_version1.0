@@ -3,6 +3,7 @@
 	$system_title       =	$this->db->get_where('settings' , array('type'=>'system_title'))->row()->description;
 	$text_align         =	$this->db->get_where('settings' , array('type'=>'text_align'))->row()->description;
 	// $account_type       =	$this->session->userdata('login_type');
+	$account_type       =	isset($account_type)?$account_type:$this->session->userdata('login_type');
 	// if(!file_exists(VIEWPATH.'backend/'.$this->session->userdata('login_type'))){
 	// 	$account_type = 'admin';
 	// }
@@ -30,7 +31,7 @@
 	
 </head>
 <body class="page-body <?php if ($skin_colour != '') echo 'skin-' . $skin_colour;?>" >
-	<div class="page-container <?php if ($text_align == 'right-to-left') echo 'right-sidebar';?>" >
+	<div class="page-container sidebar-collapsed <?php if ($text_align == 'right-to-left') echo 'right-sidebar';?>" >
 		<?php include $account_type.'/navigation.php';?>	
 		<div class="main-content">
 		

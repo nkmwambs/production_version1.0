@@ -16,7 +16,7 @@
                 <label class='col-xs-3'>Hierarchy</label>
                 <div class='col-xs-9'> 
                     <select class='form-control filters' id='hierarchy_id'>
-                        <option value=''>Select a hierarchy</option>
+                        <option value=''>Select a region</option>
                         <?php foreach($fcp_hierarchy as $hierarchy){?>
                             <option value='<?=$hierarchy['hierarchy_id'];?>'><?=$hierarchy['hierarchy_name'];?></option>
                         <?php }?>

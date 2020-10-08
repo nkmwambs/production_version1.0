@@ -2,21 +2,19 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 
-class Admin extends CI_Controller {
+class Mop extends CI_Controller {
 	function __construct()
 	{
 		parent::__construct();
 		$this->load->database();
-		$this->load->library('session');
-		$this->load->model('dct_model');
+        $this->load->library('session');
 
 		
        /*cache control*/
 		$this->output->set_header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
 		$this->output->set_header('Pragma: no-cache');
 		
-	}
-	
+    }
 	public function dashboard()
 	{
 		
@@ -25,134 +23,6 @@ class Admin extends CI_Controller {
         $page_data['page_title'] = "Reports";
         $this->load->view('backend/index', $page_data);	
 	}
-	//Covid19
-	public function covid19_report()
-	{
-		$reporting_month=date('Y-m-01');
-		$group_report_by='beneficiary';
-		
-		if($this->input->post()){
-			$group_report_by = $this->input->post('group_name');
-			$reporting_month = $this->input->post('reporting_month');
-		}	
-
-		$grouping_column = $group_report_by;
-		
-		$covid19_data=$this->covid19_report_array_test($this->dct_model->covid19_data_query($reporting_month,$group_report_by),$grouping_column);
-
-		$page_data['page_name']  = __FUNCTION__;
-		$page_data['group_report_by'] = $group_report_by;
-		$page_data['page_title'] = "Reports";
-		$page_data['account_type'] = "admin";
-		$page_data['covid19_data']=$this->utilised_support_modes($covid19_data)['support_modes_with_utilised_accs'];
-		$page_data['report_result']=$covid19_data;
-		$page_data['utilised_accounts']=$this->utilised_support_modes($covid19_data)['support_modes_with_utilised_accs'];
-		
-		if($this->input->post()){
-			echo $this->load->view('backend/admin/includes/include_covid19_report', $page_data, true);	
-		}else{
-			$this->load->view('backend/index', $page_data);	
-		}
-	}
-	function utilised_support_modes($report_result){
-
-		$support_modes_with_utilised_accs=[];
-		
-        $holder_of_accounts=[];
-		foreach($report_result as $support_modes_and_accounts){
-		  
-		  foreach($support_modes_and_accounts as $support_mode =>$accounts){
-
-			$holder_of_accounts=array_merge($holder_of_accounts,array_keys($accounts));
-		
-			$support_modes_with_utilised_accs[$support_mode]=array_unique($holder_of_accounts);
-		  }
-		}
-
-		return ['support_modes_with_utilised_accs'=>$support_modes_with_utilised_accs];
-
-	}
-	
-
-	function covid19_report_array_test(Array $covid19_report_result,String $grouping_column){
-
-		$cluster_support_mode_counts=[];
-
-		foreach($covid19_report_result as  $count_array){
-			$cluster_support_mode_counts[$count_array['clustername']][$count_array['support_mode_name']][$count_array['acctext']]=$count_array[$grouping_column];
-		}
-		return $cluster_support_mode_counts;
-		//return $this->covid19_report_array();
-
-
-
-		
-	}
-
-	
-
-	function covid19_report_array(){
-
-
-		return [
-			'Kiambu' => [
-				'UDCT Via MPesa' => [
-					'E45' => 24,
-					'E200' => 560,
-					'E320' => 8
-				],
-				'Food Basket' => [
-					'E45' => 2,
-					'E365' => 89
-					
-				],
-				'Hygiene Kit' => [
-					'E45' => 20,
-					'E30' => 56.87,
-					'E320' => 102,
-					'E300'=>450
-				]
-			],
-
-			'Lake Basin' => [
-				'UDCT Via MPesa' => [
-					'E200' => 50.6,
-					'E320' => 8.6,
-					'E310'=>60,
-					'E50'=>77
-				],
-				'Food Basket' => [
-					'E45' => 2.94,
-				],
-				'Hygiene Kit' => [
-					'E365' => 294,
-					'E300' => 561,
-					'E320' => 86.9
-				]
-			],
-
-			'Mombasa' => [
-				'UDCT Via MPesa' => [
-					'E45' => 12,
-					'E200' => 52,
-					'E320' => 57
-				],
-				'Food Basket' => [
-					'E45' => 24,
-					'E40' => 59,
-					'E415' => 806.0
-				],
-				'Hygiene Kit' => [
-					'E45' => 21,
-					'E30' => 50,
-					'E320' => 86.90,
-					'E330'=>54
-				]
-			]
-		];
-	}
-
-
 	
 	public function populate_fields(){
 		$record_type_id = $_POST['record_type_id'];
@@ -340,47 +210,5 @@ class Admin extends CI_Controller {
 			
 		return $fields;		
 
-	}
-
-	function ajax_load_dct_expense_report(){
-		$aggregation_type = $this->input->post('aggregation_type');
-		$group_by = $this->input->post('group_by');
-		$month = $this->input->post('month');
-		$hierarchy_id  = $this->input->post('hierarchy_id');
-
-		$page_data['data'] = $this->dct_model->dct_report($aggregation_type,$group_by,$month,$hierarchy_id);
-		$page_data['dct_data'] = $this->dct_model->dct_report_data($aggregation_type,$group_by,$month,$hierarchy_id);
-		
-
-		echo $this->load->view('backend/admin/includes/include_dct_expense_report',$page_data,true);
-	}
-
-	function fcp_hierarchy(){
-
-		$fcp_hierarchy = [];
-
-		if($this->session->logged_user_level == 4){ // MOP
-			$this->db->select(array('clusters_id as hierarchy_id','clusterName as hierarchy_name'));
-			$this->db->join('region','region.region_id=clusters.region_id');
-			$this->db->where(array('region_manager_id'=>$this->session->login_user_id));
-			$fcp_hierarchy = $this->db->get('clusters')->result_array();
-		}else{ // Other National Office Staff
-			$this->db->select(array('region_id as hierarchy_id','region_name as hierarchy_name'));
-			$fcp_hierarchy = $this->db->get('region')->result_array();
-		}
-
-		return $fcp_hierarchy;
-		
-	}
-
-	function dct_report(){
-		if ($this->session->userdata('admin_login') != 1)
-			redirect(base_url(), 'refresh');
-
-		$page_data['fcp_hierarchy'] = $this->fcp_hierarchy();
-        $page_data['page_name']  = __FUNCTION__;
-		$page_data['page_title'] = "DCT Expense Report";
-		$page_data['account_type'] = 'admin';
-        $this->load->view('backend/index', $page_data);	
 	}
 }

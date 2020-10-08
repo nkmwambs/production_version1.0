@@ -1,3 +1,12 @@
+<?php 
+    //print_r($dct_data);
+    if(count($data) == 1){ // Has only header_keys
+?>
+    <div class='well well-lg'>No data found</div>
+<?php
+      
+    }else{
+?>
 <table class='table table-striped'>
             <thead>
                 <tr>
@@ -48,3 +57,7 @@
                 </tr>
             </tfoot>
         </table>
+
+<?php 
+    }
+?>

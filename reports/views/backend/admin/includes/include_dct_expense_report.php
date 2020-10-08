@@ -7,13 +7,14 @@
       
     }else{
 ?>
-<table class='table table-striped'>
+<table class='table table-striped datatable'>
             <thead>
                 <tr>
                     <th>FCP No.</th>
                     <th>Cluster Name</th>
                     <?php 
-                        foreach(array_shift($data) as $header_key){
+                        $header_keys = array_shift($data);
+                        foreach($header_keys as $header_key){
                     ?>
                         <th><?=$header_key;?></th>
                     <?php
@@ -35,7 +36,7 @@
                             <?php foreach($array_of_values['values'] as $array_of_value){?>
                                 <td><?=number_format($array_of_value,2);?></td>
                             <?php }?>
-                            <td></td>
+                            <td><?=number_format(array_sum($array_of_values['values']),2);?></td>
                         </tr>
                 <?php
                     }
@@ -44,16 +45,18 @@
             <tfoot>
                 <tr>
                     <td colspan='2'>Total</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                    <?php 
+                        $sum = 0;
+                        foreach($header_keys as $key){
+                            $sub_total = array_sum(array_column(array_column($data,'values'),$key));
+                            $sum += $sub_total;
+                    ?>
+                        <td><?=number_format($sub_total,2);?></td>
+                    <?php 
+                        }
+                    ?>
+                
+                    <td><?=number_format($sum,2)?></td>
                 </tr>
             </tfoot>
         </table>

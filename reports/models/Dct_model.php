@@ -61,33 +61,119 @@ class DCT_model extends CI_Model {
 		return $covid19_report_data;
 	}
 
+	function fcp_list($hierarchy_id = 0){
 
-	function dct_report($aggregation_type,$group_by,$month){
-		$dct_data = [
-			'header_keys'=>$group_by == 1 ? ['E10','E45','E320','E330','E410','E420','E430'] : ($group_by == 2 ? ['EDU-107','WTP-105','DRF-109','DRF-171','HH-112','EDU-124','DRF-119'] : ['M-Pesa','Airtel Money','Normal Transaction','Food Basket','Hygiene Kits','Food Distribution','Food Packs']),
-			'KE200'=>[
-				'cluster_name'=>'Ishiara',
-				'values'=>$aggregation_type == 1 ? [456000,0,654790.32,0,543211,215600,654600] : ($aggregation_type == 2 ? [112,0,89,0,96,154,211]: [23,0,76,0,12,15,26]) 
-			],
-			'KE201'=>[
-				'cluster_name'=>'Ishiara',
-				'values'=>$aggregation_type == 1 ? [432780,676150.12,120000,78900,20000,0,65400] : ($aggregation_type == 2 ? [45,12,32,8,0,0,65]: [1,4,66,7,1,5,0])  
-			],
-			'KE450'=>[
-				'cluster_name'=>'Kakamega',
-				'values'=>$aggregation_type == 1 ? [23400,2500,0,0,0,18400,45300.23] : ($aggregation_type == 2 ? [150,82,95,117,34,71,108]: [0,0,0,0,9,36,18]) 
-			],
-			'KE331'=>[
-				'cluster_name'=>'Kisumu',
-				'values'=>$aggregation_type == 1 ? [0,0,0,0,167500.45,185430,33200] : ($aggregation_type == 2 ? [115,23,104,117,0,0,118]: [32,0,0,0,0,65,34]) 
-			],
-			'KE782'=>[
-				'cluster_name'=>'Kisumu',
-				'values'=>$aggregation_type == 1 ? [223400,345600,112340,0,65400,234500,34500] : ($aggregation_type == 2 ? [56,72,52,11,106,86,104]: [46,21,32,57,89,31,55])  
-			]
-		];
+		if($this->session->logged_user_level == 2){
+			$this->db->where(array('clusters.clusterName'=>$this->session->cluster));
+		}elseif($this->session->logged_user_level == 4){
+			$this->db->where(array('clusters.clusters_id'=>$hierarchy_id));
+		}else{
+			$this->db->where(array('region.region_id'=>$hierarchy_id));
+		}
 
-		return $dct_data;
+	}
+
+	function dct_report_data($aggregation_type,$group_by,$month,$hierarchy_id){
+		
+		$start_month_date = date('Y-m-01',strtotime($month));
+		$end_month_date = date('Y-m-t',strtotime($month));
+
+		$select_columns = array('projectsdetails.icpNo as fcp_no','clusterName as cluster_name');
+
+
+		$group_by_array = array('voucher_header.icpNo');
+
+		if($group_by == 1){ // 1= FCP By Fund
+			$group_by_array[] = 'voucher_body.AccNo';
+			$select_columns[] = 'accounts.AccText as group_column';
+
+		}elseif($group_by == 2){ // 2 = FCP By CIV
+			$group_by_array[] = 'civa.AccNoCIVA';
+			$select_columns[] = 'AccNoCIVA as group_column';
+		}elseif($group_by == 3){ // 3 = FCP By Support Mode
+			$group_by_array[] = 'voucher_body.fk_support_mode_id';
+			$select_columns[] = 'support_mode_name as group_column';
+		}
+
+		
+
+		$this->db->select($select_columns);
+
+		if($aggregation_type == 1){ // 1 = Amount Spent
+			$this->db->select('SUM(Cost) as agg_value');
+		}else{
+			$this->db->select('SUM(Qty) as agg_value');
+
+			if($aggregation_type == 3){ // 3 = Count of Household
+				$this->db->where(array('voucher_body.fk_voucher_item_type_id'=>2));
+			}else{ // 2 = Count of Beneficiary
+				$this->db->where(array('voucher_body.fk_voucher_item_type_id'=>1));
+			}
+		}
+	
+		$this->db->join('support_mode','support_mode.support_mode_id=voucher_body.fk_support_mode_id');
+		$this->db->join('accounts','accounts.AccNo=voucher_body.AccNo');
+
+		if($group_by == 2){
+			$this->db->join('civa','civa.civaID=voucher_body.civaCode');
+		}
+
+		$this->db->join('voucher_header','voucher_header.hID=voucher_body.hID');
+		$this->db->join('projectsdetails','projectsdetails.icpNo=voucher_header.icpNo');
+		$this->db->join('clusters','clusters.clusters_id=projectsdetails.cluster_id');
+		$this->db->join('region','region.region_id=clusters.region_id');
+		$this->fcp_list($hierarchy_id);
+		$this->db->where(array('voucher_body.TDate>='=>$start_month_date,'voucher_body.TDate<='=>$end_month_date));
+		$this->db->where(array('support_mode_is_dct'=>1)); // Only to list DCT records
+		$this->db->where(array('AccGrp'=>0)); // Enforce retrieving expense records only. A defense code since income voucher lack linkage to support modes and voucher item types
+		$this->db->group_by($group_by_array);
+		$voucher_obj = $this->db->get('voucher_body');
+
+		return $voucher_obj->result_array();
+	}
+
+	function dct_report_headers($month_vouchers){
+		$headers = array_unique(array_column($month_vouchers,'group_column'));
+		return $headers;
+	}
+
+
+	function dct_report_fcp_amount_and_count($month_vouchers,$headers,$group_by){
+
+		$dct_report_fcp_amount = [];
+
+		$values_array = [];
+
+		foreach($month_vouchers as $vals){
+			$values_array[$vals['fcp_no']][$vals['group_column']] = $vals['agg_value'];
+		}
+
+		foreach($month_vouchers as $detail){
+			$dct_report_fcp_amount[$detail['fcp_no']]['cluster_name'] = $detail['cluster_name'];
+
+			foreach($headers as $header){
+				if(array_key_exists($header, $values_array[$detail['fcp_no']])){
+					$dct_report_fcp_amount[$detail['fcp_no']]['values'][$header] = $values_array[$detail['fcp_no']][$header];
+				}else{
+					$dct_report_fcp_amount[$detail['fcp_no']]['values'][$header] = 0;
+				}
+			}
+			
+		}
+
+		return $dct_report_fcp_amount;
+	}
+
+
+	function dct_report($aggregation_type,$group_by,$month,$hierarchy_id){
+		
+		$month_vouchers = $this->dct_report_data($aggregation_type,$group_by,$month,$hierarchy_id);
+
+		$headers = $this->dct_report_headers($month_vouchers);
+		
+		$fcp_grouped_values = $this->dct_report_fcp_amount_and_count($month_vouchers,$headers,$group_by);
+
+		return array_merge(['header_keys'=>$headers],$fcp_grouped_values);
 	}
 	
 }

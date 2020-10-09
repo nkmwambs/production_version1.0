@@ -63,9 +63,9 @@ class DCT_model extends CI_Model {
 
 	function fcp_list($hierarchy_id = 0){
 
-		if($this->session->logged_user_level == 2){
+		if($this->session->logged_user_level == 2){// 2 = PF
 			$this->db->where(array('clusters.clusterName'=>$this->session->cluster));
-		}elseif($this->session->logged_user_level == 4){
+		}elseif($this->session->logged_user_level == 4){ // 4 = MOP
 			$this->db->where(array('clusters.clusters_id'=>$hierarchy_id));
 		}else{
 			$this->db->where(array('region.region_id'=>$hierarchy_id));
@@ -122,7 +122,7 @@ class DCT_model extends CI_Model {
 		$this->db->join('projectsdetails','projectsdetails.icpNo=voucher_header.icpNo');
 		$this->db->join('clusters','clusters.clusters_id=projectsdetails.cluster_id');
 		$this->db->join('region','region.region_id=clusters.region_id');
-		$this->fcp_list($hierarchy_id);
+		$this->fcp_list($hierarchy_id);// Where condition
 		$this->db->where(array('voucher_body.TDate>='=>$start_month_date,'voucher_body.TDate<='=>$end_month_date));
 		$this->db->where(array('support_mode_is_dct'=>1)); // Only to list DCT records
 		$this->db->where(array('AccGrp'=>0)); // Enforce retrieving expense records only. A defense code since income voucher lack linkage to support modes and voucher item types

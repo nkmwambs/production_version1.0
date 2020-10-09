@@ -96,7 +96,7 @@
         var url = "<?=base_url();?>reports.php/admin/ajax_load_dct_expense_report";
         var aggregation_type = $('#aggregation_type').val();
         var group_by = $('#group_by').val();
-        var hierarchy_id = $("#hierarchy_id").val();
+        var hierarchy_id = $("#hierarchy_id") ? $("#hierarchy_id").val() : 0;
         var month = $('#month').val();
         var data = {'aggregation_type':aggregation_type,'group_by':group_by,'month':month,'hierarchy_id':hierarchy_id};
         

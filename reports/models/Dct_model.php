@@ -28,6 +28,7 @@ class DCT_model extends CI_Model {
 		}
 		else if($group_report_by=='amount'){
 			$this->db->select('sum(voucher_body.cost) as '.$group_report_by);
+			$this->db->where(array('voucher_body.cost > '=> 0)); // Removed reversed figures
 		}else if($group_report_by=='beneficiary_household'){
 		
 			//$group_by_array=array('voucher_body.fk_voucher_item_type_id','clusters.clustername','accounts.accno','voucher_body.fk_support_mode_id');

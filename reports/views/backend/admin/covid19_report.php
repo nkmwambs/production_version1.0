@@ -8,6 +8,7 @@
           <option value=''><?= get_phrase('select_grouping'); ?></option>
           <option value='beneficiary' <?php if ($group_report_by == 'beneficiary') echo 'selected'; ?>><?= get_phrase('beneficiary_count'); ?></option>
           <option value='household' <?php if ($group_report_by == 'household') echo 'selected'; ?>><?= get_phrase('household_count'); ?></option>
+          <option value='beneficiary_household' <?php if ($group_report_by == 'beneficiary_household') echo 'selected'; ?>><?= get_phrase('beneficiary_and_household_count'); ?></option>
           <option value='fcp' <?php if ($group_report_by == 'fcp') echo 'selected'; ?>><?= get_phrase('fcp_count'); ?></option>
           <option value='amount' <?php if ($group_report_by == 'amount') echo 'selected'; ?>><?= get_phrase('amount_spent'); ?></option>
         </select>

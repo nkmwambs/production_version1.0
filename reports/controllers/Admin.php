@@ -83,9 +83,6 @@ class Admin extends CI_Controller {
 		}
 		return $cluster_support_mode_counts;
 		//return $this->covid19_report_array();
-
-
-
 		
 	}
 

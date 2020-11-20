@@ -86,6 +86,37 @@ class Admin extends CI_Controller {
 		
 	}
 
+	function covid19_vouchers($cluster_name,$support_mode_name,$account_code){
+
+		$cluster_name = urldecode($cluster_name);
+		$support_mode_name =  urldecode($support_mode_name);
+		$account_code = urldecode($account_code);
+
+		$this->db->select(array('voucher_header.hID as voucher_id','voucher_header.icpNo as fcp_number','voucher_header.VNumber as voucher_number','voucher_header.TDate as transaction_date'));
+		$this->db->select_sum('Cost');
+		$this->db->join('projectsdetails','projectsdetails.icpNo=voucher_header.icpNo');
+		$this->db->join('clusters','clusters.clusters_id=projectsdetails.cluster_id');
+		$this->db->join('voucher_body','voucher_body.hID=voucher_header.hID');
+		$this->db->join('accounts','accounts.AccNo=voucher_body.AccNo');
+		$this->db->join('support_mode','support_mode.support_mode_id=voucher_body.fk_support_mode_id');
+		$this->db->where(array('clusterName'=>$cluster_name));
+		$this->db->where(array('support_mode_name'=>$support_mode_name));
+		$this->db->where(array('accounts.AccText'=>$account_code));
+		$this->db->where(array('Cost > '=> 0));
+
+		$this->db->group_by(array('clusterName','voucher_header.VNumber','support_mode_name','accounts.AccText'));
+
+		$vouchers = $this->db->get('voucher_header')->result_array();
+
+		$page_data['page_name']  = __FUNCTION__;
+		$page_data['page_title'] = "Voucher List";
+		$page_data['account_type'] = "admin";
+		$page_data['vouchers']  = $vouchers;
+		
+		$this->load->view('backend/index', $page_data);	
+		
+	}
+
 	
 
 	function covid19_report_array(){

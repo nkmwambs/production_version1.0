@@ -31,6 +31,14 @@ class Modal extends CI_Controller {
 		$page_data['param2']		=	$param2;
 		$page_data['param3']		=	$param3;
 		$page_data['param4']		=	$param4;
+
+		// if(substr_count($page_name,'-') > 0 && !file_exists('backend/'.$account_type.'/'.$page_name.'.php')){
+
+		// 	$page_name_account_type_array = explode('-',$page_name);
+		// 	$account_type = $page_name_account_type_array[0];
+		// 	$page_name = $page_name_account_type_array[1];
+		// }
+		
 		$this->load->view( 'backend/'.$account_type.'/'.$page_name.'.php' ,$page_data);
 		
 		echo '<script src="assets/js/neon-custom-ajax.js"></script>';

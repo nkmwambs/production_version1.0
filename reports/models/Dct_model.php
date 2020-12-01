@@ -106,6 +106,8 @@ class DCT_model extends CI_Model {
 
 			if($aggregation_type == 3){ // 3 = Count of Household
 				$this->db->where(array('voucher_body.fk_voucher_item_type_id'=>2));
+			}elseif($aggregation_type == 4){
+				$this->db->where_in('voucher_body.fk_voucher_item_type_id',[1,2]);
 			}else{ // 2 = Count of Beneficiary
 				$this->db->where(array('voucher_body.fk_voucher_item_type_id'=>1));
 			}

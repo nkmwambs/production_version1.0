@@ -10,7 +10,7 @@
             echo form_open('' , array('class' => 'form-horizontal form-groups-bordered validate'));
         ?>
             <?php 
-                if($this->session->logged_user_level > 2){ // Only show this dropdown to managers and non-PF Nat'O staff 
+                //if($this->session->logged_user_level > 2){ // Only show this dropdown to managers and non-PF Nat'O staff 
             ?>
             <div class='form-group'>
                 <label class='col-xs-3'>Hierarchy</label>
@@ -23,7 +23,7 @@
                     </select>
                 </div>
             </div>
-            <?php }?>
+            <?php //}?>
 
             <div class='form-group'>
                 <label class='col-xs-3'>Aggregation type</label>

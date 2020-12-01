@@ -64,3 +64,29 @@
 <?php 
     }
 ?>
+
+<script>
+$(document).ready(function(){
+    $(".datatable").DataTable(
+
+        {
+            orderCellsTop: true,
+            buttons: [
+                //'csv', 'excel', 'print'
+
+            { extend: 'excelHtml5', footer: true },
+            { extend: 'copyHtml5', footer: true },
+            { extend: 'csvHtml5', footer: true },
+            { extend: 'pdfHtml5', footer: true },
+
+                
+            ],	      
+            stateSave: true,
+
+        dom: '<"row"l><Bf><"col-sm-12"rt><ip>',
+        bPaginate: false
+
+        }
+        );
+});
+</script>

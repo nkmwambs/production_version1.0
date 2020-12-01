@@ -31,8 +31,9 @@
                     <select class='form-control filters' id='aggregation_type'>
                         <option value=''>Select aggregation type</option>
                         <option value='1'>Amount Spent</option>
-                        <option value='2'>Count of Beneficiary</option>
-                        <option value='3'>Count of Household</option>
+                        <option value='2'>Count of Beneficiaries</option>
+                        <option value='3'>Count of Households</option>
+                        <option value='4'>Count of Beneficiaries and Households</option>
                     </select>
                 </div>
             </div>

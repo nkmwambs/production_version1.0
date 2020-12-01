@@ -387,15 +387,15 @@ class Admin extends CI_Controller {
 
 		$fcp_hierarchy = [];
 
-		if($this->session->logged_user_level == 4){ // MOP
-			$this->db->select(array('clusters_id as hierarchy_id','clusterName as hierarchy_name'));
-			$this->db->join('region','region.region_id=clusters.region_id');
-			$this->db->where(array('region_manager_id'=>$this->session->login_user_id));
-			$fcp_hierarchy = $this->db->get('clusters')->result_array();
-		}else{ // Other National Office Staff
+		//if($this->session->logged_user_level == 4){ // MOP
+		//	$this->db->select(array('clusters_id as hierarchy_id','clusterName as hierarchy_name'));
+		//	$this->db->join('region','region.region_id=clusters.region_id');
+		//	$this->db->where(array('region_manager_id'=>$this->session->login_user_id));
+		//	$fcp_hierarchy = $this->db->get('clusters')->result_array();
+		//}else{ // Other National Office Staff
 			$this->db->select(array('region_id as hierarchy_id','region_name as hierarchy_name'));
 			$fcp_hierarchy = $this->db->get('region')->result_array();
-		}
+		//}
 
 		return $fcp_hierarchy;
 		

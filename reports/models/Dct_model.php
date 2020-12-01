@@ -63,13 +63,13 @@ class DCT_model extends CI_Model {
 
 	function fcp_list($hierarchy_id = 0){
 
-		if($this->session->logged_user_level == 2){// 2 = PF
-			$this->db->where(array('clusters.clusterName'=>$this->session->cluster));
-		}elseif($this->session->logged_user_level == 4){ // 4 = MOP
-			$this->db->where(array('clusters.clusters_id'=>$hierarchy_id));
-		}else{
+		//if($this->session->logged_user_level == 2){// 2 = PF
+			//$this->db->where(array('clusters.clusterName'=>$this->session->cluster));
+		//}elseif($this->session->logged_user_level == 4){ // 4 = MOP
+			//$this->db->where(array('clusters.clusters_id'=>$hierarchy_id));
+		//}else{
 			$this->db->where(array('region.region_id'=>$hierarchy_id));
-		}
+		//}
 
 	}
 

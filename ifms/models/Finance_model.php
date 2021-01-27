@@ -658,7 +658,8 @@ class Finance_model extends CI_Model {
 	public function months_pc_expense($project, $date)
 	{
 		//Expenses
-		$cond_pc_exp = "TDate>='" . date('Y-m-01', strtotime($date)) . "' AND TDate<='" . date('Y-m-t', strtotime($date)) . "' AND icpNo='" . $project . "' AND (VType = 'PC' OR VType = 'PCR' OR VType='UDCTC')";
+		$this->db->join('voucher_header','voucher_header.hID=voucher_body.hID');
+		$cond_pc_exp = "voucher_header.TDate>='" . date('Y-m-01', strtotime($date)) . "' AND voucher_header.TDate<='" . date('Y-m-t', strtotime($date)) . "' AND voucher_header.icpNo='" . $project . "' AND (voucher_header.VType = 'PC' OR voucher_header.VType = 'PCR' OR voucher_header.VType='UDCTC')";
 		$pc_exp = $this->db->select_sum('Cost')->where($cond_pc_exp)->get('voucher_body')->row()->Cost;
 
 		return $pc_exp;
@@ -1021,16 +1022,16 @@ class Finance_model extends CI_Model {
 		
 		//$exp = $this->db->get_where('accounts',array('AccNo'=>$exp_id))->row()->AccNo;
 		
-		$this->db->where(array('icpNo'=>$project_id,'AccNo'=>$exp_id,'TDate>='=>date('Y-m-01',strtotime($month)),'TDate<='=>date('Y-m-t',strtotime($month))));
-		
+		$this->db->where(array('voucher_header.icpNo'=>$project_id,'voucher_body.AccNo'=>$exp_id,'voucher_header.TDate>='=>date('Y-m-01',strtotime($month)),'voucher_header.TDate<='=>date('Y-m-t',strtotime($month))));
+		$this->db->join('voucher_header','voucher_header.hID=voucher_body.hID');
 		return $this->db->select_sum('Cost')->get('voucher_body')->row()->Cost;
 	}
 	
 	function months_expenses_to_date_per_expense_account($project_id,$exp_id,$month){
 		//$exp = $this->db->get_where('expense',array('expense_id'=>$exp_id))->row()->code;
 		
-		$this->db->where(array('voucher_body.icpNo'=>$project_id,'.voucher_body.AccNo'=>$exp_id,'voucher_header.Fy'=>get_fy($month,$project_id),'voucher_body.TDate<='=>date('Y-m-t',strtotime($month))));
-		
+		$this->db->where(array('voucher_header.icpNo'=>$project_id,'.voucher_body.AccNo'=>$exp_id,'voucher_header.Fy'=>get_fy($month,$project_id),'voucher_header.TDate<='=>date('Y-m-t',strtotime($month))));
+		$this->db->join('voucher_header','voucher_header.hID=voucher_body.hID');
 		return $this->db->select_sum('Cost')->join('voucher_header','voucher_header.hID=voucher_body.hID')->get('voucher_body')->row()->Cost;		
 	}
 	

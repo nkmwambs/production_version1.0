@@ -83,9 +83,37 @@ class Admin extends CI_Controller {
 		}
 		return $cluster_support_mode_counts;
 		//return $this->covid19_report_array();
+		
+	}
 
+	function covid19_vouchers($cluster_name,$support_mode_name,$account_code){
 
+		$cluster_name = urldecode($cluster_name);
+		$support_mode_name =  urldecode($support_mode_name);
+		$account_code = urldecode($account_code);
 
+		$this->db->select(array('voucher_header.hID as voucher_id','voucher_header.icpNo as fcp_number','voucher_header.VNumber as voucher_number','voucher_header.TDate as transaction_date'));
+		$this->db->select_sum('Cost');
+		$this->db->join('projectsdetails','projectsdetails.icpNo=voucher_header.icpNo');
+		$this->db->join('clusters','clusters.clusters_id=projectsdetails.cluster_id');
+		$this->db->join('voucher_body','voucher_body.hID=voucher_header.hID');
+		$this->db->join('accounts','accounts.AccNo=voucher_body.AccNo');
+		$this->db->join('support_mode','support_mode.support_mode_id=voucher_body.fk_support_mode_id');
+		$this->db->where(array('clusterName'=>$cluster_name));
+		$this->db->where(array('support_mode_name'=>$support_mode_name));
+		$this->db->where(array('accounts.AccText'=>$account_code));
+		$this->db->where(array('Cost > '=> 0));
+
+		$this->db->group_by(array('clusterName','voucher_header.VNumber','support_mode_name','accounts.AccText'));
+
+		$vouchers = $this->db->get('voucher_header')->result_array();
+
+		$page_data['page_name']  = __FUNCTION__;
+		$page_data['page_title'] = "Voucher List";
+		$page_data['account_type'] = "admin";
+		$page_data['vouchers']  = $vouchers;
+		
+		$this->load->view('backend/index', $page_data);	
 		
 	}
 
@@ -340,5 +368,47 @@ class Admin extends CI_Controller {
 			
 		return $fields;		
 
+	}
+
+	function ajax_load_dct_expense_report(){
+		$aggregation_type = $this->input->post('aggregation_type');
+		$group_by = $this->input->post('group_by');
+		$month = $this->input->post('month');
+		$hierarchy_id  = $this->input->post('hierarchy_id');
+
+		$page_data['data'] = $this->dct_model->dct_report($aggregation_type,$group_by,$month,$hierarchy_id);
+		$page_data['dct_data'] = $this->dct_model->dct_report_data($aggregation_type,$group_by,$month,$hierarchy_id);
+		
+
+		echo $this->load->view('backend/admin/includes/include_dct_expense_report',$page_data,true);
+	}
+
+	function fcp_hierarchy(){
+
+		$fcp_hierarchy = [];
+
+		//if($this->session->logged_user_level == 4){ // MOP
+		//	$this->db->select(array('clusters_id as hierarchy_id','clusterName as hierarchy_name'));
+		//	$this->db->join('region','region.region_id=clusters.region_id');
+		//	$this->db->where(array('region_manager_id'=>$this->session->login_user_id));
+		//	$fcp_hierarchy = $this->db->get('clusters')->result_array();
+		//}else{ // Other National Office Staff
+			$this->db->select(array('region_id as hierarchy_id','region_name as hierarchy_name'));
+			$fcp_hierarchy = $this->db->get('region')->result_array();
+		//}
+
+		return $fcp_hierarchy;
+		
+	}
+
+	function dct_report(){
+		if ($this->session->userdata('admin_login') != 1)
+			redirect(base_url(), 'refresh');
+
+		$page_data['fcp_hierarchy'] = $this->fcp_hierarchy();
+        $page_data['page_name']  = __FUNCTION__;
+		$page_data['page_title'] = "DCT Expense Report";
+		$page_data['account_type'] = 'admin';
+        $this->load->view('backend/index', $page_data);	
 	}
 }

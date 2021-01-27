@@ -52,7 +52,8 @@
                 $count_of_grouped_elements=$support_modes_and_accounts[$utilised_support_mode][$account];
                }
             ?>
-            <td><?=$count_of_grouped_elements?></td>
+            <!-- <td><a target='__blank' href='<?php echo base_url();?>reports.php/<?=$this->session->login_type;?>/covid19_vouchers/<?=$cluster;?>/<?=$utilised_support_mode;?>/<?=$account;?>'><?=$count_of_grouped_elements?></a></td> -->
+            <td><a href='#'><?=$count_of_grouped_elements?></a></td>
           <?php } }?>
           <td></td>
         </tr>

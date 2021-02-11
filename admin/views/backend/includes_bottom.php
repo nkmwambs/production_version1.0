@@ -12,7 +12,7 @@
    	<!-- Bottom Scripts -->
 	<script src="<?php echo base_url();?>assets/js/gsap/main-gsap.js"></script>
 	<script src="<?php echo base_url();?>assets/js/jquery-ui/js/jquery-ui-1.10.3.minimal.min.js"></script>
-	<script src="<?php echo base_url();?>assets/js/bootstrap.js"></script>
+	<!-- <script src="<?php echo base_url();?>assets/js/bootstrap.js"></script> -->
 	<script src="<?php echo base_url();?>assets/js/joinable.js"></script>
 	<script src="<?php echo base_url();?>assets/js/resizeable.js"></script>
 	<script src="<?php echo base_url();?>assets/js/neon-api.js"></script>
@@ -52,7 +52,8 @@
 	<!--Font Awesome-->
 	
 	<!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" /> -->
-	<link rel="stylesheet" href="<?php echo base_url();?>assets/css/font-icons/font-awesome/css/font-awesome.min.css">
+	<!-- <link rel="stylesheet" href="<?php echo base_url();?>assets/css/font-icons/font-awesome/css/font-awesome.min.css"> -->
+	<script src="https://use.fontawesome.com/934e5325aa.js"></script>
 	
 	<!-- Toggle Button -->
 	
@@ -65,7 +66,7 @@
 	
 	
 	<!-- <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" type="text/css" rel="stylesheet"> -->
-	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	
 	<!--<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet">-->
 
 

@@ -1,5 +1,7 @@
 <?php 
 
+set_time_limit(120);
+
 //echo $this -> config -> item('dashboard_runs_start_date');
 //print_r($this->finance_dashboard->build_dashboard_array('2016-06-30',10,250));
 

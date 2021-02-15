@@ -59,7 +59,7 @@ if(empty($none_requested_params) && empty($requested_params)){
 <div class='row'>
 	<div class='col-xs-12'>
 		
-		<table  class='table table-striped table-responsive datatable'>
+		<table>
 			<thead>
 				
 				<tr>

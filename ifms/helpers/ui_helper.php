@@ -72,7 +72,7 @@ if(!function_exists('parameter_cell')){
         $param = $param_value;
 
         if(in_array($param_value,[0,1])){
-            $param = $param_value == 1 ? "Yes":"No";
+           // $param = $param_value == 1 ? "Yes":"No";
         }
 
         return '<td>'.$param.'</td>';

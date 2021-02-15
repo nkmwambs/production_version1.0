@@ -1,6 +1,6 @@
 <?php 
 
-set_time_limit(5000);
+//set_time_limit(5000);
 
 //echo $this -> config -> item('dashboard_runs_start_date');
 //print_r($this->finance_dashboard->build_dashboard_array('2016-06-30',10,250));
@@ -254,12 +254,15 @@ if(empty($none_requested_params) && empty($requested_params)){
 					</td>
 				   	 <?php if($value['risk']=='Low'){ ?>
 				   	 
-				   	 <td style="background-color: green; color: white;"><?= $value['risk']; ?></td>
-				   	 
+				   	 <!-- <td style="background-color: green; color: white;"><?= $value['risk']; ?></td> -->
+				   	 <td><?= $value['risk']; ?></td>
+
 				   	 <?php }elseif($value['risk']=='High'){?>
-				   	 <td style="background-color: red; color: white;"><?= $value['risk']; ?></td>
+				   	 <!-- <td style="background-color: red; color: white;"><?= $value['risk']; ?></td> -->
+						<td><?= $value['risk']; ?></td>
 				   	 <?php }else{?>
-				   	 	<td style="background-color: orange; color: white;"><?= $value['risk']; ?></td>
+				   	 	<!-- <td style="background-color: orange; color: white;"><?= $value['risk']; ?></td> -->
+							<td><?= $value['risk']; ?></td>
 				   	<?php }?>
 				   	 
 				   	 <?php
@@ -267,15 +270,19 @@ if(empty($none_requested_params) && empty($requested_params)){
 				   	  foreach (($value['params']) as $param) {
 				   	  	if(substr($param,0,3) == "Yes" || $param == 1 ) {
 				   	 ?>
-				   	   <td style="background-color: green; color: white;"><?=substr($param,0,3) == "Yes"?$param:"Yes";?></td>
-				   	   <?php }else if(substr($param,0,3) == 'No' || $param == 0){?>
+				   	   <!-- <td style="background-color: green; color: white;"><?=substr($param,0,3) == "Yes"?$param:"Yes";?></td> -->
+				   	   <td><?=substr($param,0,3) == "Yes"?$param:"Yes";?></td>
+						  <?php }else if(substr($param,0,3) == 'No' || $param == 0){?>
 				   	   	
-				   	   	<td style="background-color: red; color: white;"><?= substr($param,0,3) == 'No'?$param:"No";?></td>
-				   	   	
+				   	   	<!-- <td style="background-color: red; color: white;"><?= substr($param,0,3) == 'No'?$param:"No";?></td> -->
+				   	   	<td><?= substr($param,0,3) == 'No'?$param:"No";?></td>
+
 				   	   <?php }elseif(strrchr($param,'Yes')){?>
-				   	   	 <td style="background-color: green; color: white;"><?= strrchr($param,'Yes')?$param:"Yes";?></td>
-				   	   	<?php } elseif(strrchr($param,'No')){?>
-				   	   	  	 <td style="background-color: red; color: white;"><?= strrchr($param,'No')?$param:"No";?></td>
+				   	   	 <!-- <td style="background-color: green; color: white;"><?= strrchr($param,'Yes')?$param:"Yes";?></td> -->
+							   <td><?= strrchr($param,'Yes')?$param:"Yes";?></td>
+						<?php } elseif(strrchr($param,'No')){?>
+				   	   	  	 <!-- <td style="background-color: red; color: white;"><?= strrchr($param,'No')?$param:"No";?></td> -->
+							<td><?= strrchr($param,'No')?$param:"No";?></td>
 				   	   	<?php }elseif(is_numeric($param)){?>
 				   	   	
 				   	   	 <td><?= number_format($param,2);?></td>

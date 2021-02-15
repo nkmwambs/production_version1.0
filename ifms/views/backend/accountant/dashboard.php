@@ -59,7 +59,7 @@ if(empty($none_requested_params) && empty($requested_params)){
 <div class='row'>
 	<div class='col-xs-12'>
 		
-		<table>
+		<table  class='table table-striped table-responsive datatable'>
 			<thead>
 				
 				<tr>
@@ -103,8 +103,12 @@ if(empty($none_requested_params) && empty($requested_params)){
 			
 			<tbody>
 				<?php 
+				$cnt = 0;
 				 foreach ($grid_array['fcps_with_risks'] as $fcp_id => $value) { 
 					if(isset($value['params']) && count($value['params']) == $sum_params){
+						$cnt++;
+
+						if($cnt ==10) break;
 				?>
 				   <tr>
 				   	 <td>

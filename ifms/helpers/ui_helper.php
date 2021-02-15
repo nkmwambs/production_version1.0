@@ -59,6 +59,7 @@ if(!function_exists('fcp_reports_dropdown')){
             // </li>";
 
             $li .= "<li>".ucwords(str_replace('_',' ',$label))."</li>";
+            $li .= "<li class='divider'></li>";
         }
 
         $li .= "</ul></div>";

@@ -58,7 +58,7 @@ if(!function_exists('fcp_reports_dropdown')){
             // <a ".$target." href= '".$url_components['href']."' onclick = '".$url_components['onclick']."'>".get_phrase($label)."</a>
             // </li>";
 
-            $li .= "<li>".get_phrase($label)."</li>";
+            $li .= "<li>".ucwords(str_replace('_',' ',$label))."</li>";
         }
 
         $li .= "</ul></div>";

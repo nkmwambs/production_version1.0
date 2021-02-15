@@ -103,15 +103,12 @@ if(empty($none_requested_params) && empty($requested_params)){
 			
 			<tbody>
 				<?php 
-				//$cnt = 0;
+
 				 foreach ($grid_array['fcps_with_risks'] as $fcp_id => $value) { 
 					if(isset($value['params']) && count($value['params']) == $sum_params){
-						//$cnt++;
-
-						//if($cnt ==50) break;
 				?>
 				   <tr>
-				   	 <td></td>
+				   	 <td><?=$fcp_id;?></td>
 					<td><i class='fa fa-envelope' style='cursor:pointer;' onclick="showAjaxModal('<?php echo base_url();?>ifms.php/modal/popup/modal_dashboard_messaging/<?php echo date('Y-m-t',$month);?>/<?=$fcp_id;?>')"></i>
 						<?=$value['message_sent'] == "Yes"?'<i class="badge badge-secondary">Yes</i>':'';?>
 					</td>

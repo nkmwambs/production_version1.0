@@ -3,7 +3,7 @@
 if(!function_exists('fcp_reports_dropdown')){
     function fcp_reports_dropdown($fcp_id,$month){
 
-        $li = '<button id="btn-'.$fcp_id.'" type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
+        $li = '<div class="btn-group"><button id="btn-'.$fcp_id.'" type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
 						    	'.$fcp_id.' <span class="caret"></span>
 						    </button>
 						    	<ul class="dropdown-menu dropdown-default pull-left" role="menu">

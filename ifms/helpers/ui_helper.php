@@ -52,12 +52,12 @@ if(!function_exists('fcp_reports_dropdown')){
             ]
         ];
 
-        foreach($label_array as $label => $url_components){
-            $target = $url_components['href'] != '#'?"target='__blank'":'';
-            $li .= "<li>
-            <a ".$target." href= '".$url_components['href']."' onclick = '".$url_components['onclick']."'>".get_phrase($label)."</a>
-            </li>";
-        }
+        // foreach($label_array as $label => $url_components){
+        //     $target = $url_components['href'] != '#'?"target='__blank'":'';
+        //     $li .= "<li>
+        //     <a ".$target." href= '".$url_components['href']."' onclick = '".$url_components['onclick']."'>".get_phrase($label)."</a>
+        //     </li>";
+        // }
 
         $li .= "</ul></div>";
         

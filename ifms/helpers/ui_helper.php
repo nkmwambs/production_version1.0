@@ -72,7 +72,7 @@ if(!function_exists('parameter_cell')){
         //$param = $param_value;
         $color_class = "success_parameter";
 
-        if(in_array($param_value,[0,"No"])){
+        if($param_value == 0 || $param_value == "No"){
            // $param = $param_value == 1 ? "Yes":"No";
            $color_class = "fail_parameter";
         }

@@ -138,7 +138,10 @@ if(empty($none_requested_params) && empty($requested_params)){
 	</div>
 
 </div>
-<?php } ?>
+<?php 
+}
+		}
+?>
 
 <script type="text/javascript">
 	jQuery(document).ready(function($) {

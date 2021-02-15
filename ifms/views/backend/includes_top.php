@@ -1,5 +1,9 @@
 <!--<link rel="stylesheet" href="<?php echo base_url();?>assets/css/bootstrap.css">
 <script src="<?php echo base_url();?>assets/js/jquery-1.11.0.min.js"></script>-->
+
+        <!--Jquery CDN Minified -->
+        <script type="text/javascript" src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="   crossorigin="anonymous"></script>
+
         <!--Dropzone CDN for CSS  -->
 
         <link rel="stylesheet" href="<?php echo base_url();?>assets/js/dropzone/dist/min/dropzone.min.css">
@@ -12,9 +16,7 @@
 		<!--<link rel="stylesheet" href="https://cdn.datatables.net/1.10.12/css/dataTables.bootstrap.min.css" /> -->
 		<link type="text/css" rel="stylesheet" href="https://cdn.datatables.net/buttons/1.3.1/css/buttons.dataTables.min.css"/>
 
-		<!--Jquery CDN Minified -->
-		<script type="text/javascript" src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="   crossorigin="anonymous"></script>
-
+		
 		<!--Datatables JS CDNs-->		
 		<script type="text/javascript" src="https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
 		

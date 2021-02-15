@@ -108,7 +108,7 @@ if(empty($none_requested_params) && empty($requested_params)){
 					if(isset($value['params']) && count($value['params']) == $sum_params){
 				?>
 				   <tr>
-				   	 <td><?=$fcp_id;?></td>
+				   	 <td><?=fcp_reports_dropdown($fcp_id,$month);?></td>
 					<td><i class='fa fa-envelope' style='cursor:pointer;' onclick="showAjaxModal('<?php echo base_url();?>ifms.php/modal/popup/modal_dashboard_messaging/<?php echo date('Y-m-t',$month);?>/<?=$fcp_id;?>')"></i>
 						<?=$value['message_sent'] == "Yes"?'<i class="badge badge-secondary">Yes</i>':'';?>
 					</td>

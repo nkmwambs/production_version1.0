@@ -25,8 +25,6 @@ if(!function_exists('fcp_reports_dropdown')){
             'bank_reconciliation' => [
                 'href'=> "#",
                 'onclick' => "showAjaxModal('".base_url()."ifms.php/modal/popup/modal_bank_reconcile/".date('Y-m-01',$month)."/".$fcp_id."')"
-
-               // '".base_url()."ifms.php/modal/popup/modal_bank_reconcile/".date('Y-m-01',$month)."/".$fcp_id."'
             ],
             'variance_explanation' => [
                 'href'=> "#",
@@ -57,7 +55,7 @@ if(!function_exists('fcp_reports_dropdown')){
         foreach($label_array as $label => $url_components){
             $target = $url_components['href'] != '#'?"target='__blank'":'';
           
-            $li .= "<li><a ".$target." href='".$url_components['href']."' onclick='".$url_components['onclick']."'>".ucwords(str_replace('_',' ',$label))."</a></li>";
+            $li .= '<li><a '.$target.' href="'.$url_components['href'].'" onclick="'.$url_components['onclick'].'">'.ucwords(str_replace('_',' ',$label)).'</a></li>';
             $li .= "<li class='divider'></li>";
         }
 

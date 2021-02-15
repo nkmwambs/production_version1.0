@@ -24,7 +24,7 @@ if(!function_exists('fcp_reports_dropdown')){
             ],
             'bank_reconciliation' => [
                 'href'=> "#",
-                'onclick' => "showAjaxModal(".base_url()."ifms.php/modal/popup/modal_bank_reconcile/".date('Y-m-01',$month)."/".$fcp_id.")"
+                'onclick' => "showAjaxModal('".base_url()."ifms.php/modal/popup/modal_bank_reconcile/".date('Y-m-01',$month)."/".$fcp_id."')"
 
                // '".base_url()."ifms.php/modal/popup/modal_bank_reconcile/".date('Y-m-01',$month)."/".$fcp_id."'
             ],

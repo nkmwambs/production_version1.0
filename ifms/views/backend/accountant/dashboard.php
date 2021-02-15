@@ -108,7 +108,7 @@ if(empty($none_requested_params) && empty($requested_params)){
 					if(isset($value['params']) && count($value['params']) == $sum_params){
 						$cnt++;
 
-						if($cnt ==10) break;
+						if($cnt ==50) break;
 				?>
 				   <tr>
 				   	 <td>

@@ -64,3 +64,10 @@ if(!function_exists('fcp_reports_dropdown')){
         return $li;
     }
 }
+
+
+if(!function_exists('parameter_cell')){
+    function parameter_cell($param_value){
+        return '<td>'.$param_value.'</td>';
+    }
+}

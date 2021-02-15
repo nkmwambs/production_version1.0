@@ -116,13 +116,9 @@ if(empty($none_requested_params) && empty($requested_params)){
 				   	 <td><?=$value['risk'];?></td>
 				   	 
 				   	 <?php
-				   	// if(isset($value['params']) && count($value['params']) == $sum_params){
 				   	  foreach (($value['params']) as $param) {
-				   	  	?>
-							<td><?=$param;?></td>
-					<?php
+							echo parameter_cell($param);
 						 }
-							//}
 				   	  ?>
 				   </tr>
 				<?php } }?>

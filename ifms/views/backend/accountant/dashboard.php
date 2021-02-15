@@ -111,126 +111,24 @@ if(empty($none_requested_params) && empty($requested_params)){
 						//if($cnt ==50) break;
 				?>
 				   <tr>
-				   	 <td>
-				   	 	
-				   	 	<div class="btn-group">
-							<button id="btn-<?= $fcp_id;?>" type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
-						    	<?= $fcp_id;?> <span class="caret"></span>
-						    </button>
-						    	<ul class="dropdown-menu dropdown-default pull-left" role="menu"> 
-										
-																
-										<li>
-											<a target='__blank' href="<?php echo base_url();?>ifms.php/accountant/bank_statements/<?php echo $month;?>/<?=$fcp_id;?>"><?php echo get_phrase('bank_statements');?></a>
-										</li>
-									<li class="divider"></li>							
-
-									<li>
-										<a href="#" onclick="showAjaxModal('<?php echo base_url();?>ifms.php/modal/popup/modal_outstanding_cheques/<?php echo date('Y-m-01',$month);?>/<?=$fcp_id;?>')"><?php echo get_phrase('outstanding_cheques');?></a>
-									</li>
-																
-									<li class="divider"></li>
-																
-									<li>
-										<a href="#" onclick="showAjaxModal('<?php echo base_url();?>ifms.php/modal/popup/modal_transit_deposits/<?php echo date('Y-m-t',$month);?>/<?=$fcp_id;?>')"><?php echo get_phrase('deposits_in_transit');?></a>
-									</li>
-												
-									<li class="divider"></li>
-									
-									<li>
-										<a href="#" onclick="showAjaxModal('<?php echo base_url();?>ifms.php/modal/popup/modal_bank_reconcile/<?php echo date('Y-m-t',$month);?>/<?=$fcp_id;?>')"><?php echo get_phrase('bank_reconciliation');?></a>
-									</li>
-																
-									<li class="divider"></li>
-																
-									<li>
-										<a href="#>" onclick="showAjaxModal('<?php echo base_url();?>ifms.php/modal/popup/modal_variance_explanation/<?php echo date('Y-m-t',$month);?>/<?=$fcp_id;?>')"><?php echo get_phrase('variance_explanation');?></a>
-									</li>
-																
-									<li class="divider"></li>
-																
-									<li>
-										<a href="#" onclick="showAjaxModal('<?php echo base_url();?>ifms.php/modal/popup/modal_proof_of_cash/<?php echo date('Y-m-t',$month);?>/<?=$fcp_id;?>')"><?php echo get_phrase('proof_of_cash');?></a>
-																	
-									</li>
-																
-									<li class="divider"></li>
-																
-									<li>
-										<a href="#" onclick="showAjaxModal('<?php echo base_url();?>ifms.php/modal/popup/modal_fund_balances/<?php echo date('Y-m-t',$month);?>/<?=$fcp_id;?>')"><?php echo get_phrase('fund_balance_report');?></a>
-																	
-									</li>
-																
-									<li class="divider"></li>
-																
-									<li>
-										<a href="#" onclick="showAjaxModal('<?php echo base_url();?>ifms.php/modal/popup/modal_expense_report/<?php echo date('Y-m-t',$month);?>/<?=$fcp_id;?>')"><?php echo get_phrase('expense_report');?></a>
-																	
-									</li>
-																
-									<li class="divider"></li>
-																
-									<li>
-										<a href="#" onclick="showAjaxModal('<?php echo base_url();?>ifms.php/modal/popup/modal_fund_ratios/<?php echo date('Y-m-t',$month);?>/<?=$fcp_id;?>')"><?php echo get_phrase('financial_ratios');?></a>
-																	
-									</li>
-																
-																								
-									<li class="divider"></li>
-																
-										<li>
-											<a href="<?php echo base_url();?>ifms.php/accountant/cash_journal/<?php echo $month;?>/<?=$fcp_id;?>"><?php echo get_phrase('cash_journal');?></a>
-										</li>
-																
-									<li class="divider"></li>
-																
-										<li>
-											<a href="<?php echo base_url();?>ifms.php/accountant/plans/<?=$month;?>/<?=$fcp_id;?>"><?php echo get_phrase('budget');?></a>
-										</li>
-																
-									<li class="divider"></li>
-						        </ul>
-						    </div>	
-				   	 </td>
+				   	 <td></td>
 					<td><i class='fa fa-envelope' style='cursor:pointer;' onclick="showAjaxModal('<?php echo base_url();?>ifms.php/modal/popup/modal_dashboard_messaging/<?php echo date('Y-m-t',$month);?>/<?=$fcp_id;?>')"></i>
 						<?=$value['message_sent'] == "Yes"?'<i class="badge badge-secondary">Yes</i>':'';?>
 					</td>
-				   	 <?php if($value['risk']=='Low'){ ?>
-				   	 
-				   	 <td style="background-color: green; color: white;"><?= $value['risk']; ?></td>
-				   	 
-				   	 <?php }elseif($value['risk']=='High'){?>
-				   	 <td style="background-color: red; color: white;"><?= $value['risk']; ?></td>
-				   	 <?php }else{?>
-				   	 	<td style="background-color: orange; color: white;"><?= $value['risk']; ?></td>
-				   	<?php }?>
-				   	 
-				   	 <?php
-				   	// if(isset($value['params']) && count($value['params']) == $sum_params){
-				   	  foreach (($value['params']) as $param) {
-				   	  	if(substr($param,0,3) == "Yes" || $param == 1 ) {
-				   	 ?>
-				   	   <td style="background-color: green; color: white;"><?=substr($param,0,3) == "Yes"?$param:"Yes";?></td>
-				   	   <?php }else if(substr($param,0,3) == 'No' || $param == 0){?>
-				   	   	
-				   	   	<td style="background-color: red; color: white;"><?= substr($param,0,3) == 'No'?$param:"No";?></td>
-				   	   	
-				   	   <?php }elseif(strrchr($param,'Yes')){?>
-				   	   	 <td style="background-color: green; color: white;"><?= strrchr($param,'Yes')?$param:"Yes";?></td>
-				   	   	<?php } elseif(strrchr($param,'No')){?>
-				   	   	  	 <td style="background-color: red; color: white;"><?= strrchr($param,'No')?$param:"No";?></td>
-				   	   	<?php }elseif(is_numeric($param)){?>
-				   	   	
-				   	   	 <td><?= number_format($param,2);?></td>
-				   	   	 
-				   	   	<?php }else{?>
-							<td><?= $param;?></td>
-						 <?php }
-						 }
-							//}
-				   	  ?>
+
+					<td><?=$value['risk'];?></td>
+
+					<?php  foreach (($value['params']) as $param) {?>
+						<td><?=$param;?></td>
+					<?php ?>
+					
+						
 				   </tr>
-				<?php } }?>
+				<?php 
+					}
+				 }
+				 
+				 ?>
 			</tbody>
 			
 		</table>

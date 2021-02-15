@@ -59,7 +59,7 @@ if(empty($none_requested_params) && empty($requested_params)){
 <div class='row'>
 	<div class='col-xs-12'>
 		
-		<table  class='table table-striped table-responsive datatable'>
+		<table  class='table table-striped'>
 			<thead>
 				
 				<tr>
@@ -245,16 +245,16 @@ if(empty($none_requested_params) && empty($requested_params)){
 <script type="text/javascript">
 	jQuery(document).ready(function($) {
 
-		var datatable = $(".datatable").dataTable({
-			dom : 'lBfrtip',
-			buttons : ['pdf', 'csv', 'excel', 'copy'],
-			lengthMenu: [[25,50, 100, 150,-1], [25,50 ,100,150 ,"All"]],
-			pageLength: 25
-		});
+		// var datatable = $(".datatable").dataTable({
+		// 	dom : 'lBfrtip',
+		// 	buttons : ['pdf', 'csv', 'excel', 'copy'],
+		// 	lengthMenu: [[25,50, 100, 150,-1], [25,50 ,100,150 ,"All"]],
+		// 	pageLength: 25
+		// });
 
-		$(".dataTables_wrapper select").select2({
-			minimumResultsForSearch : -1
-		});
+		// $(".dataTables_wrapper select").select2({
+		// 	minimumResultsForSearch : -1
+		// });
 	});
 
 $('#btn_last_month ,#btn_next_month').on('click',function(ev){

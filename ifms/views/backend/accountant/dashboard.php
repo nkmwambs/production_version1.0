@@ -115,20 +115,20 @@ if(empty($none_requested_params) && empty($requested_params)){
 					<td><i class='fa fa-envelope' style='cursor:pointer;' onclick="showAjaxModal('<?php echo base_url();?>ifms.php/modal/popup/modal_dashboard_messaging/<?php echo date('Y-m-t',$month);?>/<?=$fcp_id;?>')"></i>
 						<?=$value['message_sent'] == "Yes"?'<i class="badge badge-secondary">Yes</i>':'';?>
 					</td>
-
-					<td><?=$value['risk'];?></td>
-
-					<?php  foreach (($value['params']) as $param) {?>
-						<td><?=$param;?></td>
-					<?php ?>
 					
-						
+				   	 <td><?=$value['risk'];?></td>
+				   	 
+				   	 <?php
+				   	// if(isset($value['params']) && count($value['params']) == $sum_params){
+				   	  foreach (($value['params']) as $param) {
+				   	  	?>
+							<td><?=$param;?></td>
+					<?php
+						 }
+							//}
+				   	  ?>
 				   </tr>
-				<?php 
-					}
-				 }
-				 
-				 ?>
+				<?php } }?>
 			</tbody>
 			
 		</table>
@@ -138,10 +138,7 @@ if(empty($none_requested_params) && empty($requested_params)){
 	</div>
 
 </div>
-<?php 
-}
-		}
-?>
+<?php } ?>
 
 <script type="text/javascript">
 	jQuery(document).ready(function($) {

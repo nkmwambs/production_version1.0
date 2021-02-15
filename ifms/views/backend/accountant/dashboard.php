@@ -1,3 +1,15 @@
+<style>
+.success_parameter{
+	background-color: green;
+	color:white;
+}
+
+.fail_parameter{
+	background-color: red;
+	color: white;
+}
+</style>
+
 <?php 
 
 $grid_array = $this->dashboard_model->display_dashboard(date('Y-m-t',$month));

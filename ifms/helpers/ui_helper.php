@@ -69,12 +69,14 @@ if(!function_exists('fcp_reports_dropdown')){
 if(!function_exists('parameter_cell')){
     function parameter_cell($param_value){
 
-        $param = $param_value;
+        //$param = $param_value;
+        $color_class = "success_parameter";
 
-        if(in_array($param_value,[0,1])){
+        if(in_array($param_value,[0,"No"])){
            // $param = $param_value == 1 ? "Yes":"No";
+           $color_class = "fail_parameter";
         }
 
-        return '<td>'.$param.'</td>';
+        return '<td class="'.$color_class.'">'.$param_value.'</td>';
     }
 }

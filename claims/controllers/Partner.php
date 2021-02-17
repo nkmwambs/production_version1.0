@@ -436,7 +436,7 @@ class Partner extends CI_Controller
 
 	        if($this->input->post('fileSubmit') && !empty($_FILES['userFiles']['name'])){
 	        	
-							$uploadPath = 'uploads/document/medical/'.$param1;
+							$uploadPath = FCPATH.'uploads/document/medical/'.$param1;
 							//Check if group folder exists
 							if(!file_exists($uploadPath."/".$this->input->post('claim_id'))){
 								mkdir($uploadPath."/".$this->input->post('claim_id'));

@@ -104,7 +104,7 @@ $autoload['helper'] = array('clone_record','curl','financial','url','file','form
 |
 */
 
-$autoload['config'] = array('dev_config','general','aws_attachment');
+$autoload['config'] = array('dev_config','general','Aws_attachment');
 
 
 /*

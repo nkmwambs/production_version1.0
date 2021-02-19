@@ -14,6 +14,9 @@ class Accountant extends CI_Controller
 		
 		$this->load->library('finance_dashboard');
 		$this->load->model('dashboard_model');
+		$this->load->model('finance_model');
+
+		set_time_limit(5000);
 			
        /*cache control*/
 		// $this->output->set_header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
@@ -550,8 +553,8 @@ private function _get_center_pf($fcp_id){
 function bank_statements($param1="",$param2="",$param3=""){
 	if ($this->session->userdata('admin_login') != 1)
 	   redirect(base_url(), 'refresh');
-	   
-			   
+
+   $page_data['uploaded_bank_statement'] = $this->finance_model->get_uploaded_bank_statement(date('Y-m-t',$param1),$param2);		   
    $page_data['page_name']  = 'bank_statements_upload';
    $page_data['tym'] = $param1;
    $page_data['project'] = $param2;;

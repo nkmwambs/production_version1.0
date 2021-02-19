@@ -2498,4 +2498,55 @@ class Finance_model extends CI_Model {
 	
 	
 	/** Finance Dashbaord Model Methods - End **/
+
+
+	function get_uploaded_bank_statement($reporting_month,$fcp_id = ''){
+
+		$fcp_id = $fcp_id == ''?$this->session->center_id:$fcp_id;
+
+		$statementbal_id = $this->get_bank_statement_id($fcp_id,$reporting_month);
+
+		$this->db->where([
+			'item_name'=>'bank_statement',
+			'attachment_primary_id' => $statementbal_id
+		]);
+		
+		$attachment_obj = $this->db->get('attachment');
+
+		$attachments = [];
+
+		if($attachment_obj->num_rows() > 0){
+			$attachments = $attachment_obj->result_array();
+		}
+
+		return $attachments;
+	}
+
+
+	function get_bank_statement_id($fcp_id,$reporting_month){
+
+		$this->db->where(['month'=>$reporting_month,'icpNo'=>$fcp_id]);
+		$statementbal_obj = $this->db->get('statementbal');
+
+		$statementbal_id = 0;
+
+		if($statementbal_obj->num_rows() == 0){
+			// Insert and Get Id
+			$data['month'] = $reporting_month;
+			$data['statementDate'] = $reporting_month;
+			$data['actualDate'] = $reporting_month;
+			$data['icpNo'] = $fcp_id;
+			$data['amount'] = 0;
+
+			$this->db->insert('statementbal',$data);
+
+			$statementbal_id = $this->db->insert_id();
+		}else{
+			// Get Id
+			$this->db->where(['month'=>$reporting_month,'icpNo'=>$fcp_id]);
+			$statementbal_id = $this->db->get('statementbal')->row()->balID;
+		}
+
+		return $statementbal_id;
+	}
 }

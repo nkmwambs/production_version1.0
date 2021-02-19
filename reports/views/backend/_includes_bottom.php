@@ -25,6 +25,8 @@
 	<script src="<?php echo base_url();?>assets/js/neon-custom.js"></script>
 	<script src="<?php echo base_url();?>assets/js/neon-demo.js"></script>
 	
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/locale/en-gb.js"></script>
+	
 
 	
 	<!--Font Awesome-->

@@ -60,7 +60,7 @@ $autoload['packages'] = array();
 |	$autoload['libraries'] = array('user_agent' => 'ua');
 */
 
-$autoload['libraries'] = array('pagination', 'xmlrpc' , 'form_validation', 'email','upload','image_lib','pagination');
+$autoload['libraries'] = array('pagination', 'xmlrpc' , 'form_validation', 'email','upload','image_lib','pagination','Aws_attachment_library');
 
 
 /*
@@ -104,7 +104,7 @@ $autoload['helper'] = array('url','file','form','security','string','inflector',
 |
 */
 
-$autoload['config'] = array('claims');
+$autoload['config'] = array('claims','Aws_attachment');
 
 
 /*

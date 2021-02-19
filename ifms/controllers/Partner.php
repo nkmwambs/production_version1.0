@@ -1247,29 +1247,48 @@ function create_budget_item($project){
 	}
 
 	public function bank_statements_upload($param1){
-			 if (!empty($_FILES)) {
+
+			$preassigned_urls = [];
+
+			 //if (!empty($_FILES)) {
 				
-				 foreach($_FILES['file']['name'] as $index=>$name){
+				 //foreach($_FILES['file']['name'] as $index=>$name){
 	            
-				$file = explode('.',$name);
-				$filename = $file[0];
-				$file_ext=$file[1];	
+				//$file = explode('.',$name);
+				//$filename = $file[0];
+				//$file_ext=$file[1];	
 	             
-	             if(!file_exists('uploads/bank_statements/'.$this->session->center_id))
-						mkdir('uploads/bank_statements/'.$this->session->center_id);//.$name
+	            //  if(!file_exists('uploads/bank_statements/'.$this->session->center_id))
+				// 		mkdir('uploads/bank_statements/'.$this->session->center_id);//.$name
 						
-	             if(!file_exists('uploads/bank_statements/'.$this->session->center_id.'/'.date('Y-m',$param1)))
-						mkdir('uploads/bank_statements/'.$this->session->center_id.'/'.date('Y-m',$param1));//.$name
+	            //  if(!file_exists('uploads/bank_statements/'.$this->session->center_id.'/'.date('Y-m',$param1)))
+				// 		mkdir('uploads/bank_statements/'.$this->session->center_id.'/'.date('Y-m',$param1));//.$name
 				
-				if(!file_exists('uploads/bank_statements/'.$this->session->center_id.'/'.date('Y-m',$param1).'/'.sha1($filename).'.'.$file_ext)){				    
-	                    move_uploaded_file($_FILES["file"]["tmp_name"][$index],'uploads/bank_statements/'.$this->session->center_id.'/'.date('Y-m',$param1).'/'.sha1($filename).'.'.$file_ext);
-	            		echo $name.' uploaded successful';
-				 }
+				// if(!file_exists('uploads/bank_statements/'.$this->session->center_id.'/'.date('Y-m',$param1).'/'.sha1($filename).'.'.$file_ext)){				    
+	            //         move_uploaded_file($_FILES["file"]["tmp_name"][$index],'uploads/bank_statements/'.$this->session->center_id.'/'.date('Y-m',$param1).'/'.sha1($filename).'.'.$file_ext);
+	            // 		echo $name.' uploaded successful';
+				//  }
+				
+				$additional_attachment_table_insert_data = [];
+
+				$additional_attachment_table_insert_data['attachment_primary_id'] = 15304;
+				$additional_attachment_table_insert_data['item_name'] = 'bank_statement';
+
+				$attachment_where_condition_array = [];
+
+				$attachment_where_condition_array['item_name'] = 'bank_statement';
+				$attachment_where_condition_array['attachment_primary_id'] = 15304;
+				$attachment_where_condition_array['item_name'] = 'bank_statement';
+
+
+				$storeFolder = 'uploads/bank_statements/'.$this->session->center_id.'/'.date('Y-m',$param1).'/'.sha1($filename);
 	            
-	          	}
-	        }
-			
-			
+				$preassigned_urls =  $this->aws_attachment_library->upload_files($storeFolder,$additional_attachment_table_insert_data, $attachment_where_condition_array);
+
+	          	//}
+	        //}
+		
+			return $preassigned_urls;
 		}
 	
 	public function get_bank_statements($param1){

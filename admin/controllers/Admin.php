@@ -341,6 +341,8 @@ class Admin extends CI_Controller
             $this->session->set_flashdata('flash_message' , get_phrase('theme_selected')); 
             redirect(base_url() . 'admin.php/admin/system_settings/', 'refresh'); 
         }
+
+		$page_data['active_announcements'] = $this->get_active_announcements();
         $page_data['page_name']  = 'system_settings';
         $page_data['page_title'] = get_phrase('system_settings');
         $page_data['settings']   = $this->db->get('settings')->result_array();
@@ -480,7 +482,7 @@ class Admin extends CI_Controller
 			redirect(base_url().'admin.php/admin/application_settings','refresh');
 		 }
 		 
-		
+		 $page_data['active_announcements'] = $this->get_active_announcements();	
 		$page_data['page_name']        = 'application_settings'; 	
 		$page_data['page_title']       = get_phrase('application_settings');
 		$this->load->view('backend/index', $page_data);	
@@ -883,7 +885,8 @@ class Admin extends CI_Controller
 		$this->db->group_by('TABLE_COMMENT');
 		$query = $this->db->select('TABLE_COMMENT as TABLE_NAME,COUNT(*) as COUNT_TABLES')->select_sum('DATA_LENGTH')->get("information_schema.tables");
 		$tables = $query->result_object();
-		 			
+		
+		$page_data['active_announcements'] = $this->get_active_announcements();	
         $page_data['page_name']  = 'manage_data';
         $page_data['page_title'] = get_phrase('manage_data');
 		$page_data['tables'] =  $tables;

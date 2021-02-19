@@ -506,7 +506,7 @@ class Admin extends CI_Controller
 		 }	
 	}
 	
-	function user_groups($param1=""){
+	function user_groups($param1="",$param2 = ''){
          if ($this->session->userdata('admin_login') != 1)
             redirect(base_url(), 'refresh');
 		 

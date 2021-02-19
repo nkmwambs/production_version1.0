@@ -39,21 +39,20 @@ $mfr_submitted = $this->finance_model->mfr_submitted($project,date('Y-m-d',$tym)
                 		</tr>
                 	</thead>
                 	<tbody>
-                		<?php 
-                			//echo 'uploads/bank_statements/'.$project.'/'.date('Y-m',$tym);
-                			if(file_exists('uploads/bank_statements/'.$project.'/'.date('Y-m',$tym).'/')){
-                			$map = directory_map('uploads/bank_statements/'.$project.'/'.date('Y-m',$tym).'/', FALSE, TRUE);
+                	<?php 
 							
-                			foreach($map as $row): $prop = (object)get_file_info('uploads/bank_statements/'.$project.'/'.date('Y-m',$tym).'/'.$row);
-                		?>
-	                		<tr>
-	                			<td><a href="#" onclick="confirm_action('<?php echo base_url();?>ifms.php/facilitator/bank_statement_download/<?= $row;?>/<?=$tym;?>/<?=$project;?>');"><?= $row;?></a></td>
-	                			<td><?= date('d-m-Y',$prop->date);?></td>
-	                			<td><?= number_format(($prop->size/1000000),2).' MB';?></td>
-	                		</tr>
-                		<?php 
-                			endforeach;
-							}
+                    foreach($uploaded_bank_statement as $bank_statement):
+                      $objectKey = $bank_statement['attachment_url'].'/'.$bank_statement['attachment_name'];
+                      $url = $this->aws_attachment_library->s3_preassigned_url($objectKey);
+                  ?>
+                            <tr>
+                              <td><a target="__blank" href="<?=$url;?>"><?= $bank_statement['attachment_name'];?></a></td>
+                              <td><?= $bank_statement['attachment_created_date'];?></td>
+                              <td><?= number_format(($bank_statement['attachment_size']/1000000),2).' MB';?></td>
+                            </tr>
+                          <?php 
+                            endforeach;
+                    
                 		?>
                 	</tbody>
                 </table>							

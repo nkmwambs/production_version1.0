@@ -92,6 +92,7 @@ function s3_preassigned_url($object_key){
 
     function attachment_record_with_s3_preassigned_url($attachment_where_condition_array = []){
 
+          $file_metadata = [];
         /**
          * Ex. array('approve_item_name'=>$approve_item_name,
          * 'attachment_primary_id'=>$record_primary_key,'attachment_name'=>$file_name)
@@ -106,25 +107,29 @@ function s3_preassigned_url($object_key){
         //$attachment_table_name = $this->CI->config->item('attachment_table_name');
     
         $this->CI->{$this->read_db}->where($attachment_where_condition_array);
-        $attachment_obj = $this->CI->{$this->read_db}->get($this->attachment_table_name)->row();
-    
-        $attachment_size = $attachment_obj->attachment_size;
-        $attachment_url = $attachment_obj->attachment_url;
-        $attachment_name = $attachment_obj->attachment_name;
-        $objectKey = $attachment_url.'/'.$attachment_name;
-        $attachment_last_modified_date = $attachment_obj->attachment_last_modified_date;
-        $attachment_file_type = $attachment_obj->attachment_file_type;
-    
-        //$s3_preassigned_url = $this->CI->config->item('upload_files_to_s3')?$this->s3_preassigned_url($objectKey):$this->get_local_filesystem_attachment_url($objectKey);
-        $s3_preassigned_url = $this->s3_preassigned_url($objectKey);
+        $attachment_obj = $this->CI->{$this->read_db}->get($this->attachment_table_name);
+
+        if($attachment_obj->num_rows() > 0){
+          $attachment_size = $attachment_obj->row()->attachment_size;
+          $attachment_url = $attachment_obj->row()->attachment_url;
+          $attachment_name = $attachment_obj->row()->attachment_name;
+          $objectKey = $attachment_url.'/'.$attachment_name;
+          //$attachment_last_modified_date = $attachment_obj->attachment_last_modified_date;
+          $attachment_file_type = $attachment_obj->row()->attachment_file_type;
+      
+          //$s3_preassigned_url = $this->CI->config->item('upload_files_to_s3')?$this->s3_preassigned_url($objectKey):$this->get_local_filesystem_attachment_url($objectKey);
+          $s3_preassigned_url = $this->s3_preassigned_url($objectKey);
+          
+          $file_metadata =  [
+            'attachment_name'=>$attachment_name,
+            'attachment_size'=>formatBytes($attachment_size),
+            //'attachment_last_modified_date'=>$attachment_last_modified_date,
+            'attachment_file_type'=>$attachment_file_type,
+            's3_preassigned_url'=> $s3_preassigned_url
+          ];
+        }
         
-        return [
-          'attachment_name'=>$attachment_name,
-          'attachment_size'=>formatBytes($attachment_size),
-          'attachment_last_modified_date'=>$attachment_last_modified_date,
-          'attachment_file_type'=>$attachment_file_type,
-          's3_preassigned_url'=> $s3_preassigned_url
-        ];
+        return $file_metadata;
       }
     
     //   function get_local_filesystem_attachment_url($objectKey){
@@ -147,8 +152,17 @@ function s3_preassigned_url($object_key){
           for($i=0;$i<count($_FILES['file']['name']);$i++){
             $tempFile = $_FILES['file']['tmp_name'][$i];   
             
-            // S3 comes in here            
-            $this->upload_s3_object($tempFile,$storeFolder, $_FILES['file']['name'][$i]);
+            // S3 comes in here  
+                      
+            $file_name = $_FILES['file']['name'][$i];
+
+            $file = explode('.',$file_name);
+            $sha1_filename_no_ext = sha1($file[0]);
+            $file_ext=$file[1];
+
+            $sha1_file_name_wt_ext = $sha1_filename_no_ext.'.'.$file_ext;
+
+            $this->upload_s3_object($tempFile,$storeFolder, $sha1_file_name_wt_ext);
 
             $this->CI->{$this->read_db}->where(array('attachment_name'=>$_FILES['file']['name'][$i]));
             $this->CI->{$this->read_db}->where($attachment_where_condition_array);
@@ -157,7 +171,7 @@ function s3_preassigned_url($object_key){
 
             if(!$file_exists){
                
-                $attachment_data['attachment_name'] = $_FILES['file']['name'][$i];
+                $attachment_data['attachment_name'] = $sha1_file_name_wt_ext;
                 $attachment_data['attachment_size'] = $_FILES['file']['size'][$i];
                 $attachment_data['attachment_file_type'] = $_FILES['file']['type'][$i];
                 $attachment_data['attachment_url'] = $storeFolder;

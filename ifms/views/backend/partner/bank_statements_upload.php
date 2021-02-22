@@ -102,10 +102,10 @@ var myDropzone = new Dropzone("#myDropZone", {
 			'fcp_id':'<?=$this->session->center_id;?>',
 			'reporting_month':'<?php echo $tym;?>'
         },
-        maxFilesize: 50, // MB
+        maxFilesize: 10, // MB
         uploadMultiple:true,
-        parallelUploads:5,
-        maxFiles:5,
+        parallelUploads:2,
+        maxFiles:2,
         acceptedFiles:'image/*,application/pdf',    
     });
 

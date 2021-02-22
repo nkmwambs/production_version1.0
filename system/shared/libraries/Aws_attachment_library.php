@@ -157,14 +157,14 @@ function s3_preassigned_url($object_key){
             $file_name = $_FILES['file']['name'][$i];
 
             $file = explode('.',$file_name);
-            $sha1_filename_no_ext = sha1($file[0]);
+            $sha1_filename_no_ext = $this->CI->config->item('encrypt_file') ? sha1($file[0]) : $file[0];
             $file_ext=$file[1];
 
             $sha1_file_name_wt_ext = $sha1_filename_no_ext.'.'.$file_ext;
 
             $this->upload_s3_object($tempFile,$storeFolder, $sha1_file_name_wt_ext);
 
-            $this->CI->{$this->read_db}->where(array('attachment_name'=>$_FILES['file']['name'][$i]));
+            $this->CI->{$this->read_db}->where(array('attachment_name'=>$sha1_file_name_wt_ext));
             $this->CI->{$this->read_db}->where($attachment_where_condition_array);
             
             $file_exists = $this->CI->{$this->read_db}->get($this->attachment_table_name)->num_rows();

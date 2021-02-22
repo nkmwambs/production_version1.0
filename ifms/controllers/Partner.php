@@ -22,6 +22,7 @@ class Partner extends CI_Controller
 		$this->load->database();
 		$this->load->library('session');
 		$this->load->model('dct_model');
+		$this->load->model('finance_model');
 		
        /*cache control*/
 		$this->output->set_header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
@@ -1235,41 +1236,112 @@ function create_budget_item($project){
 
 	}
 
+	// private function get_uploaded_bank_statement($reporting_month,$fcp_id = ''){
+
+	// 	$fcp_id = $fcp_id == ''?$this->session->center_id:$fcp_id;
+
+	// 	$statementbal_id = $this->get_bank_statement_id($fcp_id,$reporting_month);
+
+	// 	$this->db->where([
+	// 		'item_name'=>'bank_statement',
+	// 		'attachment_primary_id' => $statementbal_id
+	// 	]);
+		
+	// 	$attachment_obj = $this->db->get('attachment');
+
+	// 	$attachments = [];
+
+	// 	if($attachment_obj->num_rows() > 0){
+	// 		$attachments = $attachment_obj->result_array();
+	// 	}
+
+	// 	return $attachments;
+	// }
+
 	function bank_statements($param1=""){
 		 if ($this->session->userdata('admin_login') != 1)
             redirect(base_url(), 'refresh');
 			
-					
+		$page_data['uploaded_bank_statement'] = $this->finance_model->get_uploaded_bank_statement($param1);
         $page_data['page_name']  = 'bank_statements_upload';
 		$page_data['tym'] = strtotime($param1);
         $page_data['page_title'] = get_phrase('bank_statements');
         $this->load->view('backend/index', $page_data);		
 	}
 
-	public function bank_statements_upload($param1){
-			 if (!empty($_FILES)) {
+	// private function get_bank_statement_id($fcp_id,$reporting_month){
+
+	// 	$this->db->where(['month'=>$reporting_month,'icpNo'=>$fcp_id]);
+	// 	$statementbal_obj = $this->db->get('statementbal');
+
+	// 	$statementbal_id = 0;
+
+	// 	if($statementbal_obj->num_rows() == 0){
+	// 		// Insert and Get Id
+	// 		$data['month'] = $reporting_month;
+	// 		$data['statementDate'] = $reporting_month;
+	// 		$data['actualDate'] = $reporting_month;
+	// 		$data['icpNo'] = $fcp_id;
+	// 		$data['amount'] = 0;
+
+	// 		$this->db->insert('statementbal',$data);
+
+	// 		$statementbal_id = $this->db->insert_id();
+	// 	}else{
+	// 		// Get Id
+	// 		$this->db->where(['month'=>$reporting_month,'icpNo'=>$fcp_id]);
+	// 		$statementbal_id = $this->db->get('statementbal')->row()->balID;
+	// 	}
+
+	// 	return $statementbal_id;
+	// }
+
+	public function bank_statements_upload(){
+
+			$preassigned_urls = [];
+			$reporting_month = date('Y-m-t',$this->input->post('reporting_month'));
+			$fcp_id = $this->input->post('fcp_id');
+
+			$statemenbal_id = $this->finance_model->get_bank_statement_id($fcp_id,$reporting_month);
+
+			 //if (!empty($_FILES)) {
 				
-				 foreach($_FILES['file']['name'] as $index=>$name){
+				foreach($_FILES['file']['name'] as $index=>$name){
 	            
-				$file = explode('.',$name);
-				$filename = $file[0];
-				$file_ext=$file[1];	
+				//$file = explode('.',$name);
+				//$filename = $file[0];
+				//$file_ext=$file[1];	
 	             
-	             if(!file_exists('uploads/bank_statements/'.$this->session->center_id))
-						mkdir('uploads/bank_statements/'.$this->session->center_id);//.$name
+	            //  if(!file_exists('uploads/bank_statements/'.$this->session->center_id))
+				// 		mkdir('uploads/bank_statements/'.$this->session->center_id);//.$name
 						
-	             if(!file_exists('uploads/bank_statements/'.$this->session->center_id.'/'.date('Y-m',$param1)))
-						mkdir('uploads/bank_statements/'.$this->session->center_id.'/'.date('Y-m',$param1));//.$name
+	            //  if(!file_exists('uploads/bank_statements/'.$this->session->center_id.'/'.date('Y-m',$param1)))
+				// 		mkdir('uploads/bank_statements/'.$this->session->center_id.'/'.date('Y-m',$param1));//.$name
 				
-				if(!file_exists('uploads/bank_statements/'.$this->session->center_id.'/'.date('Y-m',$param1).'/'.sha1($filename).'.'.$file_ext)){				    
-	                    move_uploaded_file($_FILES["file"]["tmp_name"][$index],'uploads/bank_statements/'.$this->session->center_id.'/'.date('Y-m',$param1).'/'.sha1($filename).'.'.$file_ext);
-	            		echo $name.' uploaded successful';
-				 }
+				// if(!file_exists('uploads/bank_statements/'.$this->session->center_id.'/'.date('Y-m',$param1).'/'.sha1($filename).'.'.$file_ext)){				    
+	            //         move_uploaded_file($_FILES["file"]["tmp_name"][$index],'uploads/bank_statements/'.$this->session->center_id.'/'.date('Y-m',$param1).'/'.sha1($filename).'.'.$file_ext);
+	            // 		echo $name.' uploaded successful';
+				//  }
+				
+				$additional_attachment_table_insert_data = [];
+
+				$additional_attachment_table_insert_data['attachment_primary_id'] = $statemenbal_id;//15304;
+				$additional_attachment_table_insert_data['item_name'] = 'bank_statement';
+
+				$attachment_where_condition_array = [];
+
+				$attachment_where_condition_array['item_name'] = 'bank_statement';
+				$attachment_where_condition_array['attachment_primary_id'] = $statemenbal_id;//15304;
+
+
+				$storeFolder = 'uploads/bank_statements/'.$this->session->center_id.'/'.date('Y-m',$this->input->post('reporting_month'));//.'/'.sha1($filename);
 	            
+				$preassigned_urls =  $this->aws_attachment_library->upload_files($storeFolder,$additional_attachment_table_insert_data, $attachment_where_condition_array);
+
 	          	}
-	        }
-			
-			
+	        //}
+		
+			return $preassigned_urls;
 		}
 	
 	public function get_bank_statements($param1){

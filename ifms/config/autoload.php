@@ -60,7 +60,7 @@ $autoload['packages'] = array();
 |	$autoload['libraries'] = array('user_agent' => 'ua');
 */
 
-$autoload['libraries'] = array('pagination', 'xmlrpc' , 'form_validation', 'email','upload','image_lib','pagination');
+$autoload['libraries'] = array('pagination', 'xmlrpc' , 'form_validation', 'email','upload','image_lib','pagination','Aws_attachment_library');
 
 
 /*
@@ -88,7 +88,7 @@ $autoload['drivers'] = array();
 |	$autoload['helper'] = array('url', 'file');
 */
 
-$autoload['helper'] = array('clone_record','curl','financial','url','file','form','security','string','inflector','directory','download','multi_language',"fy",'utility','ui');
+$autoload['helper'] = array('clone_record','curl','financial','url','file','form','security','string','inflector','directory','download','multi_language',"fy",'utility','ui','aws_attachment');
 
 
 /*
@@ -104,7 +104,7 @@ $autoload['helper'] = array('clone_record','curl','financial','url','file','form
 |
 */
 
-$autoload['config'] = array('dev_config','general');
+$autoload['config'] = array('dev_config','general','Aws_attachment');
 
 
 /*

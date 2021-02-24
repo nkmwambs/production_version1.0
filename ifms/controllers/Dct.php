@@ -41,34 +41,55 @@ class Dct extends CI_Controller
 	function create_uploads_temp()
 	{
 
-		$voucher_number = $_POST['voucher_number'];
-		$voucher_detail_row_index = $_POST['voucher_detail_row_number'];
-		$support_mode_id = $_POST['support_mode_id'];
+		// $voucher_number = $_POST['voucher_number'];
+		// $voucher_detail_row_index = $_POST['voucher_detail_row_number'];
+		// $support_mode_id = $_POST['support_mode_id'];
 
-		//Hash the folder to make user depended
-		$hash = $this->dct_model->temp_folder_hash($voucher_number); //.random_int(10,1000000);
-		$detail_folder_name = $voucher_number .'_'. $voucher_detail_row_index .'_'. $support_mode_id; //.random_int(10,1000000);
+		// //Hash the folder to make user depended
+		// $hash = $this->dct_model->temp_folder_hash($voucher_number); //.random_int(10,1000000);
+		// $detail_folder_name = $voucher_number .'_'. $voucher_detail_row_index .'_'. $support_mode_id; //.random_int(10,1000000);
 
-		//$hash = md5($hash_main_folder_name);
-
-		//Folder for temp and call the upload_files method to temperarily hold files on server
+		// //Folder for temp and call the upload_files method to temperarily hold files on server
 		
-		$storeFolder = 'uploads' . DS . 'temps' . DS . $hash . DS . $detail_folder_name;
+		// $storeFolder = 'uploads' . DS . 'temps' . DS . $hash . DS . $detail_folder_name;
 
-		if (
-			is_array($this->upload_files($storeFolder)) &&
-			count($this->upload_files($storeFolder)) > 0
-		) {
-			$info = ['temp_id' => $hash];
+		// if (
+		// 	is_array($this->upload_files($storeFolder)) &&
+		// 	count($this->upload_files($storeFolder)) > 0
+		// ) {
+		// 	$info = ['temp_id' => $hash];
 
-			$files_array = array_merge($this->upload_files($storeFolder), $info);
+		// 	$files_array = array_merge($this->upload_files($storeFolder), $info);
 
-			echo json_encode($files_array);
+		// 	echo json_encode($files_array);
 
-		} else {
-			echo 0;
-		}
+		// } else {
+		// 	echo 0;
+		// }
 
+		$projectsdetails_id = 555;
+
+		$additional_attachment_table_insert_data = [];
+
+		$additional_attachment_table_insert_data['attachment_primary_id'] = $this->input->post('voucher_number');// Equivalent to voucher_header primary id
+		$additional_attachment_table_insert_data['item_name'] = 'dct_documents';
+		$additional_attachment_table_insert_data['is_upload_to_s3_completed'] = 0;
+		$additional_attachment_table_insert_data['fk_projectsdetails_id'] = $projectsdetails_id;
+
+		$attachment_where_condition_array = [];
+		$attachment_where_condition_array['item_name'] = 'dct_documents';
+		$attachment_where_condition_array['attachment_primary_id'] = $this->input->post('voucher_number');//15304;
+
+
+		$preassigned_urls = [];
+		
+		$vnum_row_recipient_folder_name = $this->input->post('voucher_number').'_'.$this->input->post('voucher_detail_row_number').'_'.$this->input->post('support_mode_id');
+
+		$storeFolder = 'uploads/dct_documents/'.$this->session->center_id.'/'.date('Y-m',strtotime($this->input->post('reporting_month'))).'/'.$this->input->post('voucher_number').'/'.$vnum_row_recipient_folder_name;//.'/'.sha1($filename);
+	            
+		$preassigned_urls =  $this->aws_attachment_library->upload_files($storeFolder,$additional_attachment_table_insert_data, $attachment_where_condition_array);
+		
+		echo $preassigned_urls;
 	}
 
     function upload_files($storeFolder)
@@ -392,11 +413,23 @@ class Dct extends CI_Controller
 	    
 	}
 
-	function count_files_in_temp_dir_for_ajax_use($voucher_detail_row_index,$voucher_number, $support_mode_id){
+	function count_files_in_temp_dir_for_ajax_use($voucher_detail_row_index,$voucher_number, $support_mode_id,$reporting_month){
 
-		$count_of_files=$this->count_files_in_temp_dir($voucher_detail_row_index,$voucher_number, $support_mode_id);
+		// $count_of_files=$this->count_files_in_temp_dir($voucher_detail_row_index,$voucher_number, $support_mode_id);
 
-		echo $count_of_files;
+		// echo $count_of_files;
+		$projectsdetails_id = 555;
+
+		$vnum_row_mode = $voucher_number.'_'.$voucher_detail_row_index.'_'.$support_mode_id;
+		//$attachment_url = 'uploads/dct_documents/'+$voucher_number+'';
+		$attachment_url = 'uploads/dct_documents/'.$this->session->center_id.'/'.date('Y-m',strtotime($reporting_month)).'/'.$voucher_number.'/'.$vnum_row_mode;//.'/'.sha1($filename);
+
+		$this->db->where(array('fk_projectsdetails_id'=>$projectsdetails_id,
+		'attachment_primary_id'=>$voucher_number,'attachment_url'=>$attachment_url));
+		$attachment_obj = $this->db->get('attachment');
+
+		echo $attachment_obj->num_rows();
+		
 	}
 
 	function check_if_mode_is_dct($support_mode_id){

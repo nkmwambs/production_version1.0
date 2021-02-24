@@ -57,13 +57,13 @@
 </div>
 
 <script>
-    $("#btn_save_uploads").on('click', function(ev) {
-        // if($("#modal_dct_reference").val() == ""){
-        //     alert('Reference number is required');
-        //     ev.preventDefault();
-        // }
+    // $("#btn_save_uploads").on('click', function(ev) {
+    //     // if($("#modal_dct_reference").val() == ""){
+    //     //     alert('Reference number is required');
+    //     //     ev.preventDefault();
+    //     // }
 
-    });
+    // });
 
     var max_voucher_upload_files_size = "<?=$this->config->item('max_voucher_upload_files_size');?>";
     var compute_upload_size = parseInt($("#compute_upload_size").val());
@@ -73,7 +73,7 @@
     
     var myDropzone = new Dropzone("#myDropzone", {
         url: "<?= base_url() ?>ifms.php?/dct/create_uploads_temp",
-        paramName: "fileToUpload", // The name that will be used to transfer the file
+        paramName: "file", // The name that will be used to transfer the file
         //maxFilesize: 2, // MB
         uploadMultiple: true,
         addRemoveLinks: true,
@@ -183,6 +183,7 @@
         formData.append('voucher_number', '<?= $param2; ?>');
         formData.append('voucher_detail_row_number', '<?= $param3; ?>');
         formData.append('support_mode_id', '<?= $param4; ?>');
+        formData.append('reporting_month', '<?= $param5; ?>');
     });
 
     myDropzone.on("success", function(file, response) {
@@ -204,7 +205,7 @@
     myDropzone.on('removedfile', function(file) {
 
         /* here do AJAX call to the server ... */
-        var url = "<?= base_url() ?>ifms.php/dct/remove_dct_files_in_temp/<?= $param2; ?>/<?= $param3; ?>/<?= $param4; ?>";
+        var url = "<?= base_url() ?>ifms.php/dct/remove_dct_files_in_temp/<?= $param2; ?>/<?= $param3; ?>/<?= $param4;?>/<?= $param5;?>";
         var file_name = file.name;
         $.ajax({
             //async: false,

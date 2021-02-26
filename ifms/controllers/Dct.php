@@ -333,24 +333,54 @@ class Dct extends CI_Controller
 	}
 
 	function remove_all_temp_files($voucher_number){
-		$hash = $this->dct_model->temp_folder_hash($voucher_number); 
-		$cnt = 0;
+		// $hash = $this->dct_model->temp_folder_hash($voucher_number); 
+		// $cnt = 0;
 		
 		
-		$temp_hashed_directory_path = BASEPATH . DS . '..' . DS . 'uploads' . DS . 'temps' . DS . $hash;
+		//$temp_hashed_directory_path = BASEPATH . DS . '..' . DS . 'uploads' . DS . 'temps' . DS . $hash;
 
-        if(file_exists($temp_hashed_directory_path)){
+        // if(file_exists($temp_hashed_directory_path)){
 
-			foreach (new DirectoryIterator($temp_hashed_directory_path) as $detail_temp_directory) {
-				if ($detail_temp_directory->isDot()) continue;
+		// 	foreach (new DirectoryIterator($temp_hashed_directory_path) as $detail_temp_directory) {
+		// 		if ($detail_temp_directory->isDot()) continue;
 				
-				$this->rrmdir($temp_hashed_directory_path .DS. $detail_temp_directory);
-			}		
+		// 		$this->rrmdir($temp_hashed_directory_path .DS. $detail_temp_directory);
+		// 	}		
 	
-			rmdir($temp_hashed_directory_path);
+		// 	rmdir($temp_hashed_directory_path);
 
+		// }
+		// echo $cnt;
+		
+		
+		$count_deleted_files = 0;
+
+		$this->db->where(array('icpNo'=>$this->session->center_id));
+		$projectsdetails_id = $this->db->get('projectsdetails')->row()->ID;
+
+		$this->db->where(array('attachment_primary_id'=>$voucher_number,
+		'item_name'=>'dct_documents','fk_projectsdetails_id'=>$projectsdetails_id));
+
+		$attachment_obj = $this->db->get('attachment');
+	
+
+		if($attachment_obj->num_rows() > 0){
+			$s3_path = '';
+
+			foreach($attachment_obj->result_array() as $attachment){
+				$s3_path = $attachment['attachment_url'];
+
+				$this->aws_attachment_library->delete_s3_objects($s3_path);
+
+				$this->db->where(array('attachment_url'=>$s3_path,'is_upload_to_s3_completed'=>0));
+				$this->db->delete('attachment');
+
+				$count_deleted_files++;
+			}
 		}
-		echo $cnt;
+
+
+		return $count_deleted_files;
 
 	}
 

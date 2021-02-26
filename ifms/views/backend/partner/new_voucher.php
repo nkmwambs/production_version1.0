@@ -1,5 +1,5 @@
 <?php
-//echo $this->session->session_id;
+//$this->aws_attachment_library->delete_s3_objects('uploads/dct_documents/KE204/2018-06/180629/180629_2_1');
 ?>
 <hr />
 

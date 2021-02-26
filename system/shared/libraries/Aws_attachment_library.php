@@ -73,6 +73,27 @@ function upload_s3_object($SourceFile,$s3_path, $file_name){
 
 }
 
+function delete_s3_objects($s3_path){
+    $objects = $this->s3Client->getIterator('ListObjects', array(
+        "Bucket" => $this->CI->config->item('s3_bucket_name'),
+        "Prefix" => $s3_path.'/' //must have the trailing forward slash "/"
+    ));
+
+    foreach ($objects as $object) {
+        //echo $object['Key'] . "<br>";
+        $this->s3Client->deleteObjects([
+          'Bucket'  => $this->CI->config->item('s3_bucket_name'),
+          'Delete' => [
+              'Objects' => [
+                  [
+                      'Key' => $object['Key']
+                  ]
+              ]
+          ]
+      ]);
+    }
+}
+
 function s3_preassigned_url($object_key){
         $cmd = $this->s3Client->getCommand('GetObject', [
             'Bucket' => $this->CI->config->item('s3_bucket_name'),

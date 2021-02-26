@@ -2549,4 +2549,39 @@ class Finance_model extends CI_Model {
 
 		return $statementbal_id;
 	}
+
+	function uploaded_bank_statements($fcp_id,$tym){
+
+        $this->db->where(array('icpNo'=>$fcp_id));
+		$project_id = $this->db->get('projectsdetails')->row()->ID;
+            
+        $month = date('Y-m',$tym);
+
+		$document_type = 'bank_statements';
+        
+        $url = 'uploads/'.$document_type.'/'.$fcp_id.'/'.$month;
+
+		$this->db->where(array('month'=>date('Y-m-t',$tym),'icpNo'=>$fcp_id));
+		$statementbal_id = $this->db->get('statementbal')->row()->balID;
+
+        $this->db->select(array('attachment_id','attachment_name','attachment_url','attachment_created_date','attachment_size'));
+
+        $this->db->where(
+            array(
+                'item_name'=>$document_type,
+                'fk_projectsdetails_id'=>$project_id,
+                'attachment_primary_id'=>$statementbal_id,
+                'attachment_url'=>$url
+            )
+        );
+        $attachment_obj = $this->db->get('attachment');
+
+        $attachment = [];
+
+        if($attachment_obj->num_rows() > 0){
+            $attachment = $attachment_obj->result_array();
+        }
+
+        return $attachment;
+	}
 }

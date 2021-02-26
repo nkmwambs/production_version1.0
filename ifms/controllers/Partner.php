@@ -1306,7 +1306,7 @@ function create_budget_item($project){
 
 			 //if (!empty($_FILES)) {
 				
-				foreach($_FILES['file']['name'] as $index=>$name){
+				//foreach($_FILES['file']['name'] as $index=>$name){
 	            
 				//$file = explode('.',$name);
 				//$filename = $file[0];
@@ -1322,11 +1322,15 @@ function create_budget_item($project){
 	            //         move_uploaded_file($_FILES["file"]["tmp_name"][$index],'uploads/bank_statements/'.$this->session->center_id.'/'.date('Y-m',$param1).'/'.sha1($filename).'.'.$file_ext);
 	            // 		echo $name.' uploaded successful';
 				//  }
+
+				$this->db->where(array('icpNo'=>$fcp_id));
+				$projectsdetails_id = $this->db->get('projectsdetails')->row()->ID;
 				
 				$additional_attachment_table_insert_data = [];
 
 				$additional_attachment_table_insert_data['attachment_primary_id'] = $statemenbal_id;//15304;
-				$additional_attachment_table_insert_data['item_name'] = 'bank_statement';
+				$additional_attachment_table_insert_data['item_name'] = 'bank_statements';
+				$additional_attachment_table_insert_data['fk_projectsdetails_id'] = $projectsdetails_id;
 
 				$attachment_where_condition_array = [];
 
@@ -1334,11 +1338,11 @@ function create_budget_item($project){
 				$attachment_where_condition_array['attachment_primary_id'] = $statemenbal_id;//15304;
 
 
-				$storeFolder = 'uploads/bank_statements/'.$this->session->center_id.'/'.date('Y-m',$this->input->post('reporting_month'));//.'/'.sha1($filename);
+				$storeFolder = 'uploads/bank_statements/'.$fcp_id.'/'.date('Y-m',$this->input->post('reporting_month'));//.'/'.sha1($filename);
 	            
 				$preassigned_urls =  $this->aws_attachment_library->upload_files($storeFolder,$additional_attachment_table_insert_data, $attachment_where_condition_array);
 
-	          	}
+	          	//}
 	        //}
 		
 			return $preassigned_urls;
@@ -1378,16 +1382,43 @@ function create_budget_item($project){
 		    echo json_encode($result);
 		}
 	}
+
+	function delete_single_file(){
+
+		$post = $this->input->post();
+
+		$path = $post['path'];
+		$file_name = $post['file_name'];
+
+		$this->aws_attachment_library->delete_s3_object($path,$file_name);
+
+		$this->db->where(array('attachment_url'=>$path,'attachment_name'=>$file_name));
+		
+		if($this->db->delete('attachment')){
+			echo "File deleted!";
+		}else{
+			echo "Deletion failed";
+		}
+		
+		// $this->session->set_flashdata('flash_message',get_phrase('files_deleted'));	
+		// redirect(base_url().'ifms.php/partner/bank_statements/'.date('Y-m-d',$tym),'refresh');
+	}
 	
 	public function delete_bank_statement($param1){
 		//$t= $_POST['name'];
-		$storeFolder = 'uploads/bank_statements/'.$this->session->center_id.'/'.date('Y-m',$param1).'/';  
+		$storeFolder = 'uploads/bank_statements/'.$this->session->center_id.'/'.date('Y-m',$param1);
+
 		//unlink($storeFolder);
-		foreach (glob($storeFolder."/*.*") as $filename) {
-			if (is_file($filename)) {
-			       unlink($filename);
-			}
-		}
+		// foreach (glob($storeFolder."/*.*") as $filename) {
+		// 	if (is_file($filename)) {
+		// 	       unlink($filename);
+		// 	}
+		// }
+
+		$this->aws_attachment_library->delete_s3_objects($storeFolder);
+
+		$this->db->where(array('attachment_url'=>$storeFolder));
+		$this->db->delete('attachment');
 		
 		$this->session->set_flashdata('flash_message',get_phrase('files_deleted'));	
 		redirect(base_url().'ifms.php/partner/bank_statements/'.date('Y-m-d',$param1),'refresh');

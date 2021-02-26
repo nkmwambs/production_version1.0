@@ -67,7 +67,8 @@ class Dct extends CI_Controller
 		// 	echo 0;
 		// }
 
-		$projectsdetails_id = 555;
+		$this->db->where(array('icpNo'=>$this->session->center_id));
+		$projectsdetails_id = $this->db->get('projectsdetails')->row()->ID;
 
 		$additional_attachment_table_insert_data = [];
 
@@ -418,7 +419,8 @@ class Dct extends CI_Controller
 		// $count_of_files=$this->count_files_in_temp_dir($voucher_detail_row_index,$voucher_number, $support_mode_id);
 
 		// echo $count_of_files;
-		$projectsdetails_id = 555;
+		$this->db->where(array('icpNo'=>$this->session->center_id));
+		$projectsdetails_id = $this->db->get('projectsdetails')->row()->ID;
 
 		$vnum_row_mode = $voucher_number.'_'.$voucher_detail_row_index.'_'.$support_mode_id;
 		//$attachment_url = 'uploads/dct_documents/'+$voucher_number+'';

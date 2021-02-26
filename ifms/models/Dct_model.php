@@ -15,10 +15,12 @@ class Dct_model extends CI_Model {
     $hID = 0;
 
      // Move file to dct_document folder only when database insert is completed successful
-     $voucher_number = $this->input->post('VNumber');
-     $voucher_date = $this->input->post('TDate');
+     //$voucher_number = $this->input->post('VNumber');
+     //$voucher_date = $this->input->post('TDate');
+     $this->db->where(array('icpNo'=>$this->input->post('KENo')));
+     $projectsdetails_id = $this->db->get('projectsdetails')->row()->ID;
 
-     $temp_dir_name = BASEPATH . DS . '..' . DS . 'uploads' . DS . 'temps' . DS . $this->temp_folder_hash($voucher_number);
+     //$temp_dir_name = BASEPATH . DS . '..' . DS . 'uploads' . DS . 'temps' . DS . $this->temp_folder_hash($voucher_number);
     
     $this->db->trans_begin();
    
@@ -104,7 +106,8 @@ class Dct_model extends CI_Model {
 
             $this->db->insert('voucher_body', $data2);
         }
-        if ($this->db->trans_status() === false || (!file_exists($temp_dir_name) && $uploads_required)) {
+
+        if ($this->db->trans_status() === false) {
             $this->db->trans_rollback();
             $hID = 0;
         } 
@@ -113,7 +116,15 @@ class Dct_model extends CI_Model {
             $this->db->trans_commit(); 
              
             if($uploads_required){
-                $this->move_temp_files_to_dct_document($temp_dir_name, $voucher_date, $voucher_number);
+                //$this->move_temp_files_to_dct_document($temp_dir_name, $voucher_date, $voucher_number);
+                $update_data['is_upload_to_s3_completed'] = 1;
+
+                $this->db->where([
+                    'item_name'=>'dct_documents',
+                    'attachment_primary_id'=>$this->input->post('VNumber'),
+                    'fk_projectsdetails_id'=>$projectsdetails_id]);
+
+                $this->db->update('attachment',$update_data);
             }         
            
 
@@ -197,6 +208,49 @@ class Dct_model extends CI_Model {
     function get_all_dct_recipients(){
         $recipients=$this->db->select(array('voucher_item_type_id','voucher_item_type_name'))->get('voucher_item_type')->result_array();
         return $recipients;
+    }
+
+    function uploaded_dct_documents($voucher_number,$reporting_month,$support_mode_id,$row_id,$document_type = 'dct_documents'){
+        // return [
+        //     ['attachment_url'=>'uploads/dct_documents/KE445/2018-06/180620/180620_3_1','attachment_name'=>"Travel Advance Template- Jan '21.pdf",'attachment_created_date'=>'2021-02-24 11:09:59','attachment_size'=>'	126043'],
+        //     ['attachment_url'=>'uploads/dct_documents/KE445/2018-06/180620/180620_2_1','attachment_name'=>"BANK STATEMENT DECEMBER  2020 (1).pdf",'attachment_created_date'=>'2021-02-24 11:55:30','attachment_size'=>'2133516']
+        // ];
+        
+        
+        
+        // $voucher_number = 180620;
+        // $reporting_month = '2018-06-20';
+        // $support_mode_id = 1;
+        // $row_id = 3;
+
+        $fcp_id = $this->session->center_id;
+
+        $this->db->where(array('icpNo'=>$fcp_id));
+		$project_id = $this->db->get('projectsdetails')->row()->ID;
+            
+        $month = date('Y-m',strtotime($reporting_month));
+        
+        $url = 'uploads/dct_documents/'.$fcp_id.'/'.$month.'/'.$voucher_number.'/'.$voucher_number.'_'.$row_id.'_'.$support_mode_id;
+
+        $this->db->select(array('attachment_id','attachment_name','attachment_url','attachment_created_date','attachment_size'));
+
+        $this->db->where(
+            array(
+                'item_name'=>$document_type,
+                'fk_projectsdetails_id'=>$project_id,
+                'attachment_primary_id'=>$voucher_number,
+                'attachment_url'=>$url
+            )
+        );
+        $attachment_obj = $this->db->get('attachment');
+
+        $attachment = [];
+
+        if($attachment_obj->num_rows() > 0){
+            $attachment = $attachment_obj->result_array();
+        }
+
+        return $attachment;
     }
 }
 

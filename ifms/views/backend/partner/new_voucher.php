@@ -348,9 +348,6 @@ include "dct_scripts.php";
 			//alert(reference_number);
 			var val = $('#VTypeMain').val();
 
-
-
-
 			if ($('#ChqNo').val() < 1 && $("#totals").val() !== "0.00 Kes." && val === 'CHQ' && $('#reversal').prop('checked') === false) {
 				//alert("Here 1");
 				$('#error_msg').html('<?php echo get_phrase('error:_invalid_cheque_number'); ?>');

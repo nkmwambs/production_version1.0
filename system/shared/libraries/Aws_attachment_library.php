@@ -156,9 +156,14 @@ function s3_preassigned_url($object_key){
                       
             $file_name = $_FILES['file']['name'][$i];
 
-            $file = explode('.',$file_name);
-            $sha1_filename_no_ext = $this->CI->config->item('encrypt_file') ? sha1($file[0]) : $file[0];
-            $file_ext=$file[1];
+            $file_ext = pathinfo($file_name,PATHINFO_EXTENSION);
+            $file = pathinfo($file_name,PATHINFO_FILENAME);
+
+            //$file = explode('.',$file_name);
+            //$file_ext = array_pop($file);
+            //$sha1_filename_no_ext = $this->CI->config->item('encrypt_file') ? sha1('',implode($file)) : implode('',$file);
+            $sha1_filename_no_ext = $this->CI->config->item('encrypt_file') ? sha1($file) : $file;
+            
 
             $sha1_file_name_wt_ext = $sha1_filename_no_ext.'.'.$file_ext;
 

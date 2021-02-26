@@ -916,7 +916,7 @@ public function multiple_vouchers($tym){
 	    $this->load->view('backend/index', $page_data);			
 	}
 	
-	function post_voucher($param1=''){
+	function post_voucher(){
 		
 		if ($this->session->userdata('admin_login') != 1)
 			redirect(base_url(), 'refresh');

@@ -58,6 +58,7 @@ $mfr_submitted = $this->finance_model->mfr_submitted($this->session->center_id,d
                 <table class="table table-hover table-striped">
                 	<thead>
                 		<tr>
+							<th><?=get_phrase('action');?></th>
                 			<th><?= get_phrase('bank_statement');?></th>
                 			<th><?= get_phrase('upload_date');?></th>
                 			<th><?= get_phrase('file_size');?></th>
@@ -72,6 +73,7 @@ $mfr_submitted = $this->finance_model->mfr_submitted($this->session->center_id,d
 								$url = $this->aws_attachment_library->s3_preassigned_url($objectKey);
 						?>
 	                		<tr>
+								<td><i class="fa fa-trash-o"></i></td>
 	                			<td><a target="__blank" href="<?=$url;?>"><?= $bank_statement['attachment_name'];?></a></td>
 	                			<td><?= $bank_statement['attachment_created_date'];?></td>
 	                			<td><?= number_format(($bank_statement['attachment_size']/1000000),2).' MB';?></td>

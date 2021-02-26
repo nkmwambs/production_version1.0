@@ -531,12 +531,13 @@
 		var support_mode_id = $(modes_select).val();
 		var voucher_detail_row_number = parseInt($(modes_select).closest('tr').index()) + 1;
 		var voucher_number = $("#Generated_VNumber").val();
+		var reporting_month = $("#TDate").val();
 
 		var url = "<?= base_url(); ?>ifms.php/dct/check_if_mode_is_dct/" + support_mode_id;
 
 		$.get(url, function(response) {
 			if (response == 1) {
-				$(modes_select).prop('onclick', showAjaxModal('<?php echo base_url(); ?>ifms.php/modal/popup/modal_upload_dct_documents/' + voucher_number + '/' + voucher_detail_row_number + '/' + support_mode_id));
+				$(modes_select).prop('onclick', showAjaxModal('<?php echo base_url(); ?>ifms.php/modal/popup/modal_upload_dct_documents/' + voucher_number + '/' + voucher_detail_row_number + '/' + support_mode_id + '/' + reporting_month));
 			}
 
 		});
@@ -552,13 +553,13 @@
 
 		var support_mode_id = $("#bodyTable tr").eq(voucher_detail_row_index).find('td.td_support_mode').find('select').val();
 
-
+		var reporting_month = $("#TDate").val();
 
 		//alert(support_mode_id);
 
 		//alert(dct_uploads_count_label.hasClass('badge'));
 
-		var url = "<?= base_url(); ?>ifms.php?/dct/count_files_in_temp_dir_for_ajax_use/" + voucher_detail_row_index + "/" + voucher_number + "/" + support_mode_id;
+		var url = "<?= base_url(); ?>ifms.php?/dct/count_files_in_temp_dir_for_ajax_use/" + voucher_detail_row_index + "/" + voucher_number + "/" + support_mode_id + '/' + reporting_month;
 
 		$.get(url, function(response) {
 			//alert(response);

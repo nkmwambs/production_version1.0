@@ -73,6 +73,43 @@ function upload_s3_object($SourceFile,$s3_path, $file_name){
 
 }
 
+function delete_s3_object($s3_path,$file_name){
+
+  $key = $s3_path.'/'.$file_name;
+
+  $this->s3Client->deleteObjects([
+      'Bucket'  => $this->CI->config->item('s3_bucket_name'),
+      'Delete' => [
+          'Objects' => [
+              [
+                  'Key' => $key
+              ]
+          ]
+      ]
+  ]);
+}
+
+function delete_s3_objects($s3_path){
+    $objects = $this->s3Client->getIterator('ListObjects', array(
+        "Bucket" => $this->CI->config->item('s3_bucket_name'),
+        "Prefix" => $s3_path.'/' //must have the trailing forward slash "/"
+    ));
+
+    foreach ($objects as $object) {
+        //echo $object['Key'] . "<br>";
+        $this->s3Client->deleteObjects([
+          'Bucket'  => $this->CI->config->item('s3_bucket_name'),
+          'Delete' => [
+              'Objects' => [
+                  [
+                      'Key' => $object['Key']
+                  ]
+              ]
+          ]
+      ]);
+    }
+}
+
 function s3_preassigned_url($object_key){
         $cmd = $this->s3Client->getCommand('GetObject', [
             'Bucket' => $this->CI->config->item('s3_bucket_name'),
@@ -156,15 +193,20 @@ function s3_preassigned_url($object_key){
                       
             $file_name = $_FILES['file']['name'][$i];
 
-            $file = explode('.',$file_name);
-            $sha1_filename_no_ext = sha1($file[0]);
-            $file_ext=$file[1];
+            $file_ext = pathinfo($file_name,PATHINFO_EXTENSION);
+            $file = pathinfo($file_name,PATHINFO_FILENAME);
+
+            //$file = explode('.',$file_name);
+            //$file_ext = array_pop($file);
+            //$sha1_filename_no_ext = $this->CI->config->item('encrypt_file') ? sha1('',implode($file)) : implode('',$file);
+            $sha1_filename_no_ext = $this->CI->config->item('encrypt_file') ? sha1($file) : $file;
+            
 
             $sha1_file_name_wt_ext = $sha1_filename_no_ext.'.'.$file_ext;
 
             $this->upload_s3_object($tempFile,$storeFolder, $sha1_file_name_wt_ext);
 
-            $this->CI->{$this->read_db}->where(array('attachment_name'=>$_FILES['file']['name'][$i]));
+            $this->CI->{$this->read_db}->where(array('attachment_name'=>$sha1_file_name_wt_ext));
             $this->CI->{$this->read_db}->where($attachment_where_condition_array);
             
             $file_exists = $this->CI->{$this->read_db}->get($this->attachment_table_name)->num_rows();

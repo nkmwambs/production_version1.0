@@ -1,5 +1,5 @@
 <?php
-//echo $this->session->session_id;
+//$this->aws_attachment_library->delete_s3_objects('uploads/dct_documents/KE204/2018-06/180629/180629_2_1');
 ?>
 <hr />
 
@@ -347,9 +347,6 @@ include "dct_scripts.php";
 			var voucher_number = $('#Generated_VNumber').val();
 			//alert(reference_number);
 			var val = $('#VTypeMain').val();
-
-
-
 
 			if ($('#ChqNo').val() < 1 && $("#totals").val() !== "0.00 Kes." && val === 'CHQ' && $('#reversal').prop('checked') === false) {
 				//alert("Here 1");

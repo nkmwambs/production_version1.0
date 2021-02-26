@@ -129,7 +129,7 @@ var myDropzone = new Dropzone("#myDropZone", {
 
     myDropzone.on("success", function(file,response) {
         console.log(response);
-		//location.reload();        
+		location.reload();        
     });
 
 	myDropzone.on("removedfile", function(file) {

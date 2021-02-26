@@ -114,9 +114,13 @@ var myDropzone = new Dropzone("#myDropZone", {
 
     myDropzone.on("complete", function(file) {
         //myDropzone.removeFile(file);
-        myDropzone.removeAllFiles();
+        //myDropzone.removeAllFiles(file);
         //alert(myDropzone.getAcceptedFiles());
     }); 
+
+	// myDropzone.on("queuecomplete", function () {
+	// 	this.removeAllFiles();
+	// });
 
     myDropzone.on('error', function(file, response) {
        // $(file.previewElement).find('.dz-error-message').text(response);
@@ -126,6 +130,19 @@ var myDropzone = new Dropzone("#myDropZone", {
     myDropzone.on("success", function(file,response) {
         console.log(response);
 		location.reload();        
+    });
+
+	myDropzone.on("removedfile", function(file) {
+        //console.log(response);
+
+		var path = "uploads/bank_statements/<?=$this->session->center_id;?>/<?=date('Y-m',$tym);?>";
+
+			$.ajax({
+				url: "<?php echo base_url();?>ifms.php/partner/delete_single_file",
+				type: "POST",
+				data: { 'file_name': file.name,'path':path}
+			});
+  
     });
 	
 // $(function(){

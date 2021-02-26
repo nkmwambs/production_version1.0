@@ -26,36 +26,10 @@ $mfr_submitted = $this->finance_model->mfr_submitted($project,date('Y-m-d',$tym)
           	<!--<button onclick="confirm_action('<?php echo base_url();?>ifms.php/partner/delete_bank_statement/<?=$tym;?>');" class="btn btn-icon btn-red" id="deleting"><i class="entypo-cancel-squared"></i><?= get_phrase('delete');?></button>-->
           	<a href="<?php echo base_url();?>ifms.php/facilitator/ziparchive/<?php echo $project;?>/<?=$tym;?>" class="btn btn-orange btn-icon"><i class="fa fa-cloud-download"></i>Download All</a>
           	<hr>
+               
                 <?php
-                	
-                ?>
-                <table class="table table-hover table-striped">
-                	<thead>
-                		<tr>
-                			<th><?= get_phrase('bank_statement');?></th>
-                			<th><?= get_phrase('upload_date');?></th>
-                			<th><?= get_phrase('file_size');?></th>
-                			<th></th>
-                		</tr>
-                	</thead>
-                	<tbody>
-                  <?php 
-							
-                    foreach($uploaded_bank_statement as $bank_statement):
-                      $objectKey = $bank_statement['attachment_url'].'/'.$bank_statement['attachment_name'];
-                      $url = $this->aws_attachment_library->s3_preassigned_url($objectKey);
-                  ?>
-                            <tr>
-                              <td><a target="__blank" href="<?=$url;?>"><?= $bank_statement['attachment_name'];?></a></td>
-                              <td><?= $bank_statement['attachment_created_date'];?></td>
-                              <td><?= number_format(($bank_statement['attachment_size']/1000000),2).' MB';?></td>
-                            </tr>
-                          <?php 
-                            endforeach;
-                    
-                		?>
-                	</tbody>
-                </table>							
+					echo list_s3_uploaded_documents($this->finance_model->uploaded_bank_statements($project,$tym));
+				?>							
 			
 			</div>
 	</div>

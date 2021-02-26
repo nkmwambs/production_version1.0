@@ -66,7 +66,7 @@
                 ?>
                 <div class="hidden-print">
                 <?php
-                        echo list_s3_uploaded_documents($this->dct_model->uploaded_dct_documents($VNumber,$TDate,$row['support_mode_id'],$row_index),false);
+                        echo list_s3_uploaded_documents($this->dct_model->uploaded_dct_documents($VNumber,$TDate,$row['support_mode_id'],$row_index,$icpNo),false);
                 ?>
                 </div>
                 <?php

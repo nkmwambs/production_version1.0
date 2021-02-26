@@ -25,7 +25,7 @@
                                     $url = $this->aws_attachment_library->s3_preassigned_url($objectKey);
                             ?>
                                 <tr>
-                                    <td><i style="cursor: pointer;" class="fa fa-trash-o delete_file" data-path = '<?=$file['attachment_url'];?>' data-file_name = '<?=$file['attachment_name'];?>'></i></td>
+                                    <td><i style="cursor: pointer;" class="fa fa-trash-o <?=$this->session->logged_user_level == 1?'delete_file':'';?>" data-path = '<?=$file['attachment_url'];?>' data-file_name = '<?=$file['attachment_name'];?>'></i></td>
                                     <td><a target="__blank" href="<?=$url;?>"><?= $file['attachment_name'];?></a></td>
                                     <td><?= $file['attachment_created_date'];?></td>
                                     <td><?= number_format(($file['attachment_size']/1000000),2).' MB';?></td>

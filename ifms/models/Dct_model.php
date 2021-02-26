@@ -210,7 +210,7 @@ class Dct_model extends CI_Model {
         return $recipients;
     }
 
-    function uploaded_dct_documents($voucher_number,$reporting_month,$support_mode_id,$row_id,$document_type = 'dct_documents'){
+    function uploaded_dct_documents($voucher_number,$reporting_month,$support_mode_id,$row_id,$fcp_id = ""){
         // return [
         //     ['attachment_url'=>'uploads/dct_documents/KE445/2018-06/180620/180620_3_1','attachment_name'=>"Travel Advance Template- Jan '21.pdf",'attachment_created_date'=>'2021-02-24 11:09:59','attachment_size'=>'	126043'],
         //     ['attachment_url'=>'uploads/dct_documents/KE445/2018-06/180620/180620_2_1','attachment_name'=>"BANK STATEMENT DECEMBER  2020 (1).pdf",'attachment_created_date'=>'2021-02-24 11:55:30','attachment_size'=>'2133516']
@@ -223,7 +223,9 @@ class Dct_model extends CI_Model {
         // $support_mode_id = 1;
         // $row_id = 3;
 
-        $fcp_id = $this->session->center_id;
+        $document_type = 'dct_documents';
+
+        $fcp_id = $fcp_id == "" ? $this->session->center_id: $fcp_id;
 
         $this->db->where(array('icpNo'=>$fcp_id));
 		$project_id = $this->db->get('projectsdetails')->row()->ID;

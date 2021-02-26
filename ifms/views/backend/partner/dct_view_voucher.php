@@ -64,12 +64,15 @@
                 <?php 
                     if($row['support_mode_is_dct']){
                 ?>
-                        <a href='<?php echo base_url();?>ifms.php/dct/dct_documents_download/<?= $row['icpNo'];?>/<?=strtotime($row['TDate']);?>/<?=$row['VNumber'];?>/<?=$row['VNumber'];?>_<?=$row_index;?>_<?=$row['support_mode_id']?>' >
-                            <i style="cursor:pointer;" class="fa fa-download"></i>
-                        </a>
+                <div class="hidden-print">
+                <?php
+                        echo list_s3_uploaded_documents($this->dct_model->uploaded_dct_documents($VNumber,$TDate,$row['support_mode_id'],$row_index,$icpNo),false);
+                ?>
+                </div>
                 <?php
                     }
                 ?>
+                
                 
             </td>
             <td><?php echo $row['Details'];?></td>

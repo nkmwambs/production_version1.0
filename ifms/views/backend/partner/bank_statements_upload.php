@@ -53,35 +53,10 @@ $mfr_submitted = $this->finance_model->mfr_submitted($this->session->center_id,d
           	
           	<hr>
                 <?php
-                	
+					//print_r($this->finance_model->uploaded_bank_statements($this->session->center_id,$tym))
+                	echo list_s3_uploaded_documents($this->finance_model->uploaded_bank_statements($this->session->center_id,$tym));
                 ?>
-                <table class="table table-hover table-striped">
-                	<thead>
-                		<tr>
-                			<th><?= get_phrase('bank_statement');?></th>
-                			<th><?= get_phrase('upload_date');?></th>
-                			<th><?= get_phrase('file_size');?></th>
-                			<th></th>
-                		</tr>
-                	</thead>
-                	<tbody>
-                		<?php 
-							
-							foreach($uploaded_bank_statement as $bank_statement):
-								$objectKey = $bank_statement['attachment_url'].'/'.$bank_statement['attachment_name'];
-								$url = $this->aws_attachment_library->s3_preassigned_url($objectKey);
-						?>
-	                		<tr>
-	                			<td><a target="__blank" href="<?=$url;?>"><?= $bank_statement['attachment_name'];?></a></td>
-	                			<td><?= $bank_statement['attachment_created_date'];?></td>
-	                			<td><?= number_format(($bank_statement['attachment_size']/1000000),2).' MB';?></td>
-	                		</tr>
-                		<?php 
-                			endforeach;
-							
-                		?>
-                	</tbody>
-                </table>							
+                							
 			
 			</div>
 	</div>
@@ -90,6 +65,28 @@ $mfr_submitted = $this->finance_model->mfr_submitted($this->session->center_id,d
 </div>
 
 <script>
+
+$(".delete_file").on('click',function(){
+
+	var path = $(this).data('path');
+	var file_name = $(this).data('file_name');
+	var url = "<?php echo base_url();?>ifms.php/partner/delete_single_file";
+	var data = {'path':path,'file_name':file_name};
+	var row = $(this).closest('tr');
+
+	var cnfm =  confirm("Are you sure you want to delete this file?");
+
+	if(cnfm){
+		$.post(url,data,function(response){
+			row.remove();	
+			alert(response);
+		});
+	}else{
+		alert('Delete aborted');
+	}
+
+	
+});
 
 $(document).ready(function(){
     Dropzone.autoDiscover = false;
@@ -117,9 +114,13 @@ var myDropzone = new Dropzone("#myDropZone", {
 
     myDropzone.on("complete", function(file) {
         //myDropzone.removeFile(file);
-        myDropzone.removeAllFiles();
+        //myDropzone.removeAllFiles(file);
         //alert(myDropzone.getAcceptedFiles());
     }); 
+
+	// myDropzone.on("queuecomplete", function () {
+	// 	this.removeAllFiles();
+	// });
 
     myDropzone.on('error', function(file, response) {
        // $(file.previewElement).find('.dz-error-message').text(response);
@@ -129,6 +130,19 @@ var myDropzone = new Dropzone("#myDropZone", {
     myDropzone.on("success", function(file,response) {
         console.log(response);
 		location.reload();        
+    });
+
+	myDropzone.on("removedfile", function(file) {
+        //console.log(response);
+
+		var path = "uploads/bank_statements/<?=$this->session->center_id;?>/<?=date('Y-m',$tym);?>";
+
+			$.ajax({
+				url: "<?php echo base_url();?>ifms.php/partner/delete_single_file",
+				type: "POST",
+				data: { 'file_name': file.name,'path':path}
+			});
+  
     });
 	
 // $(function(){

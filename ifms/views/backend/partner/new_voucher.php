@@ -1,5 +1,10 @@
 <?php
-//$this->aws_attachment_library->delete_s3_objects('uploads/dct_documents/KE204/2018-06/180629/180629_2_1');
+
+$fcps = $this->finance_model->get_projectsdetails();
+$statements = $this->finance_model->get_statement_balance_ids();
+
+print_r($this->finance_model->insert_attachment_records_from_local_file_system($fcps,$statements));
+
 ?>
 <hr />
 

@@ -1,9 +1,9 @@
 <?php
 
-$fcps = $this->finance_model->get_projectsdetails();
-$statements = $this->finance_model->get_statement_balance_ids();
+//$fcps = $this->finance_model->get_projectsdetails();
+//$statements = $this->finance_model->get_statement_balance_ids();
 
-$this->finance_model->insert_attachment_records_from_local_file_system($fcps,$statements);
+//$this->finance_model->insert_attachment_records_from_local_file_system($fcps,$statements);
 
 ?>
 <hr />

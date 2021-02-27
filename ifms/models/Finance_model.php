@@ -2584,4 +2584,51 @@ class Finance_model extends CI_Model {
 
         return $attachment;
 	}
+
+	function get_projectsdetails(){
+
+		$this->db->select(array('ID','icpNo'));
+		$this->db->where(array('status'=>1));
+		$projectsdetails = $this->db->get('projectsdetails')->result_array();
+
+		$ids = array_column($projectsdetails,'ID');
+		$fcp_number = array_column($projectsdetails,'icpNo');
+
+		return array_combine($fcp_number,$ids);
+	}
+
+	function get_statement_balance_ids(){
+
+		$this->db->select(array('balID','icpNo'));
+		$this->db->select("DATE_FORMAT(month, '%Y-%m') AS month", FALSE);
+		$statementbal_array = $this->db->get('statementbal')->result_array();
+
+		$statementbal_ids = [];
+
+		foreach($statementbal_array as $statementbal){
+			$statementbal_ids[$statementbal['icpNo']][$statementbal['month']] = $statementbal['balID'];
+		}
+
+		return $statementbal_ids;
+	}
+
+	function insert_attachment_records_from_local_file_system(){
+
+		$projectsdetails = $this->get_projectsdetails();
+
+		$bank_statements = $this->get_statement_balance_ids();
+
+		$attachment_insert_array = attachment_insert_array($projectsdetails,$bank_statements);
+
+		foreach($attachment_insert_array as $attachment_record){
+			$this->db->where($attachment_record);
+			$attachment_count = $this->db->get('attachment')->num_rows();
+
+			if($attachment_count == 0){
+				$this->db->insert('attachment',$attachment_record);
+			}
+		}
+
+		return $attachment_insert_array;
+	}
 }

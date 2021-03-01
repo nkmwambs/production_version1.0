@@ -31,14 +31,14 @@ if(!function_exists('attachment_insert_array')){
             $files[$cnt]['attachment_file_type'] = mime_content_type($pathinfo);
     
             if($attachment_url_as_array[1] == 'bank_statements' || $attachment_url_as_array[1] == 'dct_documents'){
-                $files[$cnt]['fk_projectsdetails_id'] = $projectsdetails[$attachment_url_as_array[2]];
-                $files[$cnt]['item_name'] = $attachment_url_as_array[1];
+                $files[$cnt]['fk_projectsdetails_id'] = isset($projectsdetails[$attachment_url_as_array[2]]) ? $projectsdetails[$attachment_url_as_array[2]] : 0;
+                $files[$cnt]['item_name'] = isset($attachment_url_as_array[1]) ? $attachment_url_as_array[1] : 0;
             }
     
             if($attachment_url_as_array[1] == 'bank_statements'){
                 $files[$cnt]['attachment_primary_id'] = isset($bank_statements[$attachment_url_as_array[2]][$attachment_url_as_array[3]])?$bank_statements[$attachment_url_as_array[2]][$attachment_url_as_array[3]]:0;
             }elseif($attachment_url_as_array[1] == 'dct_documents'){
-                $files[$cnt]['attachment_primary_id'] = $attachment_url_as_array[4];
+                $files[$cnt]['attachment_primary_id'] = isset($attachment_url_as_array[4]) ? $attachment_url_as_array[4] : 0;
             }
     
             $cnt++;

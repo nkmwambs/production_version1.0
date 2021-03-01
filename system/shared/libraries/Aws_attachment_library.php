@@ -37,7 +37,7 @@ function s3_setup(){
        ];
     
     // Array for localhost
-    if($_SERVER['HTTP_HOST'] == 'localhost'){
+    if(!is_cli() && $_SERVER['HTTP_HOST'] == 'localhost'){
         $s3ClientCredentials['profile'] = 'default';
     }
 

@@ -72,6 +72,10 @@ class Dct extends CI_Controller
 
 		$additional_attachment_table_insert_data = [];
 
+		$vnum_row_recipient_folder_name = $this->input->post('voucher_number').'_'.$this->input->post('voucher_detail_row_number').'_'.$this->input->post('support_mode_id');
+
+		$storeFolder = 'uploads/dct_documents/'.$this->session->center_id.'/'.date('Y-m',strtotime($this->input->post('reporting_month'))).'/'.$this->input->post('voucher_number').'/'.$vnum_row_recipient_folder_name;//.'/'.sha1($filename);
+
 		$additional_attachment_table_insert_data['attachment_primary_id'] = $this->input->post('voucher_number');// Equivalent to voucher_header primary id
 		$additional_attachment_table_insert_data['item_name'] = 'dct_documents';
 		$additional_attachment_table_insert_data['is_upload_to_s3_completed'] = 0;
@@ -80,14 +84,10 @@ class Dct extends CI_Controller
 		$attachment_where_condition_array = [];
 		$attachment_where_condition_array['item_name'] = 'dct_documents';
 		$attachment_where_condition_array['attachment_primary_id'] = $this->input->post('voucher_number');//15304;
-
+		$attachment_where_condition_array['attachment_url'] = $storeFolder;
 
 		$preassigned_urls = [];
 		
-		$vnum_row_recipient_folder_name = $this->input->post('voucher_number').'_'.$this->input->post('voucher_detail_row_number').'_'.$this->input->post('support_mode_id');
-
-		$storeFolder = 'uploads/dct_documents/'.$this->session->center_id.'/'.date('Y-m',strtotime($this->input->post('reporting_month'))).'/'.$this->input->post('voucher_number').'/'.$vnum_row_recipient_folder_name;//.'/'.sha1($filename);
-	            
 		$preassigned_urls =  $this->aws_attachment_library->upload_files($storeFolder,$additional_attachment_table_insert_data, $attachment_where_condition_array);
 		
 		echo $preassigned_urls;

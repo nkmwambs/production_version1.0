@@ -3,7 +3,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/dropzone.css">
 
 <?php
-//echo $param3;
+   // $uploaded_files = $this->dct_model->uploaded_dct_documents();
 ?>
 
 <div class='row'>
@@ -17,53 +17,68 @@
             </div>
 
             <div class="panel-body" style="max-width:50;  overflow: auto;">
-                <?php echo form_open("", array('id' => 'frm_dct_documents', 'class' => 'form-vertical form-groups-bordered validate', 'enctype' => 'multipart/form-data')); ?>
 
-                <!-- <div class='form-group'>
-                        <label class='control-label col-xs-12'><?= get_phrase('reference_number'); ?></label>
-                        <div class='col-xs-12'>
-                            <input type='text' id='modal_dct_reference' class='form-control' value = '<?= $param5; ?>' name = '' />
-                        </div>
-                    </div>
+            <div class="row">
+                    <div class="col-xs-12">
+                        <?php echo form_open("", array('id' => 'frm_dct_documents', 'class' => 'form-vertical form-groups-bordered validate', 'enctype' => 'multipart/form-data')); ?>
 
-                    <hr style='margin:25px 0px 25px 0px'/> -->
+                        <!-- <div class='form-group'>
+                                <label class='control-label col-xs-12'><?= get_phrase('reference_number'); ?></label>
+                                <div class='col-xs-12'>
+                                    <input type='text' id='modal_dct_reference' class='form-control' value = '<?= $param5; ?>' name = '' />
+                                </div>
+                            </div>
 
-                <div class='form-group'>
-                    <label class='control-label col-xs-12'><?= get_phrase('reference_documents'); ?></label>
-                    <div class='col-xs-12'>
-                        <div id="myDropzone" class="dropzone">
-                            <div class="dropzone-previews"></div>
-                            <div class="fallback">
-                                <!-- this is the fallback if JS isn't working -->
-                                <input name="fileToUpload" type="file" multiple />
+                            <hr style='margin:25px 0px 25px 0px'/> -->
+
+                        <div class='form-group'>
+                            <label class='control-label col-xs-12'><?= get_phrase('reference_documents'); ?></label>
+                            <div class='col-xs-12'>
+                                <div id="myDropzone" class="dropzone">
+                                    <div class="dropzone-previews"></div>
+                                    <div class="fallback">
+                                        <!-- this is the fallback if JS isn't working -->
+                                        <input name="fileToUpload" type="file" multiple />
+                                    </div>
+                                </div>
                             </div>
                         </div>
+
+                        <hr style='margin:25px 0px 25px 0px' />
+
+                        <div class='form-group'>
+                            <label class='control-label col-xs-12'></label>
+                            <div class='col-xs-12'>
+                                <div data-dismiss='modal' id='btn_save_uploads' data-row_id="<?= $param3; ?>" class='btn btn-default'><?= get_phrase('save'); ?></div>
+                            </div>
+                        </div>
+
+                        </form>
+
+                    </div>
+                </div>    
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <?php 
+                            echo list_s3_uploaded_documents($this->dct_model->uploaded_dct_documents($param2,$param5,$param4,$param3));
+                        ?>
                     </div>
                 </div>
 
-                <hr style='margin:25px 0px 25px 0px' />
-
-                <div class='form-group'>
-                    <label class='control-label col-xs-12'></label>
-                    <div class='col-xs-12'>
-                        <div data-dismiss='modal' id='btn_save_uploads' data-row_id="<?= $param3; ?>" class='btn btn-default'><?= get_phrase('save'); ?></div>
-                    </div>
-                </div>
-
-                </form>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    $("#btn_save_uploads").on('click', function(ev) {
-        // if($("#modal_dct_reference").val() == ""){
-        //     alert('Reference number is required');
-        //     ev.preventDefault();
-        // }
+    // $("#btn_save_uploads").on('click', function(ev) {
+    //     // if($("#modal_dct_reference").val() == ""){
+    //     //     alert('Reference number is required');
+    //     //     ev.preventDefault();
+    //     // }
 
-    });
+    // });
 
     var max_voucher_upload_files_size = "<?=$this->config->item('max_voucher_upload_files_size');?>";
     var compute_upload_size = parseInt($("#compute_upload_size").val());
@@ -73,7 +88,7 @@
     
     var myDropzone = new Dropzone("#myDropzone", {
         url: "<?= base_url() ?>ifms.php?/dct/create_uploads_temp",
-        paramName: "fileToUpload", // The name that will be used to transfer the file
+        paramName: "file", // The name that will be used to transfer the file
         //maxFilesize: 2, // MB
         uploadMultiple: true,
         addRemoveLinks: true,
@@ -183,6 +198,7 @@
         formData.append('voucher_number', '<?= $param2; ?>');
         formData.append('voucher_detail_row_number', '<?= $param3; ?>');
         formData.append('support_mode_id', '<?= $param4; ?>');
+        formData.append('reporting_month', '<?= $param5; ?>');
     });
 
     myDropzone.on("success", function(file, response) {
@@ -204,7 +220,7 @@
     myDropzone.on('removedfile', function(file) {
 
         /* here do AJAX call to the server ... */
-        var url = "<?= base_url() ?>ifms.php/dct/remove_dct_files_in_temp/<?= $param2; ?>/<?= $param3; ?>/<?= $param4; ?>";
+        var url = "<?= base_url() ?>ifms.php/dct/remove_dct_files_in_temp/<?= $param2; ?>/<?= $param3; ?>/<?= $param4;?>/<?= $param5;?>";
         var file_name = file.name;
         $.ajax({
             //async: false,

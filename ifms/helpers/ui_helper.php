@@ -79,3 +79,27 @@ if(!function_exists('parameter_cell')){
         return '<td class="'.$color_class.'">'.$param_value.'</td>';
     }
 }
+
+if(!function_exists('list_s3_uploaded_documents')){
+    function list_s3_uploaded_documents($uploaded_files,$show_as_table = true){
+        $CI =& get_instance();
+
+        $param['uploaded_files'] = $uploaded_files;
+        $param['show_as_table'] = $show_as_table;
+
+        return $CI->load->view('backend/list_s3_uploaded_documents.php',$param,true);
+    }
+}
+
+
+// if(!function_exists('list_s3_uploaded_document_names')){
+//     function list_s3_uploaded_document_names($uploaded_files){
+//         $CI =& get_instance();
+
+//         $param['uploaded_files'] = $uploaded_files;
+//         $param['show_as_table'] = false;
+        
+//         //return json_encode($param);
+//         return $CI->load->view('backend/list_s3_uploaded_documents.php',$param,true);
+//     }
+// }

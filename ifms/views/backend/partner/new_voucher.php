@@ -1,5 +1,10 @@
 <?php
-//echo $this->session->session_id;
+
+//$fcps = $this->finance_model->get_projectsdetails();
+//$statements = $this->finance_model->get_statement_balance_ids();
+
+//$this->finance_model->insert_attachment_records_from_local_file_system($fcps,$statements);
+
 ?>
 <hr />
 
@@ -347,9 +352,6 @@ include "dct_scripts.php";
 			var voucher_number = $('#Generated_VNumber').val();
 			//alert(reference_number);
 			var val = $('#VTypeMain').val();
-
-
-
 
 			if ($('#ChqNo').val() < 1 && $("#totals").val() !== "0.00 Kes." && val === 'CHQ' && $('#reversal').prop('checked') === false) {
 				//alert("Here 1");

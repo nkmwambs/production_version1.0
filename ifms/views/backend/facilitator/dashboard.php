@@ -115,26 +115,24 @@
 						                    			</button>
 						                    				<ul class="dropdown-menu dropdown-default pull-right" role="menu">
 									                        	
-																<li  style="">
+																<li>
 																	<a href="#" onclick="showAjaxModal('<?php echo base_url();?>ifms.php/modal/popup/modal_outstanding_cheques/<?php echo date('Y-m-t',$tym);?>/<?=$row->fname;?>')"><?php echo get_phrase('outstanding_cheques');?></a>
 																</li>
 																
-																<li style="<" class="divider"></li>
-
-																<li  style="" class="divider"></li>
+																<li class="divider"></li>
 																
-																<li style="">
+																<li>
 																	<a href="#" onclick="showAjaxModal('<?php echo base_url();?>ifms.php/modal/popup/modal_transit_deposits/<?php echo date('Y-m-t',$tym);?>/<?=$row->fname;?>')"><?php echo get_phrase('deposits_in_transit');?></a>
 																</li>
 															
 																
-																<li style="<" class="divider"></li>
+																<li class="divider"></li>
 																
-																<li style="">
+																<li>
 																	<a href="#" onclick="showAjaxModal('<?php echo base_url();?>ifms.php/modal/popup/modal_bank_reconcile/<?php echo date('Y-m-t',$tym);?>/<?=$row->fname;?>')"><?php echo get_phrase('bank_reconciliation');?></a>
 																</li>
 																
-																<li style="" class="divider"></li>
+																<li class="divider"></li>
 																
 																<li>
 																	<a href="#" onclick="showAjaxModal('<?php echo base_url();?>ifms.php/modal/popup/modal_variance_explanation/<?php echo date('Y-m-t',$tym);?>/<?=$row->fname;?>')"><?php echo get_phrase('variance_explanation');?></a>
@@ -142,12 +140,12 @@
 																
 																<li class="divider"></li>
 																
-																<li style="">
+																<li>
 																	<a href="#" onclick="showAjaxModal('<?php echo base_url();?>ifms.php/modal/popup/modal_proof_of_cash/<?php echo date('Y-m-t',$tym);?>/<?=$row->fname;?>')"><?php echo get_phrase('proof_of_cash');?></a>
 																	
 																</li>
 																
-																<li style="" class="divider"></li>
+																<li class="divider"></li>
 																
 																<li>
 																	<a href="#" onclick="showAjaxModal('<?php echo base_url();?>ifms.php/modal/popup/modal_fund_balances/<?php echo date('Y-m-t',$tym);?>/<?=$row->fname;?>')"><?php echo get_phrase('fund_balance_report');?></a>
@@ -171,26 +169,26 @@
 																								
 																<li class="divider"></li>
 																
-																<li style="">
-																	<a href="<?php echo base_url();?>ifms.php/facilitator/cash_journal/<?php echo $tym;?>/<?=$row->fname;?>"><?php echo get_phrase('cash_journal');?></a>
+																<li>
+																	<a target='__blank' href="<?php echo base_url();?>ifms.php/facilitator/cash_journal/<?php echo $tym;?>/<?=$row->fname;?>"><?php echo get_phrase('cash_journal');?></a>
 																</li>
 																
 																<li class="divider"></li>
 																
-																<li style="">
-																	<a href="<?php echo base_url();?>ifms.php/facilitator/bank_statements/<?php echo $tym;?>/<?=$row->fname;?>"><?php echo get_phrase('bank_statements');?></a>
+																<li>
+																	<a target='__blank' href="<?php echo base_url();?>ifms.php/facilitator/bank_statements/<?php echo $tym;?>/<?=$row->fname;?>"><?php echo get_phrase('bank_statements');?></a>
 																</li>
 	                        									
 	                        									<li class="divider"></li>
 																
-																<li style="">
+																<li>
 																	<a href="#" onclick="confirm_dialog('<?php echo base_url();?>ifms.php/facilitator/decline_mfr/<?=$tym;?>/<?=$row->fname;?>');"><?php echo get_phrase('decline_financial_report');?></a>
 																</li>
 																
 																<li class="divider"></li>
 																
-																<li style="">
-																	<a href="<?php echo base_url();?>ifms.php/facilitator/plans/<?=$tym;?>/<?=$row->fname;?>"><?php echo get_phrase('budget');?></a>
+																<li>
+																	<a target='__blank' href="<?php echo base_url();?>ifms.php/facilitator/plans/<?=$tym;?>/<?=$row->fname;?>"><?php echo get_phrase('budget');?></a>
 																</li>
 																
 																<li class="divider"></li>

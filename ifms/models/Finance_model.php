@@ -2498,4 +2498,137 @@ class Finance_model extends CI_Model {
 	
 	
 	/** Finance Dashbaord Model Methods - End **/
+
+
+	function get_uploaded_bank_statement($reporting_month,$fcp_id = ''){
+
+		$fcp_id = $fcp_id == ''?$this->session->center_id:$fcp_id;
+
+		$statementbal_id = $this->get_bank_statement_id($fcp_id,$reporting_month);
+
+		$this->db->where([
+			'item_name'=>'bank_statement',
+			'attachment_primary_id' => $statementbal_id
+		]);
+		
+		$attachment_obj = $this->db->get('attachment');
+
+		$attachments = [];
+
+		if($attachment_obj->num_rows() > 0){
+			$attachments = $attachment_obj->result_array();
+		}
+
+		return $attachments;
+	}
+
+
+	function get_bank_statement_id($fcp_id,$reporting_month){
+
+		$this->db->where(['month'=>$reporting_month,'icpNo'=>$fcp_id]);
+		$statementbal_obj = $this->db->get('statementbal');
+
+		$statementbal_id = 0;
+
+		if($statementbal_obj->num_rows() == 0){
+			// Insert and Get Id
+			$data['month'] = $reporting_month;
+			$data['statementDate'] = $reporting_month;
+			$data['actualDate'] = $reporting_month;
+			$data['icpNo'] = $fcp_id;
+			$data['amount'] = 0;
+
+			$this->db->insert('statementbal',$data);
+
+			$statementbal_id = $this->db->insert_id();
+		}else{
+			// Get Id
+			$this->db->where(['month'=>$reporting_month,'icpNo'=>$fcp_id]);
+			$statementbal_id = $this->db->get('statementbal')->row()->balID;
+		}
+
+		return $statementbal_id;
+	}
+
+	function uploaded_bank_statements($fcp_id,$tym){
+
+        $this->db->where(array('icpNo'=>$fcp_id));
+		$project_id = $this->db->get('projectsdetails')->row()->ID;
+            
+        $month = date('Y-m',$tym);
+
+		$document_type = 'bank_statements';
+        
+        $url = 'uploads/'.$document_type.'/'.$fcp_id.'/'.$month;
+
+		$this->db->where(array('month'=>date('Y-m-t',$tym),'icpNo'=>$fcp_id));
+		$statementbal_id = $this->db->get('statementbal')->row()->balID;
+
+        $this->db->select(array('attachment_id','attachment_name','attachment_url','attachment_created_date','attachment_size'));
+
+        $this->db->where(
+            array(
+                'item_name'=>$document_type,
+                'fk_projectsdetails_id'=>$project_id,
+                'attachment_primary_id'=>$statementbal_id,
+                'attachment_url'=>$url
+            )
+        );
+        $attachment_obj = $this->db->get('attachment');
+
+        $attachment = [];
+
+        if($attachment_obj->num_rows() > 0){
+            $attachment = $attachment_obj->result_array();
+        }
+
+        return $attachment;
+	}
+
+	function get_projectsdetails(){
+
+		$this->db->select(array('ID','icpNo'));
+		$this->db->where(array('status'=>1));
+		$projectsdetails = $this->db->get('projectsdetails')->result_array();
+
+		$ids = array_column($projectsdetails,'ID');
+		$fcp_number = array_column($projectsdetails,'icpNo');
+
+		return array_combine($fcp_number,$ids);
+	}
+
+	function get_statement_balance_ids(){
+
+		$this->db->select(array('balID','icpNo'));
+		$this->db->select("DATE_FORMAT(month, '%Y-%m') AS month", FALSE);
+		$statementbal_array = $this->db->get('statementbal')->result_array();
+
+		$statementbal_ids = [];
+
+		foreach($statementbal_array as $statementbal){
+			$statementbal_ids[$statementbal['icpNo']][$statementbal['month']] = $statementbal['balID'];
+		}
+
+		return $statementbal_ids;
+	}
+
+	function insert_attachment_records_from_local_file_system(){
+
+		$projectsdetails = $this->get_projectsdetails();
+
+		$bank_statements = $this->get_statement_balance_ids();
+
+		$attachment_insert_array = attachment_insert_array($projectsdetails,$bank_statements);
+
+		foreach($attachment_insert_array as $attachment_record){
+			$this->db->where($attachment_record);
+			$attachment_count = $this->db->get('attachment')->num_rows();
+
+			if($attachment_count == 0){
+				$this->db->insert('attachment',$attachment_record);
+			}
+		}
+
+		return $attachment_insert_array;
+	}
 }

@@ -39,7 +39,8 @@ class Accountant extends CI_Controller
     {
         if ($this->session->userdata('admin_login') != 1)
             redirect(base_url(), 'refresh');
-			
+		
+		$page_data['active_announcements'] = $this->get_active_announcements();	
         $page_data['page_name']  = 'dashboard';
         $page_data['page_title'] = get_phrase('apps_login_panel');
         $this->load->view('backend/index', $page_data);
@@ -53,6 +54,30 @@ class Accountant extends CI_Controller
         $page_data['page_title'] = get_phrase('users_list');
         $this->load->view('backend/index', $page_data);  		
   	}
+
+	function get_active_announcements(){
+		$active_announcements = $this->db->order_by('announcement_created_date DESC')->get_where('announcement',array('announcement_end_date>='=>date('Y-m-d')))->result_array();
+		
+		return $active_announcements;
+	}
+
+	function announcement(){
+        if ($this->session->userdata('admin_login') != 1)
+			redirect(base_url(), 'refresh');
+			
+
+		$page_data['expired_announcements'] = $this->get_expired_announcements();	
+		$page_data['active_announcements'] = $this->get_active_announcements();	
+        $page_data['page_name']  = 'announcement';
+        $page_data['page_title'] = get_phrase('new_announcement');
+        $this->load->view('backend/index', $page_data);
+	}
+	
+	function get_expired_announcements(){
+		$expired_announcements = $this->db->order_by('announcement_created_date DESC')->get_where('announcement',array('announcement_end_date<='=>date('Y-m-d')))->result_array();
+		
+		return $expired_announcements;
+	}
     
 	public function switch_user(){
 		
@@ -359,7 +384,7 @@ class Accountant extends CI_Controller
 		 }	
 	}
 	
-	function user_groups($param1=""){
+	function user_groups($param1="",$param2){
          if ($this->session->userdata('admin_login') != 1)
             redirect(base_url(), 'refresh');
 		 

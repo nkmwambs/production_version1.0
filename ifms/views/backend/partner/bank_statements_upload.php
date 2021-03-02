@@ -1,6 +1,7 @@
 <?php
 $mfr_submitted = $this->finance_model->mfr_submitted($this->session->center_id,date('Y-m-d',$tym));
 ?>
+
 <div class="row">
 	<a href="<?php echo base_url();?>ifms.php/partner/cash_journal/<?= strtotime(date('Y-m-01',$tym));?>" 
 	class="btn btn-primary pull-right">
@@ -23,8 +24,11 @@ $mfr_submitted = $this->finance_model->mfr_submitted($this->session->center_id,d
 			<div class="panel-body"  style="max-width:50; overflow: auto;">	
 				
 				<!--<h3>Drop Bank Statements Here</h3>-->
-				<form id="myDropZone"  action="<?php echo base_url();?>ifms.php/partner/bank_statements_upload/<?php echo $tym;?>" class="dropzone">
-					<div class="dz-message" data-dz-message><span style="font-size: 15pt;font-weight: bold;">Drag and Drop Bank Statements here!</span></div>
+				<form id="myDropZone"  class="dropzone">
+					<div class="fallback">
+						<input name="file" type="file" multiple />
+					</div>
+					<!-- <div class="dz-message" data-dz-message><span style="font-size: 15pt;font-weight: bold;">Drag and Drop Bank Statements here!</span></div> -->
 				</form>	
 														
 			
@@ -49,36 +53,10 @@ $mfr_submitted = $this->finance_model->mfr_submitted($this->session->center_id,d
           	
           	<hr>
                 <?php
-                	
+					//print_r($this->finance_model->uploaded_bank_statements($this->session->center_id,$tym))
+                	echo list_s3_uploaded_documents($this->finance_model->uploaded_bank_statements($this->session->center_id,$tym));
                 ?>
-                <table class="table table-hover table-striped">
-                	<thead>
-                		<tr>
-                			<th><?= get_phrase('bank_statement');?></th>
-                			<th><?= get_phrase('upload_date');?></th>
-                			<th><?= get_phrase('file_size');?></th>
-                			<th></th>
-                		</tr>
-                	</thead>
-                	<tbody>
-                		<?php 
-                			//echo 'uploads/bank_statements/'.$this->session->center_id.'/'.date('Y-m',$tym);
-                			if(file_exists('uploads/bank_statements/'.$this->session->center_id.'/'.date('Y-m',$tym).'/')){
-                			$map = directory_map('uploads/bank_statements/'.$this->session->center_id.'/'.date('Y-m',$tym).'/', FALSE, TRUE);
-							
-                			foreach($map as $row): $prop = (object)get_file_info('uploads/bank_statements/'.$this->session->center_id.'/'.date('Y-m',$tym).'/'.$row);
-                		?>
-	                		<tr>
-	                			<td><a href="#" onclick="confirm_action('<?php echo base_url();?>ifms.php/partner/bank_statement_download/<?= $row;?>/<?=$tym;?>');"><?= $row;?></a></td>
-	                			<td><?= date('d-m-Y',$prop->date);?></td>
-	                			<td><?= number_format(($prop->size/1000000),2).' MB';?></td>
-	                		</tr>
-                		<?php 
-                			endforeach;
-							}
-                		?>
-                	</tbody>
-                </table>							
+                							
 			
 			</div>
 	</div>
@@ -87,75 +65,154 @@ $mfr_submitted = $this->finance_model->mfr_submitted($this->session->center_id,d
 </div>
 
 <script>
-	
-$(function(){
-  Dropzone.options.myDropZone = {
-  	//paramName: "bStatement",
-  	uploadMultiple:true,
-    maxFilesize: 5,
-    maxFiles:5,
-    addRemoveLinks: true,
-    //clickable:false,
-    //dictMaxFilesExceeded:'Upload not more than 5 files',
-    dictInvalidFileType:'Please upload PDF files only',
-    //dictDefaultMessage:'Drag and Drop Bank Statements here',
-    dictResponseError: 'Server not Configured',
-    //dictFileTooBig:'Maximum file size is 5MB',
-    //dictMaxFilesExceeded:'You can only upload one file',
-    //autoProcessQueue:true,
-    //acceptedFiles: ".pdf",
 
-    init:function(){
-      var self = this;
-      // config
-      self.options.addRemoveLinks = true;
-      self.options.dictRemoveFile = "Delete";
-      //New file added
-      self.on("addedfile", function (file) {
-        console.log('new file added ', file);
-      });
+$(".delete_file").on('click',function(){
 
-      
-      //On Server Success
-      self.on("success", function(file, responseText) {
-            //alert(responseText);
-            location.reload();
-        });
-        
-        //Delete
-        
-      
-      // Send file starts
-      self.on("sending", function (file) {
-        console.log('upload started', file);
-        $('.meter').show();
-      });
-      
-      
-      // File upload Progress
-      self.on("totaluploadprogress", function (progress) {
-        console.log("progress ", progress);
-        $('.roller').width(progress + '%');
-      });
+	var path = $(this).data('path');
+	var file_name = $(this).data('file_name');
+	var url = "<?php echo base_url();?>ifms.php/partner/delete_single_file";
+	var data = {'path':path,'file_name':file_name};
+	var row = $(this).closest('tr');
 
-      self.on("queuecomplete", function (progress) {
-        $('.meter').delay(999).slideUp(999);
-      });
-      
-      // On removing file
-      self.on("removedfile", function (file) {
-        //console.log(file);
-        alert('You are deleting '+file.name);
-        
-        $.ajax({
-		url: "<?php echo base_url();?>ifms.php/partner/delete_bank_statement/<?php echo $tym;?>",
-		type: "POST",
-		data: { 'name': file.name}
+	var cnfm =  confirm("Are you sure you want to delete this file?");
+
+	if(cnfm){
+		$.post(url,data,function(response){
+			row.remove();	
+			alert(response);
 		});
+	}else{
+		alert('Delete aborted');
+	}
+
+	
+});
+
+$(document).ready(function(){
+    Dropzone.autoDiscover = false;
+});
+
+var myDropzone = new Dropzone("#myDropZone", { 
+        url: "<?php echo base_url();?>ifms.php/partner/bank_statements_upload/",
+        paramName: "file", // The name that will be used to transfer the file
+        params:{
+			'fcp_id':'<?=$this->session->center_id;?>',
+			'reporting_month':'<?php echo $tym;?>'
+        },
+        maxFilesize: 10, // MB
+        uploadMultiple:true,
+        parallelUploads:2,
+        maxFiles:2,
+        acceptedFiles:'image/*,application/pdf',    
+    });
+
+    // myDropzone.on("sending", function(file, xhr, formData) { 
+    // // Will sendthe filesize along with the file as POST data.
+    // formData.append("filesize", file.size);  
+
+    // });
+
+    myDropzone.on("complete", function(file) {
+        //myDropzone.removeFile(file);
+        //myDropzone.removeAllFiles(file);
+        //alert(myDropzone.getAcceptedFiles());
+    }); 
+
+	// myDropzone.on("queuecomplete", function () {
+	// 	this.removeAllFiles();
+	// });
+
+    myDropzone.on('error', function(file, response) {
+       // $(file.previewElement).find('.dz-error-message').text(response);
+       console.log(response);
+    });
+
+    myDropzone.on("success", function(file,response) {
+        console.log(response);
+		location.reload();        
+    });
+
+	myDropzone.on("removedfile", function(file) {
+        //console.log(response);
+
+		var path = "uploads/bank_statements/<?=$this->session->center_id;?>/<?=date('Y-m',$tym);?>";
+
+			$.ajax({
+				url: "<?php echo base_url();?>ifms.php/partner/delete_single_file",
+				type: "POST",
+				data: { 'file_name': file.name,'path':path}
+			});
+  
+    });
+	
+// $(function(){
+//   Dropzone.options.myDropZone = {
+//   	//paramName: "bStatement",
+//   	uploadMultiple:true,
+//     maxFilesize: 5,
+//     maxFiles:5,
+//     addRemoveLinks: true,
+//     //clickable:false,
+//     //dictMaxFilesExceeded:'Upload not more than 5 files',
+//     dictInvalidFileType:'Please upload PDF files only',
+//     //dictDefaultMessage:'Drag and Drop Bank Statements here',
+//     dictResponseError: 'Server not Configured',
+//     //dictFileTooBig:'Maximum file size is 5MB',
+//     //dictMaxFilesExceeded:'You can only upload one file',
+//     //autoProcessQueue:true,
+//     //acceptedFiles: ".pdf",
+
+//     init:function(){
+//       var self = this;
+//       // config
+//       self.options.addRemoveLinks = true;
+//       self.options.dictRemoveFile = "Delete";
+//       //New file added
+//       self.on("addedfile", function (file) {
+//         console.log('new file added ', file);
+//       });
+
+      
+//       //On Server Success
+//       self.on("success", function(file, responseText) {
+//             //alert(responseText);
+//             location.reload();
+//         });
         
-      });
-    }
-  };
-})
+//         //Delete
+        
+      
+//       // Send file starts
+//       self.on("sending", function (file) {
+//         console.log('upload started', file);
+//         $('.meter').show();
+//       });
+      
+      
+//       // File upload Progress
+//       self.on("totaluploadprogress", function (progress) {
+//         console.log("progress ", progress);
+//         $('.roller').width(progress + '%');
+//       });
+
+//       self.on("queuecomplete", function (progress) {
+//         $('.meter').delay(999).slideUp(999);
+//       });
+      
+//       // On removing file
+//       self.on("removedfile", function (file) {
+//         //console.log(file);
+//         alert('You are deleting '+file.name);
+        
+//         $.ajax({
+// 		url: "<?php echo base_url();?>ifms.php/partner/delete_bank_statement/<?php echo $tym;?>",
+// 		type: "POST",
+// 		data: { 'name': file.name}
+// 		});
+        
+//       });
+//     }
+//   };
+// })
 	
 </script>

@@ -400,16 +400,18 @@ class Partner extends CI_Controller
 		echo $to_be_claimed;
 	}
 
-	function upload_medical_receipts($document_type){
+	function upload_medical_receipts($document_type = 'claims'){
+
+			$upload_file_name = $document_type == 'claims' ? 'receipt' : 'approval';
 			
 			$claim_id = $this->input->post('claim_id');
 			
 			$this->db->where(array('rec'=>$claim_id));
 			$fcp_id = $this->db->get('claims')->row()->proNo;
 
-			if($this->input->post('fileSubmit') && !empty($_FILES[$document_type]['name'])){
-				$insert = $this->uploads($claim_id,$document_type,$fcp_id);
-
+			if($this->input->post('fileSubmit') && !empty($_FILES[$upload_file_name]['name'])){
+				$insert = $this->uploads($claim_id,$upload_file_name,$fcp_id);
+				
 				$statusMsg = !empty($insert)?'Receipt uploaded successfully.':'Some problem occurred, please try again.';
 	        	$this->session->set_flashdata('flash_message',$statusMsg);
 			}

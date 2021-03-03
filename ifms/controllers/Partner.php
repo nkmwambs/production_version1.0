@@ -1436,7 +1436,7 @@ function create_budget_item($project){
 		
 		$bs_check = $this->finance_model->check_bank_statement($this->session->center_id,date('Y-m-t',$date)); 
 		
-		if($proof_of_cash <> 0 || $bank_validation <> 0 || $bs_check === 0 ){
+		if($proof_of_cash <> 0 || $bank_validation <> 0 || $bs_check == 0 ){
 			
 			echo get_phrase('report_not_submitted_due_to_validation_error');
 		

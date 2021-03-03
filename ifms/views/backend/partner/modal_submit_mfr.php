@@ -93,34 +93,9 @@
 					
 					<div class="form-group">
 						<div class="col-sm-12">
-								<table class="table table-hover table-striped">
-			                	<thead>
-			                		<tr>
-			                			<th><?= get_phrase('bank_statement');?></th>
-			                			<th><?= get_phrase('upload_date');?></th>
-			                			<th><?= get_phrase('file_size');?></th>
-			                			<th></th>
-			                		</tr>
-			                	</thead>
-			                	<tbody>
-			                		<?php 
-			                			//echo 'uploads/bank_statements/'.$this->session->center_id.'/'.date('Y-m',$tym);
-			                			if(file_exists('uploads/bank_statements/'.$this->session->center_id.'/'.date('Y-m',strtotime($param2)).'/')){
-			                			$map = directory_map('uploads/bank_statements/'.$this->session->center_id.'/'.date('Y-m',strtotime($param2)).'/', FALSE, TRUE);
-										
-			                			foreach($map as $row): $prop = (object)get_file_info('uploads/bank_statements/'.$this->session->center_id.'/'.date('Y-m',strtotime($param2)).'/'.$row);
-			                		?>
-				                		<tr>
-				                			<td><a href="#" onclick="confirm_action('<?php echo base_url();?>ifms.php/partner/bank_statement_download/<?= $row;?>/<?=strtotime($param2);?>');"><?= $row;?></a></td>
-				                			<td><?= date('d-m-Y',$prop->date);?></td>
-				                			<td><?= number_format(($prop->size/1000000),2).' MB';?></td>
-				                		</tr>
-			                		<?php 
-			                			endforeach;
-										}
-			                		?>
-			                	</tbody>
-			                </table>
+							<?php
+								echo list_s3_uploaded_documents($this->finance_model->uploaded_bank_statements($this->session->center_id,strtotime($param2)));
+							?>
 						</div>
 					</div>
 					

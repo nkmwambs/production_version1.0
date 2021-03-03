@@ -274,4 +274,30 @@ class Medical_model extends CI_Model {
         return $clusters;
     }
 
+
+	function uploaded_claim_documents($claim_id = "",$document_type){
+        
+        
+        $url = 'uploads/document/medical/'.$document_type.'/'.$claim_id;
+
+        $this->db->select(array('attachment_id','attachment_name','attachment_url','attachment_created_date','attachment_size'));
+
+        $this->db->where(
+            array(
+                'item_name'=>$document_type,
+                'attachment_primary_id'=>$claim_id,
+                'attachment_url'=>$url
+            )
+        );
+        $attachment_obj = $this->db->get('attachment');
+
+        $attachment = [];
+
+        if($attachment_obj->num_rows() > 0){
+            $attachment = $attachment_obj->result_array();
+        }
+
+        return $attachment;
+    }
+
 }

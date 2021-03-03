@@ -15,3 +15,14 @@ if(!function_exists('formatBytes')){
 		return round($bytes, $precision) . ' ' . $units[$pow]; 
 	} 
 }
+
+if(!function_exists('list_s3_uploaded_documents')){
+    function list_s3_uploaded_documents($uploaded_files,$show_as_table = true){
+        $CI =& get_instance();
+
+        $param['uploaded_files'] = $uploaded_files;
+        $param['show_as_table'] = $show_as_table;
+
+        return $CI->load->view('backend/list_s3_uploaded_documents.php',$param,true);
+    }
+}

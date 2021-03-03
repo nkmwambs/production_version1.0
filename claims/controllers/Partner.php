@@ -554,7 +554,7 @@ class Partner extends CI_Controller
 		$attachment_obj = $this->db->get('attachment');
 
 		if($attachment_obj->num_rows() > 0){
-			$rct="yes";
+			$supportdocs="yes";
 		}
 			
 		return $supportdocs;

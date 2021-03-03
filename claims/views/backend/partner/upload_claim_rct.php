@@ -29,12 +29,11 @@
 				 <p></p>
 				 
 				    <div class="col-sm-12">
-				        <ul class="gallery" style="list-style: none;">
+				      
 							<?php 
 								echo list_s3_uploaded_documents($this->medical_model->uploaded_claim_documents($claim->rec,'claims'));
 							?>
-				            
-				        </ul>
+				        
 				    </div>
 				    
 				  	<a href="<?=base_url();?>claims.php/partner/medical_claims" class="btn btn-red btn-icon"><i class="fa fa-arrow-left"></i><?=get_phrase('back');?></a>

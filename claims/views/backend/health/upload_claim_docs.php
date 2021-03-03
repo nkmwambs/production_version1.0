@@ -29,23 +29,14 @@
 				 <p></p>
 				 
 				    <div class="col-sm-12">
-				        <ul class="gallery" style="list-style: none;">
-				            <?php if(!empty($files)): foreach($files as $file): ?>
-				            <li class="item">
-				                <a href="<?=base_url();?>claims.php/partner/download/supportdocs/<?=$file['id'];?>" class="fa fa-file">
-				                	<span><?php echo $file['file_name'];?></span>
-				                </a>
-				                
-				            </li>
-				            <?php endforeach; else: ?>
-				            <p>Image(s) not found.....</p>
-				            <?php endif; ?>
-				        </ul>
+						<?php 
+							echo list_s3_uploaded_documents($this->medical_model->uploaded_claim_documents($claim->rec,'supportdocs'));
+						?>
 				    </div>
 				    
 				  	<a href="<?=base_url();?>claims.php/medical/medical_claims" class="btn btn-red btn-icon"><i class="fa fa-arrow-left"></i><?=get_phrase('back');?></a>
 					
-					<a href="<?php echo base_url();?>claims.php/partner/ziparchive/supportdocs/<?php echo $claim->rec;?>/approval" class="btn btn-orange btn-icon"><i class="fa fa-cloud-download"></i>Download All</a>
+					<!-- <a href="<?php echo base_url();?>claims.php/partner/ziparchive/supportdocs/<?php echo $claim->rec;?>/approval" class="btn btn-orange btn-icon"><i class="fa fa-cloud-download"></i>Download All</a> -->
 					
 				</div>
 			</div>		

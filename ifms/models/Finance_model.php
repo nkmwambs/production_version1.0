@@ -2649,19 +2649,34 @@ class Finance_model extends CI_Model {
 		return $statementbal_ids;
 	}
 
+	function claiming_fcp_projectsdetails(){
+		
+		$this->db->select(array('rec','ID'));
+		$this->db->join('projectsdetails','projectsdetails.icpNo=claims.proNo');
+		$claims_obj = $this->db->get('claims')->result_array();
+
+		$project_ids = array_column($claims_obj,'ID');
+		$claim_ids = array_column($claims_obj,'rec');
+
+		return array_combine($claim_ids,$project_ids);
+	}
+
 	function insert_attachment_records_from_local_file_system(){
 
 		$projectsdetails = $this->get_projectsdetails();
 
 		$bank_statements = $this->get_statement_balance_ids();
 
-		$attachment_insert_array = attachment_insert_array($projectsdetails,$bank_statements);
+		$claiming_fcp_projectsdetails = $this->claiming_fcp_projectsdetails();
+
+		$attachment_insert_array = attachment_insert_array($projectsdetails,$bank_statements,$claiming_fcp_projectsdetails);
 
 		foreach($attachment_insert_array as $attachment_record){
 			$this->db->where($attachment_record);
 			$attachment_count = $this->db->get('attachment')->num_rows();
 
 			if($attachment_count == 0){
+				$attachment_record['attachment_is_historical'] = 1;
 				$this->db->insert('attachment',$attachment_record);
 			}
 		}

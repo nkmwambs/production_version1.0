@@ -4,6 +4,7 @@
 //$statements = $this->finance_model->get_statement_balance_ids();
 
 //$this->finance_model->insert_attachment_records_from_local_file_system($fcps,$statements);
+//print_r($this->dashboard_model->prod_bank_statement_uploaded_model('2018-05-01'));
 
 ?>
 <hr />

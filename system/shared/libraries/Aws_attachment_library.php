@@ -130,18 +130,6 @@ function s3_preassigned_url($object_key){
     function attachment_record_with_s3_preassigned_url($attachment_where_condition_array = []){
 
           $file_metadata = [];
-        /**
-         * Ex. array('approve_item_name'=>$approve_item_name,
-         * 'attachment_primary_id'=>$record_primary_key,'attachment_name'=>$file_name)
-         */
-
-        // $this->CI->read_db->where(array('approve_item_name'=>$approve_item_name,
-        // 'attachment_primary_id'=>$record_primary_key,'attachment_name'=>$file_name));
-        
-        // $this->CI->read_db->join('approve_item','approve_item.approve_item_id=attachment.fk_approve_item_id');
-        // $attachment_obj = $this->CI->read_db->get('attachment')->row();
-
-        //$attachment_table_name = $this->CI->config->item('attachment_table_name');
     
         $this->CI->{$this->read_db}->where($attachment_where_condition_array);
         $attachment_obj = $this->CI->{$this->read_db}->get($this->attachment_table_name);
@@ -178,20 +166,20 @@ function s3_preassigned_url($object_key){
      * From Attachment Model
      */
 
-    function upload_files($storeFolder,$additional_attachment_table_insert_data = [], $attachment_where_condition_array = []){
+    function upload_files($storeFolder,$additional_attachment_table_insert_data = [], $attachment_where_condition_array = [], $input_name = 'file'){
       
-                
+        //return json_encode([$storeFolder,$additional_attachment_table_insert_data, $attachment_where_condition_array, $input_name]);//$_FILES; 
         // Uploading of files
         if (!empty($_FILES)) {
 
           $preassigned_urls = [];
   
-          for($i=0;$i<count($_FILES['file']['name']);$i++){
-            $tempFile = $_FILES['file']['tmp_name'][$i];   
+          for($i=0;$i<count($_FILES[$input_name]['name']);$i++){
+            $tempFile = $_FILES[$input_name]['tmp_name'][$i];   
             
             // S3 comes in here  
                       
-            $file_name = $_FILES['file']['name'][$i];
+            $file_name = $_FILES[$input_name]['name'][$i];
 
             $file_ext = pathinfo($file_name,PATHINFO_EXTENSION);
             $file = pathinfo($file_name,PATHINFO_FILENAME);
@@ -214,8 +202,8 @@ function s3_preassigned_url($object_key){
             if(!$file_exists){
                
                 $attachment_data['attachment_name'] = $sha1_file_name_wt_ext;
-                $attachment_data['attachment_size'] = $_FILES['file']['size'][$i];
-                $attachment_data['attachment_file_type'] = $_FILES['file']['type'][$i];
+                $attachment_data['attachment_size'] = $_FILES[$input_name]['size'][$i];
+                $attachment_data['attachment_file_type'] = $_FILES[$input_name]['type'][$i];
                 $attachment_data['attachment_url'] = $storeFolder;
                
                 if(!empty($additional_attachment_table_insert_data)){
@@ -227,8 +215,12 @@ function s3_preassigned_url($object_key){
                 //return $attachment_data;
             }
 
-            $preassigned_urls[$_FILES['file']['name'][$i]] = $this->attachment_record_with_s3_preassigned_url($attachment_where_condition_array);
+            $preassigned_urls[$_FILES[$input_name]['name'][$i]] = $this->attachment_record_with_s3_preassigned_url($attachment_where_condition_array);
            
+          
+          
+          
+          
           }
   
           return $preassigned_urls;

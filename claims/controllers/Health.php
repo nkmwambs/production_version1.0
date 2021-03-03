@@ -73,7 +73,8 @@ class Health extends CI_Controller
 			
 			$rct = "<a href='".base_url()."claims.php/health/add_claim_rct/".$claims->rec."' class='btn btn-green btn-icon'><i class='fa fa-cloud-download'></i>".get_phrase('download')."</a>";
 			
-			if(count($this->db->get_where('apps_files',array('file_group'=>$claims->rec,'upload_type'=>"receipt"))->result_object())=== 0){
+			// if(count($this->db->get_where('apps_files',array('file_group'=>$claims->rec,'upload_type'=>"receipt"))->result_object())=== 0){
+			if($this->db->get_where('attachment',array('attachment_primary_id'=>$claims->rec,'item_name'=>"claims"))->num_rows() == 0){	
 				$rct =  "<a href='".base_url()."claims.php/health/add_claim_rct/".$claims->rec."' class='btn btn-orange btn-icon'><i class='fa fa-cloud-upload'></i>".get_phrase('attach_receipt')."</a>";
 			}
 			
@@ -81,7 +82,8 @@ class Health extends CI_Controller
 			
 			$refNo = "<a href='".base_url()."claims.php/health/add_claim_docs/".$claims->rec."' class='btn btn-green btn-icon'><i class='fa fa-cloud-download'></i>".get_phrase('download')."</a>";
 			
-			if(count($this->db->get_where('apps_files',array('file_group'=>$claims->rec,'upload_type'=>"approval"))->result_object())=== 0){
+			// if(count($this->db->get_where('apps_files',array('file_group'=>$claims->rec,'upload_type'=>"approval"))->result_object())=== 0){
+			if($this->db->get_where('attachment',array('attachment_primary_id'=>$claims->rec,'item_name'=>"supportdocs"))->num_rows() == 0){	
 				$refNo =  "<a href='".base_url()."claims.php/health/add_claim_docs/".$claims->rec."' class='btn btn-orange btn-icon'><i class='fa fa-cloud-upload'></i>".get_phrase('attach_approval')."</a>";
 			}						
 			

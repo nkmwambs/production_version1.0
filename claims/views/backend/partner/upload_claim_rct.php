@@ -18,7 +18,7 @@
 				            
 				            <div class="form-group">
 				                <label class="control-label">Choose Files</label>
-				                <input type="file" class="form-control" name="userFiles[]" multiple/>
+				                <input type="file" class="form-control" name="receipt[]" multiple/>
 				            </div>
 				            <div class="form-group">
 				                <input class="form-control btn btn-primary" type="submit" name="fileSubmit" value="UPLOAD"/>
@@ -29,23 +29,16 @@
 				 <p></p>
 				 
 				    <div class="col-sm-12">
-				        <ul class="gallery" style="list-style: none;">
-				            <?php if(!empty($files)): foreach($files as $file): ?>
-				            <li class="item">
-				                <a href="<?=base_url();?>claims.php/medical/download/claims/<?=$file['id'];?>" class="fa fa-file">
-				                	<span><?php echo $file['file_name'];?></span>
-				                </a>
-				                
-				            </li>
-				            <?php endforeach; else: ?>
-				            <p>Image(s) not found.....</p>
-				            <?php endif; ?>
-				        </ul>
+				      
+							<?php 
+								echo list_s3_uploaded_documents($this->medical_model->uploaded_claim_documents($claim->rec,'claims'));
+							?>
+				        
 				    </div>
 				    
 				  	<a href="<?=base_url();?>claims.php/partner/medical_claims" class="btn btn-red btn-icon"><i class="fa fa-arrow-left"></i><?=get_phrase('back');?></a>
 					
-					<a href="<?php echo base_url();?>claims.php/partner/ziparchive/claims/<?php echo $claim->rec;?>/receipt" class="btn btn-orange btn-icon"><i class="fa fa-cloud-download"></i>Download All</a>
+					<!-- <a href="<?php echo base_url();?>claims.php/partner/ziparchive/claims/<?php echo $claim->rec;?>/receipt" class="btn btn-orange btn-icon"><i class="fa fa-cloud-download"></i>Download All</a> -->
 					
 				</div>
 			</div>		

@@ -68,30 +68,30 @@ tr.shown td.details-control {
 										
 										<ul class="dropdown-menu dropdown-blue" role="menu">
 		
-											<li  style="">
+											<li>
 												<a href="#" onclick="showAjaxModal('<?php echo base_url();?>ifms.php/modal/popup/modal_outstanding_cheques/<?php echo date('Y-m-t',$tym);?>')"><?php echo get_phrase('outstanding_cheques');?></a>
 											</li>
 											
-											<li  style="" class="divider"></li>
+											<li class="divider"></li>
 											
-											<li style="">
+											<li>
 												<a href="#" onclick="showAjaxModal('<?php echo base_url();?>ifms.php/modal/popup/modal_transit_deposits/<?php echo date('Y-m-t',$tym);?>')"><?php echo get_phrase('deposits_in_transit');?></a>
 											</li>
 											
-											<li style="" class="divider"></li>
+											<li class="divider"></li>
 											
-											<li  style="">
+											<li>
 												<a href="#" onclick="showAjaxModal('<?php echo base_url();?>ifms.php/modal/popup/modal_cleared_effects/<?php echo date('Y-m-t',$tym);?>')"><?php echo get_phrase('cleared_effects');?></a>
 												
 											</li>
 											
-											<li style="<" class="divider"></li>
+											<li class="divider"></li>
 											
-											<li style="">
+											<li>
 												<a href="#" onclick="showAjaxModal('<?php echo base_url();?>ifms.php/modal/popup/modal_bank_reconcile/<?php echo date('Y-m-t',$tym);?>')"><?php echo get_phrase('bank_reconciliation');?> <span class="badge badge-<?=$rec_color;?>"><?=$rec_chk;?></span></a>
 											</li>
 											
-											<li style="" class="divider"></li>
+											<li class="divider"></li>
 											
 											<li>
 												<a href="#" onclick="showAjaxModal('<?php echo base_url();?>ifms.php/modal/popup/modal_variance_explanation/<?php echo date('Y-m-t',$tym);?>')"><?php echo get_phrase('variance_explanation');?></a>
@@ -99,12 +99,12 @@ tr.shown td.details-control {
 											
 											<li class="divider"></li>
 											
-											<li style="">
+											<li>
 												<a href="#" onclick="showAjaxModal('<?php echo base_url();?>ifms.php/modal/popup/modal_proof_of_cash/<?php echo date('Y-m-t',$tym);?>')"><?php echo get_phrase('proof_of_cash');?> <span class="badge badge-<?=$proof_color;?>"><?=$proof_chk?></span></a>
 												
 											</li>
 											
-											<li style="" class="divider"></li>
+											<li class="divider"></li>
 											
 											<li>
 												<a href="#" onclick="showAjaxModal('<?php echo base_url();?>ifms.php/modal/popup/modal_fund_balances/<?php echo date('Y-m-t',$tym);?>')"><?php echo get_phrase('fund_balance_report');?></a>
@@ -128,7 +128,7 @@ tr.shown td.details-control {
 																			
 											<li class="divider"></li>
 											
-											<li style="">
+											<li>
 												<a href="<?php echo base_url();?>ifms.php/partner/bank_statements/<?php echo date('Y-m-t',$tym);?>"><?php echo get_phrase('upload_bank_statements');?></a>
 											</li>
 											

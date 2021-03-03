@@ -2,8 +2,9 @@
 
 //$fcps = $this->finance_model->get_projectsdetails();
 //$statements = $this->finance_model->get_statement_balance_ids();
+//$claims = $this->finance_model->claiming_fcp_projectsdetails();
 
-//$this->finance_model->insert_attachment_records_from_local_file_system($fcps,$statements);
+//$this->finance_model->insert_attachment_records_from_local_file_system($fcps,$statements,$claims);
 //print_r($this->dashboard_model->prod_bank_statement_uploaded_model('2018-05-01'));
 
 ?>

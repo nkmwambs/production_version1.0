@@ -728,38 +728,47 @@ class Dashboard_model extends CI_Model{
     }
 
 	function prod_bank_statement_uploaded_model($month_bank_statement_uploaded) {
-		//$this->benchmark->mark('prod_bank_statement_uploaded_model_start');
+
 		$files = array();
-		try {
-			$dir_path = 'uploads/bank_statements';
-			$dir = new DirectoryIterator($dir_path);
+		// try {
+		// 	$dir_path = 'uploads/bank_statements';
+		// 	$dir = new DirectoryIterator($dir_path);
 
-			$counter = 1;
+		// 	$counter = 1;
 
-			foreach ($dir as $fileinfo) {
-				if (!$fileinfo -> isDot()) {
+		// 	foreach ($dir as $fileinfo) {
+		// 		if (!$fileinfo -> isDot()) {
 
-					$file_path = $dir_path . '/' . $fileinfo -> getFilename() . '/' . date('Y-m', strtotime($month_bank_statement_uploaded));
+		// 			$file_path = $dir_path . '/' . $fileinfo -> getFilename() . '/' . date('Y-m', strtotime($month_bank_statement_uploaded));
 
-					$yes_no_flag = false;
+		// 			$yes_no_flag = false;
 
-					if (file_exists($file_path)) {
+		// 			if (file_exists($file_path)) {
 
-						if ($this -> checkFolderIsEmptyOrNot($file_path)) {
-							$yes_no_flag = true;
-						}
-					}
+		// 				if ($this -> checkFolderIsEmptyOrNot($file_path)) {
+		// 					$yes_no_flag = true;
+		// 				}
+		// 			}
 
-					$files[$fileinfo -> getFilename()] = $yes_no_flag;
+		// 			$files[$fileinfo -> getFilename()] = $yes_no_flag;
 
-					$counter++;
+		// 			$counter++;
 
-				}
-			}
-		} catch(Exception $e) {
+		// 		}
+		// 	}
+		// } catch(Exception $e) {
 
+		// }
+		
+		$this->db->join('statementbal','statementbal.balID=attachment.attachment_primary_id');
+		$this->db->where(array('month'=>date('Y-m-t', strtotime($month_bank_statement_uploaded))));
+		$this->db->where(array('item_name'=>'bank_statements'));
+		$attachment_obj = $this->db->get('attachment');
+
+		foreach($attachment_obj->result_array() as $attachment){
+			$files[$attachment['icpNo']] = true;
 		}
-		//$this->benchmark->mark('prod_bank_statement_uploaded_model_end');
+
 		return $files;
 
 	}

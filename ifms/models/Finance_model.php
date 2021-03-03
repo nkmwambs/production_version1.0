@@ -1225,9 +1225,34 @@ class Finance_model extends CI_Model {
 	}
 	
 	function check_bank_statement($project,$date){
-		$path = 'uploads/bank_statements/'.$project.'/'.date('Y-m',strtotime($date));
+		// $path = 'uploads/bank_statements/'.$project.'/'.date('Y-m',strtotime($date));
 		
-		return abs(count(glob($path."/*")));
+		// return abs(count(glob($path."/*")));
+
+		$projectsdetails_id = 0;
+
+		$this->db->where(array('icpNo'=>$project));
+		$projectsdetails_obj = $this->db->get('projectsdetails');
+
+		if($projectsdetails_obj->num_rows() > 0){
+			$projectsdetails_id = $projectsdetails_obj->row()->ID;
+		}
+
+		$statement_bal_id = 0;
+
+		$this->db->where(array('icpNo'=>$project,'month'=>date('Y-m-t',strtotime($date))));
+		$statement_bal_obj = $this->db->get('statementbal');
+
+		if($statement_bal_obj->num_rows() > 0){
+			$statement_bal_id = $statement_bal_obj->row()->balID;
+		}
+
+		$condition = array('fk_projectsdetails_id'=>$projectsdetails_id,'attachment_primary_id'=>$statement_bal_id);
+
+		$this->db->where($condition);
+		$count_of_attachment = $this->db->get('attachment')->num_rows();
+
+		return $count_of_attachment;
 	}
 	
 	function proof_of_cash($project,$date){
@@ -2552,8 +2577,14 @@ class Finance_model extends CI_Model {
 
 	function uploaded_bank_statements($fcp_id,$tym){
 
+		$project_id = 0;
+
         $this->db->where(array('icpNo'=>$fcp_id));
-		$project_id = $this->db->get('projectsdetails')->row()->ID;
+		$project_obj = $this->db->get('projectsdetails');
+
+		if($project_obj->num_rows() > 0){
+			$project_id = $project_obj->row()->ID;
+		}
             
         $month = date('Y-m',$tym);
 
@@ -2561,8 +2592,14 @@ class Finance_model extends CI_Model {
         
         $url = 'uploads/'.$document_type.'/'.$fcp_id.'/'.$month;
 
+		$statementbal_id = 0;
+
 		$this->db->where(array('month'=>date('Y-m-t',$tym),'icpNo'=>$fcp_id));
-		$statementbal_id = $this->db->get('statementbal')->row()->balID;
+		$statementbal_obj = $this->db->get('statementbal');
+
+		if($statementbal_obj->num_rows() > 0){
+			$statementbal_id = $statementbal_obj->row()->balID;
+		}
 
         $this->db->select(array('attachment_id','attachment_name','attachment_url','attachment_created_date','attachment_size'));
 

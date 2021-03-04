@@ -33,12 +33,12 @@
 		                        			<th><?=get_phrase('project');?></th>
 		                        			<th><?=get_phrase('bank_reconciled');?></th>
 		                        			<th><?=get_phrase('report_validated');?></th>
-		                        			<th><?=get_phrase('new');?></th>
+		                        			<!-- <th><?=get_phrase('new');?></th>
 		                        			<th><?=get_phrase('submitted');?></th>
 		                        			<th><?=get_phrase('declined');?></th>
 		                        			<th><?=get_phrase('reinstated');?></th>
 		                        			<th><?=get_phrase('allow_edit');?></th>
-		                        			<th><?=get_phrase('unapproved_budget');?></th>
+		                        			<th><?=get_phrase('unapproved_budget');?></th> -->
 		                        			<th><?=get_phrase('action');?></th>
 		                        		</tr>
 		                        	</thead>
@@ -117,13 +117,13 @@
 													$total_unapproved = $approved_0 +  $approved_1 + $approved_3 + $approved_4 + $approved_5;
 												?>
 
-												<td><?=number_format($approved_0,2);?></td>
+												<!-- <td><?=number_format($approved_0,2);?></td>
 		                        				<td><?=number_format($approved_1,2);?></td>
 		                        				<td><?=number_format($approved_3,2);?></td>
 		                        				<td><?=number_format($approved_4,2);?></td>
-		                        				<td><?=number_format($approved_5,2);?></td>
+		                        				<td><?=number_format($approved_5,2);?></td> -->
 		                        				
-												<td>
+												<!-- <td>
 		                        					<?php
 		                        						$color = 'label-success';
 		                        						if($total_unapproved > 0 ){
@@ -135,7 +135,7 @@
 		                        							echo number_format($total_unapproved,2);
 		                        						?>		                        					
 		                        					</div>
-		                        				</td>	
+		                        				</td>	 -->
 		                        				<td>
 		                        					<div class="btn-group">
 						                    			<button id="" type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">

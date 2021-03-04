@@ -475,65 +475,12 @@ class Finance_model extends CI_Model {
 		return $query;
 	}
 
-	public function statement_balance($project_id='',$date=""){
-		
-		$statement = (object)array('month'=>$this->project_system_start_date($project_id),'icpNo'=>$project_id,'amount'=>0);
-		
-		if($this->db->get_where('statementbal',array('month'=>date('Y-m-t',strtotime($date)),'icpNo'=>$project_id))->num_rows()>0){
-			$statement = $this->db->get_where('statementbal',array('month'=>date('Y-m-t',strtotime($date)),'icpNo'=>$project_id))->row();
-		}
-		
-		return $statement;//$this->db->get_where('statementbal',array('month'=>$param1))->row();
-	}	
+	
 
-	public function sum_deposit_transit($date="",$project=""){
-		//$cond_sum_dep = "TDate>='".$this->project_system_start_date($project)."' AND TDate<='".date('Y-m-t',strtotime($date))."' AND icpNo='".$project."' AND (clrMonth = '0000-00-00' OR clrMonth > '".date('Y-m-t',strtotime($date))."') AND VType='CR'";				
-		$cond_sum_dep = "((TDate<='".date('Y-m-t',strtotime($date))."' AND icpNo='".$project."' AND (ChqState='0' OR clrMonth>'".date('Y-m-t',strtotime($date))."') AND VType='CR')";				
-		$cond_sum_dep .= " OR (TDate<='".date('Y-m-t',strtotime($date))."' AND icpNo='".$project."' AND ChqState='1' AND clrMonth>'".date('Y-m-t',strtotime($date))."' AND VType='CR'))";				
+	
 		
-		$sum_dep_query = 0;
 		
-		if($this->db->where($cond_sum_dep)->get('voucher_header')->num_rows()>0){
-			//$cond_sum_dep = "TDate>='".$this->project_system_start_date($project)."' AND TDate<='".date('Y-m-t',strtotime($date))."' AND icpNo='".$project."' AND (clrMonth = '0000-00-00' OR clrMonth > '".date('Y-m-t',strtotime($date))."') AND VType='CR'";	
-			$cond_sum_dep = "((TDate<='".date('Y-m-t',strtotime($date))."' AND icpNo='".$project."' AND (ChqState='0' OR clrMonth>'".date('Y-m-t',strtotime($date))."') AND VType='CR')";				
-			$cond_sum_dep .= " OR (TDate<='".date('Y-m-t',strtotime($date))."' AND icpNo='".$project."' AND ChqState='1' AND clrMonth>'".date('Y-m-t',strtotime($date))."' AND VType='CR'))";				
-		
-			$sum_dep_query = $this->db->select_sum('totals')->where($cond_sum_dep)->get('voucher_header')->row()->totals;	
-		}
-		
-		return $sum_dep_query;
-	}
-		
-	public function sum_outstanding_cheques($date="",$project=""){
-		//$cond_sum_os = "TDate>='".$this->project_system_start_date($project)."' AND TDate<='".date('Y-m-t',strtotime($date))."' AND icpNo='".$project."' AND (ChqState='0' OR clrMonth>'".date('Y-m-t',strtotime($date))."') AND VType='CHQ'";		
-		//$sum_os_query = 0;//$this->db->select_sum('totals')->where($cond_sum_os)->get('voucher_header')->row()->totals;
-		
-		//if($this->db->where($cond_sum_os)->get('voucher_header')->num_rows()>0){
-			//$cond_sum_os = "TDate>='".$this->project_system_start_date($project)."' AND TDate<='".date('Y-m-t',strtotime($date))."' AND icpNo='".$project."' AND (ChqState='0' OR clrMonth>'".date('Y-m-t',strtotime($date))."') AND VType='CHQ'";		
-			
-			//$sum_os_query = $this->db->select_sum('totals')->where($cond_sum_os)->get('voucher_header')->row()->totals;					
-		//}
-		
-		//return $sum_os_query;		
-		
-		$oc = $this->outstanding_cheques($date,$project);
-		
-		$oc_total = 0;
-		foreach($oc as$row):
-			$oc_total+=$this->db->select_sum('Cost')->get_where('voucher_body',array('hID'=>$row['hID']))->row()->Cost;
-		endforeach;	
-		
-		return $oc_total;
-	}	
-	public function adjusted_bank_balance($date='',$project=""){
-		$statement = $this->statement_balance($project,$date)->amount;
-		$deposit_in_transit = $this->sum_deposit_transit($date,$project);
-		$outstanding_cheques = $this->sum_outstanding_cheques($date,$project);
-		
-		$adj = $statement+($deposit_in_transit-$outstanding_cheques);
-		
-		return $adj;
-	}
+	
 	//Perfect
 	public function months_bank_income($date,$project){
 		//Income
@@ -587,16 +534,7 @@ class Finance_model extends CI_Model {
 		return $bank_exp;
 	}
 		
-	public function bank_balance($date="",$project=""){
-		$begin_bank = $this->opening_bank_balance($date,$project);
-		$bank_income = $this->months_bank_income($date,$project);
-		$bank_exp = $this->months_bank_expense($date,$project);
-		
-		
-		$bank_bal = $begin_bank+$bank_income-$bank_exp;
-		
-		return $bank_bal;
-	}	
+
 
 	public function petty_cash_balance($date,$project){
 		$begin_pc = $this->opening_pc_balance($date,$project);
@@ -1223,6 +1161,263 @@ class Finance_model extends CI_Model {
 
 		return abs($rst);
 	}
+
+	public function adjusted_bank_balance($date='',$project=""){
+		$statement = $this->statement_balance($project,$date)->amount;
+		$deposit_in_transit = $this->sum_deposit_transit($date,$project);
+		$outstanding_cheques = $this->sum_outstanding_cheques($date,$project);
+		
+		$adj = $statement+($deposit_in_transit-$outstanding_cheques);
+		
+		return $adj;
+	}
+
+	public function bank_balance($date="",$project=""){
+		$begin_bank = $this->opening_bank_balance($date,$project);
+		$bank_income = $this->months_bank_income($date,$project);
+		$bank_exp = $this->months_bank_expense($date,$project);
+		
+		
+		$bank_bal = $begin_bank+$bank_income-$bank_exp;
+		
+		return $bank_bal;
+	}	
+
+
+	public function cluster_bank_balances($date="",$cluster_name=""){
+
+		$cluster_bank_balances = [];
+
+		$projects = $this->crud_model->project_per_cluster($cluster_name);
+
+		foreach($projects as $project){
+
+			$begin_bank = $this->opening_bank_balance($date,$project->fname);
+			$bank_income = $this->months_bank_income($date,$project->fname);
+			$bank_exp = $this->months_bank_expense($date,$project->fname);
+			
+			$bank_bal = $begin_bank+$bank_income-$bank_exp;
+
+			$cluster_bank_balances[$project->fname] = $bank_bal;
+		}
+		
+		return $cluster_bank_balances;
+	}	
+
+
+	public function statement_balance($project_id='',$date=""){
+		
+		$statement = (object)array('month'=>$this->project_system_start_date($project_id),'icpNo'=>$project_id,'amount'=>0);
+		
+		if($this->db->get_where('statementbal',array('month'=>date('Y-m-t',strtotime($date)),'icpNo'=>$project_id))->num_rows()>0){
+			$statement = $this->db->get_where('statementbal',array('month'=>date('Y-m-t',strtotime($date)),'icpNo'=>$project_id))->row();
+		}
+		
+		return $statement;//$this->db->get_where('statementbal',array('month'=>$param1))->row();
+	}
+
+	public function cluster_statement_balances($cluster_name,$date){
+
+		//$projects = $this->crud_model->project_per_cluster($cluster_name);
+
+		//$cluster_statement_balances = [];
+
+		$this->db->select(array('statementbal.icpNo as icpNo','amount'));
+		$this->db->where(array('clusterName'=>$cluster_name,'month'=>date('Y-m-t',strtotime($date))));
+		$this->db->join('projectsdetails','projectsdetails.icpNo=statementbal.icpNo');
+		$this->db->join('clusters','clusters.clusters_id=projectsdetails.cluster_id');
+		$statement_obj = $this->db->get('statementbal');
+
+		$statement_balances_by_fcp = [];
+
+		if($statement_obj->num_rows() > 0){
+
+			$statement_balances = $statement_obj->result_array();
+
+			$fcp_array = array_column($statement_balances,'icpNo');
+			$amounts_array = array_column($statement_balances,'amount');
+
+			$statement_balances_by_fcp = array_combine($fcp_array,$amounts_array);
+		}
+
+		// foreach($projects as $project){
+		// 	$cluster_statement_balances[$project->fname] = isset($statement_balances_by_fcp[$project->fname]) ? $statement_balances_by_fcp[$project->fname] : 0;
+		// }
+		
+		// $statement = (object)array('month'=>$this->project_system_start_date($project_id),'icpNo'=>$project_id,'amount'=>0);
+		
+		// if($this->db->get_where('statementbal',array('month'=>date('Y-m-t',strtotime($date)),'icpNo'=>$project_id))->num_rows()>0){
+		// 	$statement = $this->db->get_where('statementbal',array('month'=>date('Y-m-t',strtotime($date)),'icpNo'=>$project_id))->row();
+		// }
+		
+		return $statement_balances_by_fcp;//$this->db->get_where('statementbal',array('month'=>$param1))->row();
+	}
+
+	public function sum_deposit_transit($date="",$project=""){
+		//$cond_sum_dep = "TDate>='".$this->project_system_start_date($project)."' AND TDate<='".date('Y-m-t',strtotime($date))."' AND icpNo='".$project."' AND (clrMonth = '0000-00-00' OR clrMonth > '".date('Y-m-t',strtotime($date))."') AND VType='CR'";				
+		$cond_sum_dep = "((TDate<='".date('Y-m-t',strtotime($date))."' AND icpNo='".$project."' AND (ChqState='0' OR clrMonth>'".date('Y-m-t',strtotime($date))."') AND VType='CR')";				
+		$cond_sum_dep .= " OR (TDate<='".date('Y-m-t',strtotime($date))."' AND icpNo='".$project."' AND ChqState='1' AND clrMonth>'".date('Y-m-t',strtotime($date))."' AND VType='CR'))";				
+		
+		$sum_dep_query = 0;
+		
+		if($this->db->where($cond_sum_dep)->get('voucher_header')->num_rows()>0){
+			//$cond_sum_dep = "TDate>='".$this->project_system_start_date($project)."' AND TDate<='".date('Y-m-t',strtotime($date))."' AND icpNo='".$project."' AND (clrMonth = '0000-00-00' OR clrMonth > '".date('Y-m-t',strtotime($date))."') AND VType='CR'";	
+			$cond_sum_dep = "((TDate<='".date('Y-m-t',strtotime($date))."' AND icpNo='".$project."' AND (ChqState='0' OR clrMonth>'".date('Y-m-t',strtotime($date))."') AND VType='CR')";				
+			$cond_sum_dep .= " OR (TDate<='".date('Y-m-t',strtotime($date))."' AND icpNo='".$project."' AND ChqState='1' AND clrMonth>'".date('Y-m-t',strtotime($date))."' AND VType='CR'))";				
+		
+			$sum_dep_query = $this->db->select_sum('totals')->where($cond_sum_dep)->get('voucher_header')->row()->totals;	
+		}
+		
+		return $sum_dep_query;
+	}
+
+	public function cluster_sum_deposit_transits($cluster_name,$date){
+
+		//$projects = $this->crud_model->project_per_cluster($cluster_name);
+		//$cluster_sum_deposit_transits = [];
+
+		$this->db->select_sum('totals');
+		$this->db->select(array('voucher_header.icpNo as icpNo'));
+		$cond_sum_dep = "((TDate<='".date('Y-m-t',strtotime($date))."' AND clusterName='".$cluster_name."' AND (ChqState='0' OR clrMonth>'".date('Y-m-t',strtotime($date))."') AND VType='CR')";				
+		$cond_sum_dep .= " OR (TDate<='".date('Y-m-t',strtotime($date))."' AND clusterName='".$cluster_name."' AND ChqState='1' AND clrMonth>'".date('Y-m-t',strtotime($date))."' AND VType='CR'))";				
+		
+		$this->db->join('projectsdetails','projectsdetails.icpNo=voucher_header.icpNo');
+		$this->db->join('clusters','clusters.clusters_id=projectsdetails.cluster_id');
+		
+		$this->db->group_by(array('voucher_header.icpNo'));
+		
+		$sum_deposit_transits_obj = $this->db->where($cond_sum_dep)->get('voucher_header');
+
+		$sum_deposit_transits = [];
+		
+		if($sum_deposit_transits_obj->num_rows() > 0){
+			$sum_dep_query = $sum_deposit_transits_obj->result_array();	
+
+			$fcp_array = array_column($sum_dep_query,'icpNo');
+			$totals_array = array_column($sum_dep_query,'totals');
+
+			$sum_deposit_transits = array_combine($fcp_array,$totals_array);
+		}
+
+		// foreach($projects as $project){
+		// 	$cluster_sum_deposit_transits[$project->fname] = $sum_deposit_transits[];
+		// }
+		
+		
+		return $sum_deposit_transits;
+	}
+
+	public function sum_outstanding_cheques($date="",$project=""){
+		//$cond_sum_os = "TDate>='".$this->project_system_start_date($project)."' AND TDate<='".date('Y-m-t',strtotime($date))."' AND icpNo='".$project."' AND (ChqState='0' OR clrMonth>'".date('Y-m-t',strtotime($date))."') AND VType='CHQ'";		
+		//$sum_os_query = 0;//$this->db->select_sum('totals')->where($cond_sum_os)->get('voucher_header')->row()->totals;
+		
+		//if($this->db->where($cond_sum_os)->get('voucher_header')->num_rows()>0){
+			//$cond_sum_os = "TDate>='".$this->project_system_start_date($project)."' AND TDate<='".date('Y-m-t',strtotime($date))."' AND icpNo='".$project."' AND (ChqState='0' OR clrMonth>'".date('Y-m-t',strtotime($date))."') AND VType='CHQ'";		
+			
+			//$sum_os_query = $this->db->select_sum('totals')->where($cond_sum_os)->get('voucher_header')->row()->totals;					
+		//}
+		
+		//return $sum_os_query;		
+		
+		$oc = $this->outstanding_cheques($date,$project);
+		
+		$oc_total = 0;
+		foreach($oc as$row):
+			$oc_total+=$this->db->select_sum('Cost')->get_where('voucher_body',array('hID'=>$row['hID']))->row()->Cost;
+		endforeach;	
+		
+		return $oc_total;
+	}
+
+	// public function cluster_outstanding_cheques($cluster,$date, $oc = TRUE)
+	// {
+	
+	// }
+
+	public function cluster_sum_outstanding_cheques($cluster_name,$date,$oc = TRUE){
+
+		$this->db->select_sum('Cost');
+		$this->db->select(array('voucher_header.icpNo as icpNo'));
+
+		$this->db->join('voucher_header','voucher_header.hID=voucher_body.hID');
+		$this->db->join('projectsdetails','projectsdetails.icpNo=voucher_header.icpNo');
+		$this->db->join('clusters','clusters.clusters_id=projectsdetails.cluster_id');
+
+		$this->db->group_by(array('voucher_header.icpNo'));
+
+		$cond_os = "((voucher_header.TDate<='" . date('Y-m-t', strtotime($date)) . "' AND clusterName='" . $cluster_name . "' AND ChqState='0' AND voucher_header.VType IN ('CHQ','UDCTB'))";
+		$cond_os .= " OR (voucher_header.TDate<='" . date('Y-m-t', strtotime($date)) . "' AND clusterName='" . $cluster_name . "' AND ChqState='1' AND clrMonth >'" . date('Y-m-t', strtotime($date)) . "' AND voucher_header.VType IN ('CHQ','UDCTB')))";
+
+		if ($oc === FALSE) {
+			$cond_os = "clrMonth>='" . date('Y-m-01', strtotime($date)) . "' AND clrMonth<='" . date('Y-m-t', strtotime($date)) . "' AND clusterName='" . $cluster_name . "' AND ChqState='1' AND voucher_header.VType IN ('CHQ','UDCTB')";
+		}
+
+		$cluster_sum_outstanding_cheques_obj = $this->db->where($cond_os)->get('voucher_body');
+
+		$cluster_sum_outstanding_cheques = [];
+
+		if($cluster_sum_outstanding_cheques_obj->num_rows() > 0 ){
+
+			$cluster_sum_outstanding_cheques = $cluster_sum_outstanding_cheques_obj->result_array();
+
+			$fcp_array = array_column($cluster_sum_outstanding_cheques,'icpNo');
+			$cost_array = array_column($cluster_sum_outstanding_cheques,'Cost');
+
+			$cluster_sum_outstanding_cheques = array_combine($fcp_array,$cost_array);
+		}
+		
+		
+		return $cluster_sum_outstanding_cheques;
+	}
+	
+
+	public function cluster_adjusted_bank_balances($date='',$cluster_name=""){
+
+		$projects = $this->crud_model->project_per_cluster($cluster_name);
+
+		$cluster_adjusted_bank_balances = [];
+
+		$cluster_statement_balances = $this->cluster_statement_balances($cluster_name,$date);
+		$cluster_sum_deposit_transits = $this->cluster_sum_deposit_transits($cluster_name,$date);
+		$cluster_sum_outstanding_cheques = $this->cluster_sum_outstanding_cheques($cluster_name,$date);
+
+		foreach($projects as $project){
+			$statement = isset($cluster_statement_balances[$project->fname]) ? $cluster_statement_balances[$project->fname] : 0;//$this->statement_balance($project->fname,$date)->amount;
+			$deposit_in_transit = isset($cluster_sum_deposit_transits[$project->fname]) ? $cluster_sum_deposit_transits[$project->fname] : 0;//$this->sum_deposit_transit($date,$project->fname);
+			$outstanding_cheques = isset($cluster_sum_outstanding_cheques[$project->fname]) ? $cluster_sum_outstanding_cheques[$project->fname] : 0;//$this->sum_outstanding_cheques($date,$project->fname);
+			
+			$adj = $statement+($deposit_in_transit-$outstanding_cheques);
+
+			$cluster_adjusted_bank_balances[$project->fname] = $adj;
+		}
+
+		
+		return $cluster_adjusted_bank_balances;
+	}
+
+	// function bank_reconciled_test($cluster_name,$date){
+
+	// 	$rst =  $this->cluster_adjusted_bank_balances($date,$cluster_name)-$this->cluster_bank_balances($date,$cluster_name);
+
+	// 	$rst =  [
+	// 		'KE0123'=>0,
+	// 		'KE200'=>21500.45,
+	// 		'KE202'=>0,
+	// 		'KE204'=>34500,14,
+	// 		'KE206'=>0,
+	// 		'KE209'=>0.1,
+	// 		'KE211'=>0,
+	// 		'KE214'=>0,
+	// 		'KE217'=>0,
+	// 		'KE444'=>0,
+	// 		'KE445'=>23900.34,
+	// 		'KE446'=>0,
+	// 		'KE447'=>0
+	// 	];
+
+		
+	// 	return $rst;
+	// }
 	
 	function check_bank_statement($project,$date){
 		// $path = 'uploads/bank_statements/'.$project.'/'.date('Y-m',strtotime($date));

@@ -12,6 +12,10 @@
                     </div>
                     <div class="panel-body">
 
+					<?php 
+						//print_r($this->finance_model->cluster_statement_balances('Ishiara','2018-04-30'));
+					?>
+
 						<a class='btn btn-default' target='__blank' href="<?php echo base_url();?>ifms.php/facilitator/direct_cash_transfers_report/<?=$tym;?>"><?php echo get_phrase('direct_cash_transfers_report');?></a>
 
 						<hr/>
@@ -42,10 +46,14 @@
 		                        		
 		                        		<?php
 		                        			$projects = $this->crud_model->project_per_cluster($this->session->cluster);
+											//$cluster_bank_reconcile_check = $this->finance_model->bank_reconciled_test($this->session->cluster,date('Y-m-t',$tym));
 											
+											$cluster_adjusted_bank_balances = $this->finance_model->cluster_adjusted_bank_balances(date('Y-m-t',$tym),$this->session->cluster);
+											$cluster_bank_balances = $this->finance_model->cluster_bank_balances(date('Y-m-t',$tym),$this->session->cluster);
+										
 											foreach($projects as $row):
 												
-												$bank_reconcile_check = $this->finance_model->bank_reconciled($row->fname,date('Y-m-t',$tym));
+												$bank_reconcile_check = $cluster_adjusted_bank_balances[$row->fname] - $cluster_bank_balances[$row->fname];//$cluster_bank_reconcile_check[$row->fname];//$this->finance_model->bank_reconciled($row->fname,date('Y-m-t',$tym));
 											
 										
 		                        		?>
@@ -53,7 +61,7 @@
 		                        				<td><?=$row->fname;?></td>
 		                        				<td>
 		                        					<?php
-		                        						
+		                        						//echo $cluster_adjusted_bank_balances[$row->fname] .' - '. $cluster_bank_balances[$row->fname];
 		                        						if(number_format($bank_reconcile_check)!== "0"){
 		                        					?>
 		                        							<span class="label label-danger"><?=number_format($bank_reconcile_check);?></span>

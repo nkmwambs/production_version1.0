@@ -58,12 +58,167 @@ class Partner extends CI_Controller
 		
 		
 		$max_mfr_id = $this->db->select_max('balHdID')->get_where('opfundsbalheader',array('icpNo'=>$this->session->center_id))->row()->balHdID;
-		 	
+		
+		$page_data['cash_journal'] = $this->cash_journal_grid();
 		$page_data['tym']  = strtotime($this->finance_model->current_financial_month($this->session->center_id));//strtotime('+1 month',strtotime($last_mfr->closureDate));		
         $page_data['month'] = date("Y-m-t",strtotime($this->finance_model->current_financial_month($this->session->center_id)));
         $page_data['page_name']  = 'cash_journal';
         $page_data['page_title'] = get_phrase('cash_journal');
 		$this->load->view('backend/index', $page_data);
+}
+
+private function cash_journal_grid(){
+	$cash_journal = [
+		'period' => '2021-02-01',
+		'is_bank_reconciled' => false,
+		'is_proof_of_cash_correct' => true,
+		'is_mfr_submitted' => false,
+		'month_utilized_income_accounts' => [
+			'100' => [
+				'account_code' => 'R100',
+				'account_name' => 'Support Funds'
+			],
+			'200' => [
+				'account_code' => 'R200',
+				'account_name' => 'Gift Funds'
+			],
+			'510' => [
+				'account_code' => 'R510',
+				'account_name' => 'Parents Contribution'
+			]
+		],
+		'month_utilized_expense_accounts' => [
+			'10' => [
+				'account_code' => 'E10',
+				'account_name' => 'Education Expenses'
+			],
+			'45' => [
+				'account_code' => 'E45',
+				'account_name' => 'Domestic Assistance'
+			],
+			'30' => [
+				'account_code' => 'E30',
+				'account_name' => 'Personal Hygiene'
+			],
+			'65' => [
+				'account_code' => 'E65',
+				'account_name' => 'Salaries & Wages'
+			],
+			'70' => [
+				'account_code' => 'E70',
+				'account_name' => 'Administration Cost'
+			]
+		],
+		'bank' => [
+			'balance_bf'=> 250650.23,
+			'deposit' => 8000,
+			'payment' => 3000,
+			'closing_balance' => 0
+		],
+		'cash' => [
+			'balance_bf'=> 4560.00,
+			'deposit' => 3000,
+			'payment' => 1000,
+			'closing_balance' => 0
+		],
+		'voucher_records' => [
+			'10' => [
+				'voucher_number'=> '210101',
+				'voucher_status' => 0,
+				'voucher_date' => '2021-01-01',
+				'voucher_type' => 'CR',
+				'payee' => 'ABC',
+				'description' => 'blah blah blah',
+				'cheque_number' => 0,
+				'clear_state' => 0,
+				'clear_month' => '0000-00-00',
+				'is_editable' => true,
+				'running_balance' => [
+					'income' => 8000,
+					'expense' => 0
+				],
+				'spread' => [
+					'100' => [
+						'account_code' => 'R100',
+						'account_number' => 100,
+						'account_name' => 'Support Funds',
+						'amount' => 6000
+					],
+					'200' => [
+						'account_code' => 'R200',
+						'account_number' => 200,
+						'account_name' => 'Gift Funds',
+						'amount' => 2000
+					]
+				]
+			],
+			'11' => [
+				'voucher_number'=> '210102',
+				'voucher_status' => 0,
+				'voucher_date' => '2021-01-10',
+				'voucher_type' => 'CHQ',
+				'payee' => 'XYZ',
+				'description' => 'blah2 blah2 blah2',
+				'cheque_number' => 1001,
+				'clear_state' => 1,
+				'clear_month' => '2021-01-31',
+				'is_editable' => true,
+				'running_balance' => [
+					'income' => 0,
+					'expense' => 6000
+				],
+				'spread' => [
+					'10' => [
+						'account_code' => 'E10',
+						'account_number' => 10,
+						'account_name' => 'Educational Expenses',
+						'amount' => 2000
+					],
+					'30' => [
+						'account_code' => 'E30',
+						'account_number' => 30,
+						'account_name' => 'Personal Hygiene Expenses',
+						'amount' => 1000
+					],
+					'65' => [
+						'account_code' => 'E65',
+						'account_number' => 65,
+						'account_name' => 'Salaries and Wages',
+						'amount' => 3000
+					],
+					
+				]
+			],
+			'12' => [
+				'voucher_number'=> '210103',
+				'voucher_status' => 0,
+				'voucher_date' => '2021-01-11',
+				'voucher_type' => 'CHQ',
+				'payee' => 'XYZ ABC',
+				'description' => 'blah3 blah3 blah3',
+				'cheque_number' => 1002,
+				'clear_state' => 0,
+				'clear_month' => '0000-00-00',
+				'is_editable' => true,
+				'running_balance' => [
+					'income' => 0,
+					'expense' => 15000
+				],
+				
+				'spread' => [
+					'Petty Cash' => [
+						'account_code' => 'Petty Cash',
+						'account_number' => 2000,
+						'account_name' => 'Petty Cash',
+						'amount' => 15000
+					]
+					
+				]
+			]
+		]
+	];
+
+	return $cash_journal;
 }
   
   function scroll_cash_journal($date="",$cnt="",$flag=""){

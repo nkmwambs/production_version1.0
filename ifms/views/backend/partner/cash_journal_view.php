@@ -36,7 +36,9 @@
             $pc_balance = 0;
         ?>
 
-        <?php foreach($voucher_records as $voucher_id => $voucher_record):?>
+        <?php 
+        if(!empty($voucher_records)){
+        foreach($voucher_records as $voucher_id => $voucher_record):?>
             <tr>
                 <td id="<?=$voucher_id;?>"></td>
 
@@ -186,6 +188,9 @@
                 <?php }?>													
 
             </tr>
-        <?php endforeach;?>
+        <?php 
+                endforeach;
+            }
+        ?>
     </thead>
 </table>

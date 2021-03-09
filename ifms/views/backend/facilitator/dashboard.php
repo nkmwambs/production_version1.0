@@ -12,6 +12,10 @@
                     </div>
                     <div class="panel-body">
 
+					<?php 
+						//print_r($this->finance_model->cluster_statement_balances('Ishiara','2018-04-30'));
+					?>
+
 						<a class='btn btn-default' target='__blank' href="<?php echo base_url();?>ifms.php/facilitator/direct_cash_transfers_report/<?=$tym;?>"><?php echo get_phrase('direct_cash_transfers_report');?></a>
 
 						<hr/>
@@ -42,10 +46,16 @@
 		                        		
 		                        		<?php
 		                        			$projects = $this->crud_model->project_per_cluster($this->session->cluster);
+											//$cluster_bank_reconcile_check = $this->finance_model->bank_reconciled_test($this->session->cluster,date('Y-m-t',$tym));
 											
+											$cluster_adjusted_bank_balances = $this->finance_model->cluster_adjusted_bank_balances(date('Y-m-t',$tym),$this->session->cluster);
+											$cluster_bank_balances = $this->finance_model->cluster_bank_balances(date('Y-m-t',$tym),$this->session->cluster);
+											$cluster_funds_balance_headers = $this->finance_model->cluster_funds_balance_headers(date('Y-m-t',$tym),$this->session->cluster);
+											$cluster_unapproved_budget_items = $this->finance_model->cluster_unapproved_budget_items($this->session->cluster,date('Y-m-d',$tym));
+
 											foreach($projects as $row):
 												
-												$bank_reconcile_check = $this->finance_model->bank_reconciled($row->fname,date('Y-m-t',$tym));
+												$bank_reconcile_check = $cluster_adjusted_bank_balances[$row->fname] - $cluster_bank_balances[$row->fname];//$cluster_bank_reconcile_check[$row->fname];//$this->finance_model->bank_reconciled($row->fname,date('Y-m-t',$tym));
 											
 										
 		                        		?>
@@ -53,7 +63,7 @@
 		                        				<td><?=$row->fname;?></td>
 		                        				<td>
 		                        					<?php
-		                        						
+		                        						//echo $cluster_adjusted_bank_balances[$row->fname] .' - '. $cluster_bank_balances[$row->fname];
 		                        						if(number_format($bank_reconcile_check)!== "0"){
 		                        					?>
 		                        							<span class="label label-danger"><?=number_format($bank_reconcile_check);?></span>
@@ -69,13 +79,13 @@
 		                        				</td>
 		                        				<td><?php
 		                        					
-		                        					if($this->db->get_where("opfundsbalheader",array('icpNo'=>$row->fname,"closureDate"=>date('Y-m-t',$tym)))->num_rows()===0){
+		                        					if(!isset($cluster_funds_balance_headers[$row->fname])){
 		                        					?>
 		                        						<button class="btn btn btn-info btn-icon disabled"><i class="fa fa-eye"></i><?= get_phrase('report_not_available');?></button>
 		                        					<?php
 		                        					}else{
 		                        					
-			                        					$validate = $this->db->get_where("opfundsbalheader",array('icpNo'=>$row->fname,"closureDate"=>date('Y-m-t',$tym)))->row()->allowEdit;
+			                        					$validate = $cluster_funds_balance_headers[$row->fname];//$this->db->get_where("opfundsbalheader",array('icpNo'=>$row->fname,"closureDate"=>date('Y-m-t',$tym)))->row()->allowEdit;
 			                        					if($validate==='0'){
 			                        					?>
 			                    
@@ -90,21 +100,39 @@
 													}
 		                        					?>
 		                        				</td>
-		                        				<td><?=number_format($this->finance_model->unapproved_budget_items($row->fname,date('Y-m-d',$tym),0),2);?></td>
+		                        				<!-- <td><?=number_format($this->finance_model->unapproved_budget_items($row->fname,date('Y-m-d',$tym),0),2);?></td>
 		                        				<td><?=number_format($this->finance_model->unapproved_budget_items($row->fname,date('Y-m-d',$tym),1),2);?></td>
 		                        				<td><?=number_format($this->finance_model->unapproved_budget_items($row->fname,date('Y-m-d',$tym),3),2);?></td>
 		                        				<td><?=number_format($this->finance_model->unapproved_budget_items($row->fname,date('Y-m-d',$tym),4),2);?></td>
-		                        				<td><?=number_format($this->finance_model->unapproved_budget_items($row->fname,date('Y-m-d',$tym),5),2);?></td>
-		                        				<td>
+		                        				<td><?=number_format($this->finance_model->unapproved_budget_items($row->fname,date('Y-m-d',$tym),5),2);?></td> -->
+
+
+												<?php 
+													$approved_0 = isset($cluster_unapproved_budget_items[$row->fname][0]) ? $cluster_unapproved_budget_items[$row->fname][0] : 0;
+													$approved_1 = isset($cluster_unapproved_budget_items[$row->fname][1]) ? $cluster_unapproved_budget_items[$row->fname][1] : 0;
+													$approved_3 = isset($cluster_unapproved_budget_items[$row->fname][3]) ? $cluster_unapproved_budget_items[$row->fname][3] : 0;
+													$approved_4 = isset($cluster_unapproved_budget_items[$row->fname][4]) ? $cluster_unapproved_budget_items[$row->fname][4] : 0;
+													$approved_5 = isset($cluster_unapproved_budget_items[$row->fname][5]) ? $cluster_unapproved_budget_items[$row->fname][5] : 0;
+												
+													$total_unapproved = $approved_0 +  $approved_1 + $approved_3 + $approved_4 + $approved_5;
+												?>
+
+												<td><?=number_format($approved_0,2);?></td>
+		                        				<td><?=number_format($approved_1,2);?></td>
+		                        				<td><?=number_format($approved_3,2);?></td>
+		                        				<td><?=number_format($approved_4,2);?></td>
+		                        				<td><?=number_format($approved_5,2);?></td>
+		                        				
+												<td>
 		                        					<?php
 		                        						$color = 'label-success';
-		                        						if($this->finance_model->unapproved_budget_items($row->fname,date('Y-m-d',$tym))>0){
+		                        						if($total_unapproved > 0 ){
 		                        							$color = 'label-danger';			
 		                        						}
 		                        					?>
 		                        					<div class="label <?=$color;?>">
 		                        						<?php
-		                        							echo number_format($this->finance_model->unapproved_budget_items($row->fname,date('Y-m-d',$tym)),2);
+		                        							echo number_format($total_unapproved,2);
 		                        						?>		                        					
 		                        					</div>
 		                        				</td>	

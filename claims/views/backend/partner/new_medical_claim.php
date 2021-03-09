@@ -197,14 +197,14 @@
 							<div class="form-group hidden" id="receipt">
 						     	<label class="control-label col-sm-4"><?php echo get_phrase('receipt');?></label>
 						     	<div class="col-sm-8">
-						        	<input type="file" id="upload_receipt" class="form-control reset upload" name="receipt[]" multiple />
+						        	<input type="file" id="upload_receipt" disabled class="form-control reset upload" name="receipt[]" multiple />
 						        </div>
 						    </div>
 						    
 						    <div class="form-group hidden" id="approval">
 						     	<label class="control-label col-sm-4"><?php echo get_phrase('approval_document');?></label>
 						     	<div class="col-sm-8">
-						        	<input type="file" id="upload_support_docs" class="form-control reset upload"  name="approval[]" multiple />
+						        	<input type="file" id="upload_support_docs" disabled class="form-control reset upload"  name="approval[]" multiple />
 						        </div>
 						    </div>
 					</div>
@@ -253,9 +253,15 @@
 			
 				//$('#progress').html($(this).val() + " : Receipt = "+ $('#receipt').attr('class') + " - Approval = " + $('#approval').attr('class'));
 				
-				if($('#approval').hasClass('show')) $('#approval').toggleClass('show hidden');
+				if($('#approval').hasClass('show')) {
+					$('#approval').toggleClass('show hidden');
+					$('#upload_support_docs').prop('disabled','disabled');
+				}
 				
-				if($('#receipt').hasClass('hidden')) $('#receipt').toggleClass('hidden show');
+				if($('#receipt').hasClass('hidden')) {
+					$('#receipt').toggleClass('hidden show');
+					$('#upload_receipt').removeAttr('disabled');
+				}
 				
 				//$('#progress').append("</br>" + $(this).val() + " : Receipt = "+ $('#receipt').attr('class') + " - Approval = " + $('#approval').attr('class'));
 			
@@ -263,9 +269,15 @@
 				
 				//$('#progress').html($(this).val() + " : Receipt = "+ $('#receipt').attr('class') + " - Approval = " + $('#approval').attr('class'));
 				
-				if($('#approval').hasClass('hidden')) $('#approval').toggleClass('hidden show');
+				if($('#approval').hasClass('hidden')) {
+					$('#approval').toggleClass('hidden show');
+					$('#upload_support_docs').removeAttr('disabled');
+				}
 				
-				if($('#receipt').hasClass('hidden')) $('#receipt').toggleClass('hidden show'); 	
+				if($('#receipt').hasClass('hidden')) {
+					$('#receipt').toggleClass('hidden show'); 	
+					$('#upload_receipt').removeAttr('disabled');
+				}
 				
 				//$('#progress').html("</br>" + $(this).val() + " : Receipt = "+ $('#receipt').attr('class') + " - Approval = " + $('#approval').attr('class'));				
 		};
@@ -478,7 +490,7 @@
 				jQuery('#progress').html('<div style="text-align:center;"><img width="160" height="100" src="<?php echo base_url();?>uploads/preloader2.gif" /></div>');
 			},
 			success:function(response){
-							
+							console.log(response);
 							//Check if a receipt has been attached
 							var available_file_inputs = $("#receipt,#approval").not(".hidden").find('input:file').length;
 							
@@ -492,8 +504,6 @@
 														
 							var count_of_attachments = parseInt(receipt_attached) + parseInt(approval_attached);
 							
-							//alert(available_file_inputs);
-							//alert(receipt_attached);
 							
 							var cnf = confirm("Do you want  to submit this claim?");
 							

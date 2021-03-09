@@ -1,15 +1,15 @@
 <?php 
 
 
-$tym = date('Y-m-t',$tym);
+// $tym = date('Y-m-t',$tym);
 
-$pc = $this->finance_model->petty_cash_balance($tym,$this->session->center_id);
+// $pc = $this->finance_model->petty_cash_balance($tym,$this->session->center_id);
 
-$bank = $this->finance_model->bank_balance($tym,$this->session->center_id);
+// $bank = $this->finance_model->bank_balance($tym,$this->session->center_id);
 
-$fund_balance = $this->finance_model->sum_months_opening_revenues($this->session->center_id,$tym);
+// $fund_balance = $this->finance_model->sum_months_opening_revenues($this->session->center_id,$tym);
 
-$unapproved_budget = $this->finance_model->unapproved_budget_items($this->session->center_id,$tym);
+// $unapproved_budget = $this->finance_model->unapproved_budget_items($this->session->center_id,$tym);
 
 ?>
 <hr />
@@ -28,8 +28,17 @@ $unapproved_budget = $this->finance_model->unapproved_budget_items($this->sessio
 </div>
 
 <hr />
+
+<div class="row">
+  <div class="col-sm-12">
+    <div class="well">
+      <h1><?= date('F, d Y') ?></h1>
+      <h3>Welcome to the site <strong><?= $this->session->userfirstname; ?></strong></h3>
+    </div>
+  </div>
+</div>
                     	
- <div class="row">
+ <!-- <div class="row">
   <div class="col-md-4">
     <div class="tile-stats tile-red">
 		<div class="icon"><i class="fa fa-group"></i></div>
@@ -76,7 +85,7 @@ $unapproved_budget = $this->finance_model->unapproved_budget_items($this->sessio
 				<p><?=get_phrase('budget');?></p>
 		</div>
   </div>
-</div>  	                       
+</div>  	                        -->
                  
 
 <script>

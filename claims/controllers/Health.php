@@ -73,7 +73,8 @@ class Health extends CI_Controller
 			
 			$rct = "<a href='".base_url()."claims.php/health/add_claim_rct/".$claims->rec."' class='btn btn-green btn-icon'><i class='fa fa-cloud-download'></i>".get_phrase('download')."</a>";
 			
-			if(count($this->db->get_where('apps_files',array('file_group'=>$claims->rec,'upload_type'=>"receipt"))->result_object())=== 0){
+			// if(count($this->db->get_where('apps_files',array('file_group'=>$claims->rec,'upload_type'=>"receipt"))->result_object())=== 0){
+			if($this->db->get_where('attachment',array('attachment_primary_id'=>$claims->rec,'item_name'=>"claims"))->num_rows() == 0){	
 				$rct =  "<a href='".base_url()."claims.php/health/add_claim_rct/".$claims->rec."' class='btn btn-orange btn-icon'><i class='fa fa-cloud-upload'></i>".get_phrase('attach_receipt')."</a>";
 			}
 			
@@ -81,7 +82,8 @@ class Health extends CI_Controller
 			
 			$refNo = "<a href='".base_url()."claims.php/health/add_claim_docs/".$claims->rec."' class='btn btn-green btn-icon'><i class='fa fa-cloud-download'></i>".get_phrase('download')."</a>";
 			
-			if(count($this->db->get_where('apps_files',array('file_group'=>$claims->rec,'upload_type'=>"approval"))->result_object())=== 0){
+			// if(count($this->db->get_where('apps_files',array('file_group'=>$claims->rec,'upload_type'=>"approval"))->result_object())=== 0){
+			if($this->db->get_where('attachment',array('attachment_primary_id'=>$claims->rec,'item_name'=>"supportdocs"))->num_rows() == 0){	
 				$refNo =  "<a href='".base_url()."claims.php/health/add_claim_docs/".$claims->rec."' class='btn btn-orange btn-icon'><i class='fa fa-cloud-upload'></i>".get_phrase('attach_approval')."</a>";
 			}						
 			
@@ -826,63 +828,9 @@ class Health extends CI_Controller
 		
 		$this->medical_claims();
 	}
-	/**
-	function search_claim(){
-		
-		$arr = array();
-		
-		$start_date = $this->input->post('start_date');
-		
-		$end_date = $this->input->post('end_date');
-		
-		$cond_str = " rec > 0 ";
-		
-		$cond_str_range = " rec > 0 ";
-		
-		if(isset($_POST['date_range'])){			
-			$cond_str_range .= " AND date BETWEEN '".$start_date."' AND '".$end_date."' ";
-			
-		}
-		
-		$this->db->where($cond_str_range);
-		
-		$fields = $this->input->post('field');
-		$operators = $this->input->post('operator');
-		$vals = $this->input->post('val');
-		
-
-			
-			for($i=0;$i<sizeof($fields);$i++){
-				if($fields[$i]!==""){
-					if($operators[$i]==="LIKE"){
-						$this->db->like($fields[$i],$vals[$i]);
-					}else{
-						//$arr[$fields[$i].$operators[$i]] = $vals[$i];
-						$cond_str .= " AND ".$fields[$i].$operators[$i]."'".$vals[$i]."' ";
-						
-						$this->db->where($cond_str);
-					}
-				}
-				
-			}
-			
-		switch($this->session->userdata('logged_user_level')):
-			case '1':
-				$this->db->where(array("proNo"=>$this->session->userdata('center_id')));
-				break;				
-			case '2':
-				$this->db->where(array("cluster"=>$this->session->userdata('cluster')));
-				break;
-		endswitch;
-		 
-		$claims = $this->db->get('app_medical_claims')->result_object(); 
-		
-		$page_data['claims'] = $claims;
-        echo $this->load->view('backend/admin/claim_search_results', $page_data,TRUE);
-		 
-	}
-	**/
+	
 	function reset_filter(){
+		$page_data['test'] = '';
 		echo $this->load->view('backend/admin/load_filters', $page_data,TRUE);
 	}
 	

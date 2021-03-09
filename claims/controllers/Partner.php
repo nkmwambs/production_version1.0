@@ -73,7 +73,7 @@ class Partner extends CI_Controller
 			
 			$rct = "<a href='".base_url()."claims.php/partner/add_claim_rct/".$claims->rec."' class='btn btn-green btn-icon'><i class='fa fa-cloud-download'></i>".get_phrase('download')."</a>";
 			
-			if(count($this->db->get_where('apps_files',array('file_group'=>$claims->rec,'upload_type'=>"receipt"))->result_object())=== 0){
+			if($this->db->get_where('attachment',array('attachment_primary_id'=>$claims->rec,'item_name'=>"claims"))->num_rows() == 0){
 				$rct =  "<a href='".base_url()."claims.php/partner/add_claim_rct/".$claims->rec."' class='btn btn-orange btn-icon'><i class='fa fa-cloud-upload'></i>".get_phrase('attach_receipt')."</a>";
 			}
 			
@@ -81,7 +81,7 @@ class Partner extends CI_Controller
 			
 			$refNo = "<a href='".base_url()."claims.php/partner/add_claim_docs/".$claims->rec."' class='btn btn-green btn-icon'><i class='fa fa-cloud-download'></i>".get_phrase('download')."</a>";
 			
-			if(count($this->db->get_where('apps_files',array('file_group'=>$claims->rec,'upload_type'=>"approval"))->result_object())=== 0){
+			if($this->db->get_where('attachment',array('attachment_primary_id'=>$claims->rec,'item_name'=>"supportdocs"))->num_rows() == 0){
 				$refNo =  "<a href='".base_url()."claims.php/partner/add_claim_docs/".$claims->rec."' class='btn btn-orange btn-icon'><i class='fa fa-cloud-upload'></i>".get_phrase('attach_approval')."</a>";
 			}						
 			
@@ -198,8 +198,8 @@ class Partner extends CI_Controller
 			$rec= $this->db->insert_id();
 			
 			//Upload receipt and Approval Docs
-			if(!empty($_FILES['receipt']['name'])) $this->uploads($rec,"receipt");
-			if(!empty($_FILES['approval']['name'])) $this->uploads($rec,"approval");
+			if(!empty($_FILES['receipt']['name'])) $this->uploads($rec,"receipt",$this->input->post('proNo'));
+			if(!empty($_FILES['approval']['name'])) $this->uploads($rec,"approval",$this->input->post('proNo'));
 			
         	redirect(base_url().'claims.php/partner/medical_claims', 'refresh');
 
@@ -265,6 +265,8 @@ class Partner extends CI_Controller
 	function add_claim(){
 		
 		//Compute claim count
+		$claim_id = 0;
+		if($this->input->post('childNo')){
 			
 			$current_count = $this->db->get_where('claims',array('childNo'=>$this->input->post('childNo')))->num_rows();
 			
@@ -289,87 +291,52 @@ class Partner extends CI_Controller
 			
 			$this->db->insert('claims',$data);
 			
-			$rec= $this->db->insert_id();
+			$claim_id= $this->db->insert_id();
 			
 			//echo $rec;
 			//Upload receipt and Approval Docs
 	
-			if(!empty($_FILES['receipt']['name'])) $this->uploads($rec,"receipt");
-			if(!empty($_FILES['approval']['name'])) $this->uploads($rec,"approval");
+			if(!empty($_FILES['receipt']['name'])) $this->uploads($claim_id,"receipt",$this->input->post('proNo'));
+			if(!empty($_FILES['approval']['name'])) $this->uploads($claim_id,"approval",$this->input->post('proNo'));
 			
 			//echo '<div class="well" style="text-align:center;">'.$msg.'</div>';
-			echo $rec;
+			//$claim_id = $rec;
+		}
+
+		echo $claim_id;
+				
 	}
 
 
-	function uploads($claim_id="",$file_type=""){
-		
-		//if($this->input->post('submit') && !(empty($_FILES['receipt']['name']) || empty($_FILES['approval']['name'])) ){
-			
-		if(!empty($_FILES[$file_type]['name'])){
-				
-	        	if($file_type === 'receipt')  $param1 = 'claims'; else $param1 = 'supportdocs'; 
-				  
-							$uploadPath = 'uploads/document/medical/'.$param1;
-							//Check if group folder exists
-							if(!file_exists($uploadPath."/".$claim_id)){
-								mkdir($uploadPath."/".$claim_id);
-							}else{
-								foreach (glob($uploadPath."/".$claim_id."/*.*") as $filename) {
-								    if (is_file($filename)) {
-								        unlink($filename);
-								    }
-								}
-								
-								$upload_type = "receipt";
-								
-								if($param1==="supportdocs"){
-									$upload_type = "approval";
-								}
-								
-								$this->db->where(array("file_group"=>$claim_id,"upload_type"=>$upload_type));
-								$this->db->delete('apps_files');
-							}
-							
-	        	 $filesCount = count($_FILES[$file_type]['name']);
-            		for($i = 0; $i < $filesCount; $i++){
-            			    $_FILES[$file_type]['name'] = $_FILES[$file_type]['name'][$i];
-			                $_FILES[$file_type]['type'] = $_FILES[$file_type]['type'][$i];
-			                $_FILES[$file_type]['tmp_name'] = $_FILES[$file_type]['tmp_name'][$i];
-			                $_FILES[$file_type]['error'] = $_FILES[$file_type]['error'][$i];
-			                $_FILES[$file_type]['size'] = $_FILES[$file_type]['size'][$i];
-							
-							$fullUploadPath = $uploadPath."/".$claim_id;
-			                
-			                $config['upload_path'] = $fullUploadPath;
-			                $config['allowed_types'] = 'gif|jpg|png|pdf|doc|docx|xls|xlsx';
-							
-							$this->load->library('upload', $config);
-			                $this->upload->initialize($config);
-			                if($this->upload->do_upload($file_type)){
-			                    $fileData = $this->upload->data();
-			                    $uploadData[$i]['file_name'] = $fileData['file_name'];
-			                    $uploadData[$i]['file_group'] = $claim_id;
-								
-								 if($param1==="claims"){
-								 	$uploadData[$i]['upload_type'] = 'receipt';	
-								 }else{
-								 	$uploadData[$i]['upload_type'] = 'approval';
-								 }
-			                    $uploadData[$i]['created'] = date("Y-m-d H:i:s");
-			                    //$uploadData[$i]['modified'] = date("Y-m-d H:i:s");
-			                }
-					}	
+	function uploads($claim_id,$file_type,$fcp_id = ''){
+		///return $file_type;
 
-				if(!empty($uploadData)){
-	                //Insert file information into the database
-	                $insert = $this->file->insert($uploadData);
-	                $statusMsg = $insert?'Receipt uploaded successfully.':'Some problem occurred, please try again.';
-					//return $statusMsg;
-					
-	            }
-			}
+		//return json_encode([$claim_id,$file_type,$fcp_id]);
+
+		$document_type = $file_type == 'receipt' ? 'claims' : 'supportdocs';
 		
+
+		$this->db->where(array('icpNo'=>$fcp_id));
+		$projectsdetails_id = $this->db->get('projectsdetails')->row()->ID;
+				
+		$additional_attachment_table_insert_data = [];
+
+		$additional_attachment_table_insert_data['attachment_primary_id'] = $claim_id;
+		$additional_attachment_table_insert_data['item_name'] = $document_type;
+		$additional_attachment_table_insert_data['fk_projectsdetails_id'] = $projectsdetails_id;
+
+		$attachment_where_condition_array = [];
+
+		$attachment_where_condition_array['item_name'] = $document_type;
+		$attachment_where_condition_array['attachment_primary_id'] = $claim_id;
+
+		$storeFolder = 'uploads/document/medical/'.$document_type.'/'.$claim_id;
+	            
+		$preassigned_urls =  $this->aws_attachment_library->upload_files($storeFolder,$additional_attachment_table_insert_data, $attachment_where_condition_array,$file_type);
+
+		
+		return $preassigned_urls;
+		//return json_encode([$claim_id,$file_type,$fcp_id]);
 	}
 
 	function add_claim_docs($param1=""){
@@ -378,7 +345,7 @@ class Partner extends CI_Controller
             
 		$claim = $this->db->get_where('claims',array('rec'=>$param1))->row();                         
 
-		$page_data['files'] = $this->file->getRows($param1,'approval');  
+		//$page_data['files'] = $this->file->getRows($param1,'approval');  
 		$page_data['claim'] = $claim;
         $page_data['page_name']  = 'upload_claim_docs';
         $page_data['page_title'] = get_phrase('approval_attachments');
@@ -393,7 +360,7 @@ class Partner extends CI_Controller
 			  
 		$claim = $this->db->get_where('claims',array('rec'=>$param1))->row();                         
 			
-		$page_data['files'] = $this->file->getRows($param1,'receipt');  			
+		//$page_data['files'] = $this->file->getRows($param1,'receipt');  			
 		$page_data['claim'] = $claim;
         $page_data['page_name']  = 'upload_claim_rct';
         $page_data['page_title'] = get_phrase('receipts_attachments');
@@ -432,72 +399,25 @@ class Partner extends CI_Controller
 		
 		echo $to_be_claimed;
 	}
-	function upload_medical_receipts($param1=""){
 
-	        if($this->input->post('fileSubmit') && !empty($_FILES['userFiles']['name'])){
-	        	
-							$uploadPath = 'uploads/document/medical/'.$param1;
-							//Check if group folder exists
-							if(!file_exists($uploadPath."/".$this->input->post('claim_id'))){
-								mkdir($uploadPath."/".$this->input->post('claim_id'));
-							}else{
-								foreach (glob($uploadPath."/".$this->input->post('claim_id')."/*.*") as $filename) {
-								    if (is_file($filename)) {
-								        unlink($filename);
-								    }
-								}
-								
-								$upload_type = "receipt";
-								
-								if($param1==="supportdocs"){
-									$upload_type = "approval";
-								}
-								
-								$this->db->where(array("file_group"=>$this->input->post('claim_id'),"upload_type"=>$upload_type));
-								$this->db->delete('apps_files');
-							}
-							
-	        	 $filesCount = count($_FILES['userFiles']['name']);
-            		for($i = 0; $i < $filesCount; $i++){
-            			    $_FILES['userFile']['name'] = $_FILES['userFiles']['name'][$i];
-			                $_FILES['userFile']['type'] = $_FILES['userFiles']['type'][$i];
-			                $_FILES['userFile']['tmp_name'] = $_FILES['userFiles']['tmp_name'][$i];
-			                $_FILES['userFile']['error'] = $_FILES['userFiles']['error'][$i];
-			                $_FILES['userFile']['size'] = $_FILES['userFiles']['size'][$i];
-							
-							$fullUploadPath = $uploadPath."/".$this->input->post('claim_id');
-			                
-			                $config['upload_path'] = $fullUploadPath;
-			                $config['allowed_types'] = 'gif|jpg|png|pdf|doc|docx|xls|xlsx';
-							
-							$this->load->library('upload', $config);
-			                $this->upload->initialize($config);
-			                if($this->upload->do_upload('userFile')){
-			                    $fileData = $this->upload->data();
-			                    $uploadData[$i]['file_name'] = $fileData['file_name'];
-			                    $uploadData[$i]['file_group'] = $this->input->post('claim_id');
-								
-								 if($param1==="claims"){
-								 	$uploadData[$i]['upload_type'] = 'receipt';	
-								 }else{
-								 	$uploadData[$i]['upload_type'] = 'approval';
-								 }
-			                    $uploadData[$i]['created'] = date("Y-m-d H:i:s");
-			                    //$uploadData[$i]['modified'] = date("Y-m-d H:i:s");
-			                }
-					}	
+	function upload_medical_receipts($document_type = 'claims'){
 
-				if(!empty($uploadData)){
-	                //Insert file information into the database
-	                $insert = $this->file->insert($uploadData);
-	                $statusMsg = $insert?'Receipt uploaded successfully.':'Some problem occurred, please try again.';
-	                $this->session->set_flashdata('flash_message',$statusMsg);
-					
-	            }
-			}
-                        
+			$upload_file_name = $document_type == 'claims' ? 'receipt' : 'approval';
 			
-			if($param1==='claims'){
+			$claim_id = $this->input->post('claim_id');
+			
+			$this->db->where(array('rec'=>$claim_id));
+			$fcp_id = $this->db->get('claims')->row()->proNo;
+
+			if($this->input->post('fileSubmit') && !empty($_FILES[$upload_file_name]['name'])){
+				$insert = $this->uploads($claim_id,$upload_file_name,$fcp_id);
+				
+				$statusMsg = !empty($insert)?'Receipt uploaded successfully.':'Some problem occurred, please try again.';
+	        	$this->session->set_flashdata('flash_message',$statusMsg);
+			}
+			                        
+			
+			if($document_type == 'claims'){
 
 				$claims_arr = $this->db->get_where('claims',array('rec'=>$this->input->post('claim_id')))->row();
 				
@@ -510,7 +430,10 @@ class Partner extends CI_Controller
 				
 				//Check if approval documents have not been attached
 				$supportdocs = "no";
-				if(file_exists('uploads/document/medical/supportdocs/'.$this->input->post('claim_id'))){
+				//file_exists('uploads/document/medical/supportdocs/'.$this->input->post('claim_id'))
+				if($this->db->get('attachment',
+				array('item_name'=>'supportdocs',
+				'attachment_primary_id'=>$this->input->post('claim_id')))->num_rows() > 0){
 					$supportdocs = "yes";
 				}
 				
@@ -585,10 +508,22 @@ class Partner extends CI_Controller
 	
 	function check_receipt($rec_id=""){
 		$rct = "no";
-		if(file_exists('uploads/document/medical/claims/'.$rec_id)){
-				$rct="yes";
-		}
 		
+		// if(file_exists('uploads/document/medical/claims/'.$rec_id)){
+		// 		$rct="yes";
+		// }
+
+		$condition_array = [
+			'attachment_primary_id'=>$rec_id,
+			'item_name'=>'claims'
+		];
+		$this->db->where($condition_array);
+		$attachment_obj = $this->db->get('attachment');
+
+		if($attachment_obj->num_rows() > 0){
+			$rct="yes";
+		}
+
 		return $rct;
 	}
 
@@ -606,9 +541,21 @@ class Partner extends CI_Controller
 	
 	function check_approval_documents($rec_id=""){
 		$supportdocs = "no";
-			if(file_exists('uploads/document/medical/supportdocs/'.$rec_id)){
-				$supportdocs="yes";
-			}
+		
+		// 	if(file_exists('uploads/document/medical/supportdocs/'.$rec_id)){
+		// 		$supportdocs="yes";
+		// 	}
+
+		$condition_array = [
+			'attachment_primary_id'=>$rec_id,
+			'item_name'=>'supportdocs'
+		];
+		$this->db->where($condition_array);
+		$attachment_obj = $this->db->get('attachment');
+
+		if($attachment_obj->num_rows() > 0){
+			$supportdocs="yes";
+		}
 			
 		return $supportdocs;
 	}
@@ -968,63 +915,9 @@ class Partner extends CI_Controller
 		
 		redirect(base_url().'claims.php/partner/medical_claims','refresh');
 	}
-	/**
-	function search_claim(){
-		
-		$arr = array();
-		
-		$start_date = $this->input->post('start_date');
-		
-		$end_date = $this->input->post('end_date');
-		
-		$cond_str = " rec > 0 ";
-		
-		$cond_str_range = " rec > 0 ";
-		
-		if(isset($_POST['date_range'])){			
-			$cond_str_range .= " AND date BETWEEN '".$start_date."' AND '".$end_date."' ";
-			
-		}
-		
-		$this->db->where($cond_str_range);
-		
-		$fields = $this->input->post('field');
-		$operators = $this->input->post('operator');
-		$vals = $this->input->post('val');
-		
-
-			
-			for($i=0;$i<sizeof($fields);$i++){
-				if($fields[$i]!==""){
-					if($operators[$i]==="LIKE"){
-						$this->db->like($fields[$i],$vals[$i]);
-					}else{
-						//$arr[$fields[$i].$operators[$i]] = $vals[$i];
-						$cond_str .= " AND ".$fields[$i].$operators[$i]."'".$vals[$i]."' ";
-						
-						$this->db->where($cond_str);
-					}
-				}
-				
-			}
-			
-		switch($this->session->userdata('logged_user_level')):
-			case '1':
-				$this->db->where(array("proNo"=>$this->session->userdata('center_id')));
-				break;				
-			case '2':
-				$this->db->where(array("cluster"=>$this->session->userdata('cluster')));
-				break;
-		endswitch;
-		 
-		$claims = $this->db->get('app_medical_claims')->result_object(); 
-		
-		$page_data['claims'] = $claims;
-        echo $this->load->view('backend/admin/claim_search_results', $page_data,TRUE);
-		 
-	}
-	**/
+	
 	function reset_filter(){
+		$page_data['test'] = '';
 		echo $this->load->view('backend/admin/load_filters', $page_data,TRUE);
 	}
 	

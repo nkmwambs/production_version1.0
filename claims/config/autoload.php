@@ -88,7 +88,7 @@ $autoload['drivers'] = array();
 |	$autoload['helper'] = array('url', 'file');
 */
 
-$autoload['helper'] = array('url','file','form','security','string','inflector','directory','download','multi_language','Aws_attachment');
+$autoload['helper'] = array('url','file','form','security','string','inflector','directory','download','multi_language','aws_attachment');
 
 
 /*
@@ -137,4 +137,4 @@ $autoload['language'] = array();
 |	$autoload['model'] = array('first_model' => 'first');
 */
 
-$autoload['model'] = array('email_model' , 'sms_model','');
+$autoload['model'] = array('email_model' , 'sms_model','medical_model');

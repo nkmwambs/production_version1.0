@@ -1,29 +1,6 @@
 <?php
 
-	// $start_period_date = '2018-03-01';
-	// $end_period_date = '2018-03-31';
-
-	// $this->db->select(array('voucher_header.hID as voucher_id','voucher_header.TDate as voucher_date','voucher_header.VNumber as voucher_number'));
-	// $this->db->select(array('voucher_header.Payee as payee','voucher_header.VType as voucher_type'));
-	// $this->db->select(array('voucher_header.ChqNo as cheque_number','voucher_header.ChqState as clear_state'));
-	// $this->db->select(array('voucher_header.clrMonth as clear_month','voucher_header.editable as is_editable'));
-	// $this->db->select(array('voucher_header.TDescription as description'));
-	// $this->db->select(array('accounts.AccNo as account_number','accounts.AccText as account_code',
-	// 'accounts.AccName as account_name','accounts.AccGrp as account_group'));
-	// $this->db->select_sum('Cost');
-	// $this->db->where(array('voucher_header.TDate>='=>$start_period_date,'voucher_header.TDate<='=>$end_period_date));
-	// $this->db->where(array('voucher_header.icpNo'=>$this->session->center_id));
-	// $this->db->join('voucher_header','voucher_header.hID=voucher_body.hID');
-	// $this->db->join('accounts','accounts.AccNo=voucher_body.AccNo');
-	// $this->db->group_by(array('voucher_header.VNumber','voucher_body.AccNo'));
-	// $vouchers_obj = $this->db->get('voucher_body');
-
-	// print_r($vouchers_obj->result_array());
-
-//print_r($this->finance_model->journal_records_spread());
-
 extract($cash_journal);
-
 
 $rec_chk = "Ok";
 $rec_color = "success";

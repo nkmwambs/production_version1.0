@@ -44,9 +44,9 @@ class Partner extends CI_Controller
         if ($this->session->userdata('admin_login') != 1)
             redirect(base_url(), 'refresh');
 		
-			$max_mfr_id = $this->db->select_max('balHdID')->get_where('opfundsbalheader',array('icpNo'=>$this->session->center_id))->row()->balHdID;
+		//$max_mfr_id = $this->db->select_max('balHdID')->get_where('opfundsbalheader',array('icpNo'=>$this->session->center_id))->row()->balHdID;
 		 	
-		$page_data['tym']  = strtotime($this->finance_model->current_financial_month($this->session->center_id));	
+		//$page_data['tym']  = strtotime($this->finance_model->current_financial_month($this->session->center_id));	
         $page_data['page_name']  = 'dashboard';
         $page_data['page_title'] = get_phrase('finance_dashboard');
         $this->load->view('backend/index', $page_data);

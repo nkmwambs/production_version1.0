@@ -1,9 +1,27 @@
 <?php
 //echo $param2;
-$record = $this->db->get_where('voucher_header',array("hID"=>$param2))->row(); 
+$this->db->select(array(
+	'voucher_header.TDate as voucher_date',
+	'voucher_header.VNumber as voucher_number',
+	'voucher_header.icpNo as fcp_id',
+	'voucher_header.Payee as payee',
+	'voucher_header.ChqNo as cheque_number',
+	'voucher_header.Address as address',
+	'voucher_header.VType as voucher_type',
+	'voucher_header.TDescription as voucher_description',
+	'voucher_body.Details as detail_description',
+	'voucher_body.Qty as quantity',
+	'voucher_body.UnitCost as unit_cost',
+	'voucher_body.Cost as total_cost',
+	'voucher_body.Details as detail_description',
+	'accounts.AccText as account_code',
+));
+$this->db->join('voucher_header','voucher_header.hID=voucher_body.hID');
+$this->db->join('accounts','accounts.AccNo=voucher_body.AccNo');
+$record = $this->db->get_where('voucher_body',array("voucher_header.hID"=>$param2))->result_object(); 
 
-$VNumber = $record->VNumber;
-$icpNo = $record->icpNo;
+$VNumber = $record[0]->voucher_number;
+$icpNo = $record[0]->fcp_id;
 
 ?>
 
@@ -16,7 +34,7 @@ $icpNo = $record->icpNo;
 				    	<div class="well"><?=get_phrase('voucher_not_available');?></div>
 				    	<?php
 							}else{
-								$cond_summary = "Month(TDate)='".date('m',strtotime($record->TDate))."' AND Year(TDate)='".date('Y',strtotime($record->TDate))."'";
+								$cond_summary = "Month(TDate)='".date('m',strtotime($record[0]->voucher_date))."' AND Year(TDate)='".date('Y',strtotime($record[0]->voucher_date))."'";
 					    	?>
 		
 		<div class="panel panel-primary" data-collapsed="0">
@@ -48,23 +66,23 @@ $icpNo = $record->icpNo;
 							<tbody>
 								
 								<tr>
-									<td  colspan="3"><span style="font-weight: bold;">Date: </span> <?php echo $record->TDate;?></td>
-									<td  colspan="3"><span style="font-weight: bold;">Number: </span> <?php echo $record->VNumber;?></td>
+									<td  colspan="3"><span style="font-weight: bold;">Date: </span> <?php echo $record[0]->voucher_date;?></td>
+									<td  colspan="3"><span style="font-weight: bold;">Number: </span> <?php echo $record[0]->voucher_number;?></td>
 								</tr>
 								
 								<tr>
-									<td colspan="3"><span style="font-weight: bold;">Vendor/Payee: </span> <?php echo $record->Payee;?></td>
-									<?php $chqNo = explode("-",$record->ChqNo);?>
+									<td colspan="3"><span style="font-weight: bold;">Vendor/Payee: </span> <?php echo $record[0]->payee;?></td>
+									<?php $chqNo = explode("-",$record[0]->cheque_number);?>
 									<td  colspan="3"><span style="font-weight: bold;">Cheque Number: </span> <?php echo $chqNo[0];?></td>
 								</tr>
 								
 								<tr>
-									<td  colspan="3"><span style="font-weight: bold;">Address: </span> <?php echo $record->Address;?></td>
-									<td  colspan="3"><span style="font-weight: bold;">Voucher Type: </span> <?php echo $record->VType;?></td>
+									<td  colspan="3"><span style="font-weight: bold;">Address: </span> <?php echo $record[0]->address;?></td>
+									<td  colspan="3"><span style="font-weight: bold;">Voucher Type: </span> <?php echo $record[0]->voucher_type;?></td>
 								</tr>
 								
 								<tr>
-									<td colspan="6"><span style="font-weight: bold;">Description: </span> <?php echo $record->TDescription;?></td>
+									<td colspan="6"><span style="font-weight: bold;">Description: </span> <?php echo $record[0]->voucher_description;?></td>
 								</tr>
 								
 								<tr style="font-weight: bold;" id="tr_header">
@@ -77,20 +95,20 @@ $icpNo = $record->icpNo;
 								
 								<?php
 									
-										$cond = "hID=".$record->hID;
-										$body = $this->db->where($cond)->get('voucher_body')->result_array();
+										// $cond = "hID=".$record->hID;
+										// $body = $this->db->where($cond)->get('voucher_body')->result_array();
 										$sum_cost = 0;
-										foreach($body as $row):
+										foreach($record as $row):
 								?>
 									<tr>
-										<td><?php echo $row['Qty'];?></td>
-										<td colspan="2"><?php echo $row['Details'];?></td>
-										<td><?php echo number_format($row['UnitCost'],2);?></td>
-										<td><?php echo number_format($row['Cost'],2);?></td>
-										<td><?php echo $this->db->get_where('accounts',array('AccNo'=>$row['AccNo']))->row()->AccText;?></td>
+										<td><?php echo $row->quantity;?></td>
+										<td colspan="2"><?php echo $row->detail_description;?></td>
+										<td><?php echo number_format($row->unit_cost,2);?></td>
+										<td><?php echo number_format($row->total_cost,2);?></td>
+										<td><?php $row->account_code;?></td>
 									</tr>
 								<?php
-									$sum_cost +=$row['Cost'];
+									$sum_cost +=$row->total_cost;
 									endforeach;
 								?>
 								<tr>

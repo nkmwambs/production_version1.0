@@ -57,13 +57,138 @@ class Partner extends CI_Controller
             redirect(base_url().'admin.php', 'refresh');
 		
 		
-		$max_mfr_id = $this->db->select_max('balHdID')->get_where('opfundsbalheader',array('icpNo'=>$this->session->center_id))->row()->balHdID;
-		 	
+		//$max_mfr_id = $this->db->select_max('balHdID')->get_where('opfundsbalheader',array('icpNo'=>$this->session->center_id))->row()->balHdID;
+		
+		$period_time_stamp = strtotime($this->finance_model->current_financial_month($this->session->center_id));
+
+		$page_data['cash_journal'] = $this->cash_journal_grid($period_time_stamp);
 		$page_data['tym']  = strtotime($this->finance_model->current_financial_month($this->session->center_id));//strtotime('+1 month',strtotime($last_mfr->closureDate));		
         $page_data['month'] = date("Y-m-t",strtotime($this->finance_model->current_financial_month($this->session->center_id)));
         $page_data['page_name']  = 'cash_journal';
         $page_data['page_title'] = get_phrase('cash_journal');
 		$this->load->view('backend/index', $page_data);
+}
+
+
+private function cash_journal_grid($period_time_stamp){
+
+	$cash_journal = [];
+
+	$end_period_date = date("Y-m-t",$period_time_stamp);
+
+	$is_bank_reconciled = $this->finance_model->bank_reconciled($this->session->center_id,$end_period_date) <> 0 ? false : true;
+	$is_proof_of_cash_correct = $this->finance_model->proof_of_cash($this->session->center_id,$end_period_date) <> 0 ? false : true;
+	$is_mfr_submitted = $this->finance_model->mfr_submitted($this->session->center_id,$end_period_date) == 1 ? true : false;
+
+	$vouchers = $this->finance_model->cash_journal_result($this->session->center_id,$period_time_stamp);
+
+	$bank_balance_brought_forward = $this->finance_model->opening_bank_balance($end_period_date,$this->session->center_id);;
+	$bank_deposit = 0;
+	$bank_payment = 0;
+	$bank_closing_balance = $bank_balance_brought_forward;
+
+	$cash_balance_brought_forward = $this->finance_model->opening_pc_balance($end_period_date,$this->session->center_id);;
+	$cash_deposit = 0;
+	$cash_payment = 0;
+	$cash_closing_balance = $cash_balance_brought_forward;
+
+	if(!empty($vouchers)){
+
+		$cash_journal['period'] = $end_period_date;
+		$cash_journal['is_bank_reconciled'] = $is_bank_reconciled;
+		$cash_journal['is_proof_of_cash_correct'] = $is_proof_of_cash_correct;
+		$cash_journal['is_mfr_submitted'] = $is_mfr_submitted;
+
+
+		$cash_journal['month_utilized_income_accounts'] = [];
+		$cash_journal['month_utilized_expense_accounts'] = [];
+
+		foreach($vouchers as $voucher){
+
+			$bank_deposit += $voucher['voucher_type'] == 'CR' || $voucher['voucher_type'] == 'PCR' ? $voucher['Cost'] : 0; 
+			$bank_payment += $voucher['voucher_type'] == 'CHQ' || $voucher['voucher_type'] == 'BCHG' || $voucher['voucher_type'] == 'UDCTB' ? $voucher['Cost'] : 0;
+			
+			$cash_deposit += $voucher['account_number'] == '2000' || $voucher['account_number'] == '2001' ? $voucher['Cost'] : 0; 
+			$cash_payment += $voucher['voucher_type'] == 'PC' || $voucher['voucher_type'] == 'PCR' || $voucher['voucher_type'] == 'UDCTC' ? $voucher['Cost'] : 0; 
+			
+			$cash_journal['voucher_records'][$voucher['voucher_id']] = [
+				'voucher_number' => $voucher['voucher_number'],
+				'voucher_date' => $voucher['voucher_date'],
+				'voucher_type' => $voucher['voucher_type'],
+				'payee' => $voucher['payee'],
+				'description' => $voucher['description'],
+				'cheque_number' => $voucher['cheque_number'],
+				'clear_state' => $voucher['clear_state'],
+				'clear_month' => $voucher['clear_month'],
+				'is_editable' => $voucher['is_editable']
+			];
+
+			if($voucher['account_group'] == 1){
+				
+				$cash_journal['month_utilized_income_accounts'][$voucher['account_number']] = [
+					'account_code' => $voucher['account_code'],
+					'account_name' => $voucher['account_name']
+				];
+
+				if(isset($cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['income'])){
+					$cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['income'] += $voucher['Cost'];
+				}else{
+					$cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['income'] = 0;
+				}
+				
+				
+			}elseif($voucher['account_group'] == 0){
+				
+				$cash_journal['month_utilized_expense_accounts'][$voucher['account_number']] = [
+					'account_code' => $voucher['account_code'],
+					'account_name' => $voucher['account_name']
+				];
+
+				if(isset($cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'])){
+					$cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'] += $voucher['Cost'];
+				}else{
+					$cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'] = 0;
+				}
+				
+
+			}elseif($voucher['account_group'] == 3){
+				
+				if(isset($cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'])){
+					$cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'] += $voucher['Cost'];
+				}else{
+					$cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'] = 0;
+				}
+				
+			}
+
+			//$cash_journal['voucher_records'][$voucher['voucher_id']]['spread'][$voucher['account_number']] = $voucher['Cost'];
+		}
+
+		foreach($vouchers as $voucher){
+			$cash_journal['voucher_records'][$voucher['voucher_id']]['spread'][$voucher['account_number']] = $voucher['Cost'];
+		}
+
+
+		$bank_closing_balance = $bank_balance_brought_forward + $bank_deposit - $bank_payment;
+
+		$cash_closing_balance = $cash_balance_brought_forward + $cash_deposit - $cash_payment;
+
+		$cash_journal['bank'] = [
+			'balance_bf' => $bank_balance_brought_forward,
+			'deposit' =>  $bank_deposit,
+			'payment' => $bank_payment,
+			'closing_balance' => $bank_closing_balance
+		];
+		
+		$cash_journal['cash'] = [
+			'balance_bf' =>  $cash_balance_brought_forward,
+			'deposit' => $cash_deposit,
+			'payment' => $cash_payment,
+			'closing_balance' => $cash_closing_balance
+		];
+	}
+
+	return $cash_journal;
 }
   
   function scroll_cash_journal($date="",$cnt="",$flag=""){
@@ -71,30 +196,31 @@ class Partner extends CI_Controller
 		 if ($this->session->userdata('admin_login') != 1)
              redirect(base_url().'admin.php', 'refresh');
 		
-		
-		 $max_mfr_id = $this->db->select_max('balHdID')->get_where('opfundsbalheader',array('icpNo'=>$this->session->center_id))->row()->balHdID;
-// 		
-		 if($flag!==""){
-// 		
+	
+		 if($flag !== ""){
+ 		
 			 $sign = '+';
-// 			
-			 if($flag==='prev'){
+ 			
+			 if($flag == 'prev'){
 				 $sign = '-';
 			}
-// 			 	
-			 $page_data['tym']  = strtotime($sign.$cnt.' months',$date);
-			 $page_data['month']  = date("Y-m-t",strtotime($sign.$cnt.' months',$date));				
+ 			 	
+			 $tym  = strtotime('first day of '.$sign.$cnt.'month',$date);
+
+			 $page[$tym] = $tym;
+			 //$page_data['month']  = date("Y-m-t",strtotime('first day of '.$sign.$cnt.'month',$date));
+			 $page_data['cash_journal'] = $this->cash_journal_grid($tym); 				
 		}else{
-			 $page_data['tym']  = $date;	
-			 $page_data['month']  = date("Y-m-t",$date);	
+			 $tym  = $date;
+			 $page[$tym] = $tym;	
+			 $page_data['cash_journal'] = $this->cash_journal_grid($tym); 
+			 //$page_data['month']  = date("Y-m-t",$date);	
 		 }
-// 	
+
+			
         $page_data['page_name']  = 'cash_journal';
         $page_data['page_title'] = get_phrase('cash_journal');
 		$this->load->view('backend/index', $page_data);
-		//$page_data['tym'] = strtotime($date);
-		//$data['month'] = date("Y-m-t",strtotime($cnt." months",strtotime($date)));
-		//echo $this->load->view('backend/partner/load_cash_journal', $data,TRUE);
 
 }  
 
@@ -1148,15 +1274,20 @@ public function multiple_vouchers($tym){
 		
 		$data['ChqState'] = $param2;
 		$data['clrMonth'] = $param3;
+
+		$message = 'Transaction clearance failed';
 		
-		if($param2===0){
+		if($param2 == 0 && $this->finance_model->mfr_submitted($this->session->center_id,$param3) != 1){
 			$data['clrMonth'] ="0000-00-00";	
+			$this->db->where(array('hID'=>$param1))->update('voucher_header',$data);
+			$message = "Transaction cleared successfully";
+		}elseif($param2 <> 0){
+			$this->db->where(array('hID'=>$param1))->update('voucher_header',$data);
+			$message = "Transaction cleared successfully";
 		}
 		
-		$this->db->where(array('hID'=>$param1))->update('voucher_header',$data);
+		echo $message;
 		
-		//echo $this->db->affected_rows();
-		//echo $param2;
 	}
 
 function create_budget_item($project){

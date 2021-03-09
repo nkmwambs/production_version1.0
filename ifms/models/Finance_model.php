@@ -266,17 +266,7 @@ class Finance_model extends CI_Model {
 					$bank_balance = $this->db->get_where('cashbal',array('icpNo'=>$project,"accNo"=>"BC","month"=>date("Y-m-d",$end)))->row()->amount;
 				}
 				
-			}//elseif(date('n',strtotime($date))==='12'){
-				//$year = date('Y',strtotime($date)) + 1; 
-				//$start = mktime(0, 0, 0, 1, 1, $year);
-				
-				//$bank_balance = 0;
-				
-				//if($this->db->get_where('cashbal',array('icpNo'=>$project,"accNo"=>"BC","month"=>date("Y-m-d",$start)))->num_rows()>0){
-					//$bank_balance = $this->db->get_where('cashbal',array('icpNo'=>$project,"accNo"=>"BC","month"=>date("Y-m-d",$start)))->row()->amount;
-				//}		
-				
-			//}
+			}
 			elseif($this->db->get_where('cashbal',array('icpNo'=>$project,"accNo"=>"BC","month"=>date("Y-m-d",strtotime("last day of previous month",strtotime($date)))))->num_rows()>0){
 				$bank_balance = $this->db->get_where('cashbal',array('icpNo'=>$project,"accNo"=>"BC","month"=>date("Y-m-d",strtotime("last day of previous month",strtotime($date)))))->row()->amount;	
 			}
@@ -300,23 +290,7 @@ class Finance_model extends CI_Model {
 	
 
 	function opening_pc_balance($date,$project){
-		/**
-		
-		$pc_balance = 0;	
-		
-		$start_date = strtotime($this->project_system_start_date($project));
-		
-		$cur_date = strtotime($date);
-		
-		if($this->db->get_where('cashbal',array('icpNo'=>$project,'accNo'=>"PC"))->num_rows()>0 && $start_date<$cur_date){
-			$pc_balance = $this->db->get_where('cashbal',array('icpNo'=>$project,'accNo'=>"PC","month"=>date("Y-m-t",strtotime("last day of previous month",$cur_date))))->row()->amount;
-			
-		}
-		 
-		 
-		return $pc_balance;
-		 * */
-				
+						
 		$pc_balance = 0;
 		
 		if($this->db->get_where('cashbal',array('icpNo'=>$project))->num_rows()>0){
@@ -378,13 +352,7 @@ class Finance_model extends CI_Model {
 		}
 		
 		return $rmk;
-	}/**
-	function expense_accounts_tags(){
-		
-		$tags = $this->db->get('expense_tag')->result_object();
-		
-		return $tags;
-	}**/
+	}
 	
 	/**public function mfr_submit_state($TDate){
 		
@@ -419,26 +387,12 @@ class Finance_model extends CI_Model {
 		$date = date('Y-m-d',strtotime('last month',strtotime($this->project_system_start_date($project_id))));
 		
 		if($this->db->get_where('opfundsbalheader',array('icpNo'=>$project_id))->num_rows()>0){
-			//$date = $this->db->select_max('month')->get_where('statementbal',array('icpNo'=>$project_id))->row()->month;
-		//}elseif( $this->db->get_where('opfundsbalheader',array('icpNo'=>$project_id))->num_rows()>0){
 			$date = $this->db->select_max('closureDate')->get_where('opfundsbalheader',array('icpNo'=>$project_id))->row()->closureDate;
 		}
 		
 		return date('Y-m-d',strtotime('first day of next month',strtotime($date)));
 	}		
-	
-	// public function outstanding_cheques($date,$project,$oc=TRUE){ 
-	// 	$cond_os = "((TDate<='".date('Y-m-t',strtotime($date))."' AND icpNo='".$project."' AND ChqState='0' AND VType='CHQ')";	
-	// 	$cond_os .= " OR (TDate<='".date('Y-m-t',strtotime($date))."' AND icpNo='".$project."' AND ChqState='1' AND clrMonth >'".date('Y-m-t',strtotime($date))."' AND VType='CHQ' ))";	
 		
-	// 	if($oc===FALSE){
-	// 		$cond_os = "clrMonth>='".date('Y-m-01',strtotime($date))."' AND clrMonth<='".date('Y-m-t',strtotime($date))."' AND icpNo='".$project."' AND ChqState='1' AND VType='CHQ'";	
-	// 	}
-		
-	// 	$os_query = $this->db->where($cond_os)->get('voucher_header')->result_array();
-		
-	// 	return $os_query;
-	// }	
 
 	public function outstanding_cheques($date, $project, $oc = TRUE)
 	{
@@ -1807,7 +1761,7 @@ class Finance_model extends CI_Model {
 		$total_pc_data[5]['voucher_type'] = 'PC';
 		$total_pc_data[5]['transaction_date'] = '2019-03-31';
 
-		return $transaction_arrays;
+		return $total_pc_data;
 	}
 
     function test_uncleared_cash_recieved_data_model($month) {
@@ -2683,4 +2637,46 @@ class Finance_model extends CI_Model {
 
 		return $attachment_insert_array;
 	}
+
+
+	function cash_journal_result($fcp_id,$period_time_stamp){
+
+		$end_period_date = date("Y-m-t",$period_time_stamp);
+		$start_period_date = date("Y-m-01",$period_time_stamp);
+
+		$cash_journal_result = [];
+
+		$this->db->select(array('voucher_header.hID as voucher_id','voucher_header.TDate as voucher_date','voucher_header.VNumber as voucher_number'));
+		$this->db->select(array('voucher_header.Payee as payee','voucher_header.VType as voucher_type'));
+		$this->db->select(array('voucher_header.ChqNo as cheque_number','voucher_header.ChqState as clear_state'));
+		$this->db->select(array('voucher_header.clrMonth as clear_month','voucher_header.editable as is_editable'));
+		$this->db->select(array('voucher_header.TDescription as description'));
+		$this->db->select(array('accounts.AccNo as account_number','accounts.AccText as account_code',
+		'accounts.AccName as account_name','accounts.AccGrp as account_group'));
+		$this->db->select_sum('Cost');
+		$this->db->where(array('voucher_header.TDate>='=>$start_period_date,'voucher_header.TDate<='=>$end_period_date));
+		$this->db->where(array('voucher_header.icpNo'=>$fcp_id));
+		$this->db->join('voucher_header','voucher_header.hID=voucher_body.hID');
+		$this->db->join('accounts','accounts.AccNo=voucher_body.AccNo');
+		$this->db->group_by(array('voucher_header.VNumber','voucher_body.AccNo'));
+		$vouchers_obj = $this->db->get('voucher_body');
+
+		if($vouchers_obj->num_rows() > 0){
+			$cash_journal_result = $vouchers_obj->result_array();
+		}
+
+		return $cash_journal_result;
+	}
+
+	// function journal_records_spread(){
+	// 	$vouchers = $this->cash_journal_result('KE611',strtotime('2018-03-31'));
+
+	// 	$cash_journal = [];
+
+	// 	foreach($vouchers as $voucher){
+	// 		$cash_journal['voucher_records'][$voucher['voucher_id']]['spread'][$voucher['account_number']] = $voucher['Cost'];
+	// 	}
+
+	// 	return $cash_journal;
+	// }
 }

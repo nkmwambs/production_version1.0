@@ -102,6 +102,7 @@ private function cash_journal_grid($period_time_stamp){
 	$cash_journal['month_utilized_income_accounts'] = [];
 	$cash_journal['month_utilized_expense_accounts'] = [];
 	
+
 	if(!empty($vouchers)){
 
 		foreach($vouchers as $voucher){
@@ -174,20 +175,21 @@ private function cash_journal_grid($period_time_stamp){
 
 		$cash_closing_balance = $cash_balance_brought_forward + $cash_deposit - $cash_payment;
 
-		$cash_journal['bank'] = [
-			'balance_bf' => $bank_balance_brought_forward,
-			'deposit' =>  $bank_deposit,
-			'payment' => $bank_payment,
-			'closing_balance' => $bank_closing_balance
-		];
-		
-		$cash_journal['cash'] = [
-			'balance_bf' =>  $cash_balance_brought_forward,
-			'deposit' => $cash_deposit,
-			'payment' => $cash_payment,
-			'closing_balance' => $cash_closing_balance
-		];
 	}
+
+	$cash_journal['bank'] = [
+		'balance_bf' => $bank_balance_brought_forward,
+		'deposit' =>  $bank_deposit,
+		'payment' => $bank_payment,
+		'closing_balance' => $bank_closing_balance
+	];
+	
+	$cash_journal['cash'] = [
+		'balance_bf' =>  $cash_balance_brought_forward,
+		'deposit' => $cash_deposit,
+		'payment' => $cash_payment,
+		'closing_balance' => $cash_closing_balance
+	];
 
 	return $cash_journal;
 }

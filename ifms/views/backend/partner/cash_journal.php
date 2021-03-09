@@ -1,7 +1,5 @@
 <?php
 
-print_r($month);
-
 extract($cash_journal);
 
 $rec_chk = "Ok";

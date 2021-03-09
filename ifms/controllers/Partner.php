@@ -93,16 +93,16 @@ private function cash_journal_grid($period_time_stamp){
 	$cash_payment = 0;
 	$cash_closing_balance = $cash_balance_brought_forward;
 
+	$cash_journal['period'] = $end_period_date;
+	$cash_journal['is_bank_reconciled'] = $is_bank_reconciled;
+	$cash_journal['is_proof_of_cash_correct'] = $is_proof_of_cash_correct;
+	$cash_journal['is_mfr_submitted'] = $is_mfr_submitted;
+
+
+	$cash_journal['month_utilized_income_accounts'] = [];
+	$cash_journal['month_utilized_expense_accounts'] = [];
+	
 	if(!empty($vouchers)){
-
-		$cash_journal['period'] = $end_period_date;
-		$cash_journal['is_bank_reconciled'] = $is_bank_reconciled;
-		$cash_journal['is_proof_of_cash_correct'] = $is_proof_of_cash_correct;
-		$cash_journal['is_mfr_submitted'] = $is_mfr_submitted;
-
-
-		$cash_journal['month_utilized_income_accounts'] = [];
-		$cash_journal['month_utilized_expense_accounts'] = [];
 
 		foreach($vouchers as $voucher){
 

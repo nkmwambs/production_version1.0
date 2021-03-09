@@ -68,30 +68,30 @@ tr.shown td.details-control {
 										
 										<ul class="dropdown-menu dropdown-blue" role="menu">
 		
-											<li  style="">
+											<li>
 												<a href="#" onclick="showAjaxModal('<?php echo base_url();?>ifms.php/modal/popup/modal_outstanding_cheques/<?php echo date('Y-m-t',$tym);?>')"><?php echo get_phrase('outstanding_cheques');?></a>
 											</li>
 											
-											<li  style="" class="divider"></li>
+											<li class="divider"></li>
 											
-											<li style="">
+											<li>
 												<a href="#" onclick="showAjaxModal('<?php echo base_url();?>ifms.php/modal/popup/modal_transit_deposits/<?php echo date('Y-m-t',$tym);?>')"><?php echo get_phrase('deposits_in_transit');?></a>
 											</li>
 											
-											<li style="" class="divider"></li>
+											<li class="divider"></li>
 											
-											<li  style="">
+											<li>
 												<a href="#" onclick="showAjaxModal('<?php echo base_url();?>ifms.php/modal/popup/modal_cleared_effects/<?php echo date('Y-m-t',$tym);?>')"><?php echo get_phrase('cleared_effects');?></a>
 												
 											</li>
 											
-											<li style="<" class="divider"></li>
+											<li class="divider"></li>
 											
-											<li style="">
+											<li>
 												<a href="#" onclick="showAjaxModal('<?php echo base_url();?>ifms.php/modal/popup/modal_bank_reconcile/<?php echo date('Y-m-t',$tym);?>')"><?php echo get_phrase('bank_reconciliation');?> <span class="badge badge-<?=$rec_color;?>"><?=$rec_chk;?></span></a>
 											</li>
 											
-											<li style="" class="divider"></li>
+											<li class="divider"></li>
 											
 											<li>
 												<a href="#" onclick="showAjaxModal('<?php echo base_url();?>ifms.php/modal/popup/modal_variance_explanation/<?php echo date('Y-m-t',$tym);?>')"><?php echo get_phrase('variance_explanation');?></a>
@@ -99,12 +99,12 @@ tr.shown td.details-control {
 											
 											<li class="divider"></li>
 											
-											<li style="">
+											<li>
 												<a href="#" onclick="showAjaxModal('<?php echo base_url();?>ifms.php/modal/popup/modal_proof_of_cash/<?php echo date('Y-m-t',$tym);?>')"><?php echo get_phrase('proof_of_cash');?> <span class="badge badge-<?=$proof_color;?>"><?=$proof_chk?></span></a>
 												
 											</li>
 											
-											<li style="" class="divider"></li>
+											<li class="divider"></li>
 											
 											<li>
 												<a href="#" onclick="showAjaxModal('<?php echo base_url();?>ifms.php/modal/popup/modal_fund_balances/<?php echo date('Y-m-t',$tym);?>')"><?php echo get_phrase('fund_balance_report');?></a>
@@ -128,7 +128,7 @@ tr.shown td.details-control {
 																			
 											<li class="divider"></li>
 											
-											<li style="">
+											<li>
 												<a href="<?php echo base_url();?>ifms.php/partner/bank_statements/<?php echo date('Y-m-t',$tym);?>"><?php echo get_phrase('upload_bank_statements');?></a>
 											</li>
 											
@@ -234,14 +234,10 @@ tr.shown td.details-control {
 													$sum_pc_balance = 0;
 													
 													//SUM Bank Income
-													//$condition_bank_income = $condition." AND (VType='CR' OR VType='PCR')";
-													//$sum_bank_income = $this->db->where($condition_bank_income)->select_sum('totals')->get('voucher_header')->row()->totals;
 													$sum_bank_income = $this->finance_model->months_bank_income(date('Y-m-d',$tym),$this->session->center_id);
 													
 													
 													//SUM Bank Payments
-													//$condition_bank_payment = $condition." AND (VType='CHQ' OR VType='BCHG')";
-													//$sum_bank_payment = $this->db->where($condition_bank_payment)->select_sum('totals')->get('voucher_header')->row()->totals;
 													$sum_bank_payment = $this->finance_model->months_bank_expense(date('Y-m-d',$tym),$this->session->center_id);
 													
 													//SUM Bank Balance
@@ -250,16 +246,10 @@ tr.shown td.details-control {
 													
 												
 													/** SUM ALL PC Income Vouchers **/
-													$sum_pc_income = 0;
-													$sum_pc_payment = 0;
-													foreach($records as $rw):
-														$cond_inc = "(AccNo='2000' OR AccNo='2001')  AND hID=".$rw['hID'];
-														$sum_pc_income+=$this->db->select_sum('Cost')->where($cond_inc)->get('voucher_body')->row()->Cost;
-														
-														$cond_pay = "(VType='PC' OR VType='PCR') AND hID=".$rw['hID'];
-														$sum_pc_payment+=$this->db->select_sum('Cost')->where($cond_pay)->get('voucher_body')->row()->Cost;
-														
-													endforeach;
+
+													$sum_pc_income = $this->finance_model->months_pc_income($this->session->center_id,date('Y-m-01',$tym));
+													$sum_pc_payment = $this->finance_model->months_pc_expense($this->session->center_id,date('Y-m-01',$tym));;
+													
 													
 													$sum_pc_balance = $begin_pc+$sum_pc_income-$sum_pc_payment;	
 												?>
@@ -306,7 +296,7 @@ tr.shown td.details-control {
 											<th><?php echo get_phrase('payee_/_source');?></th>
 											<th><?php echo get_phrase('voucher_no');?></th>
 											<th><?php echo get_phrase('description_/_details');?></th>
-											<th><?php echo get_phrase('chq_no');?></th>
+											<th><?php echo get_phrase('chq_/_ref_no');?></th>
 											<th><?php echo get_phrase('bank_deposits');?></th>
 											<th><?php echo get_phrase('bank_payments');?></th>
 											<th><?php echo get_phrase('bank_balance');?></th>
@@ -348,14 +338,14 @@ tr.shown td.details-control {
 													<td id="<?=$row['hID'];?>"></td>									
 													<?php
 														
-														if($row['VType']==='CHQ' || $row['VType']==='BCHG' || $row['VType']==='CR'){
+														if($row['VType']==='CHQ' || $row['VType']==='BCHG' || $row['VType']==='CR' || $row['VType'] === 'UDCTB'){
 															$chk = 'checked';
 																if($row['ChqState']==='1'){
 																	$chk = "";
 																}
 				
 													?>
-														<td>
+														<td> 
 															<?php
 															if($this->finance_model->editable($this->session->center_id,date('Y-m-t',$tym))===0){
 															?>
@@ -370,7 +360,13 @@ tr.shown td.details-control {
 															}
 															?>	
 																
-															
+															<?php 
+															 //if($row['VType'] == 'CHQ'){
+																?>
+																<!-- <i id='' data-hid = '<?=$row['hID'];?>' data-voucher = '<?php echo $row['VNumber'];?>' class='fa fa-magic chq_dctb_vtype_change' style='font-size:18pt;cursor:pointer;'></i> -->
+															<?php 
+													//	}
+														?>
 														</td>	
 													<?php
 														}else{
@@ -379,19 +375,19 @@ tr.shown td.details-control {
 															<div class="make-switch switch-small" data-off-label="<?php echo $row['VType'];?>">
 															    <input type="checkbox" disabled>
 															</div>
+															
 														</td>
 													<?php
 														}
 													?>
 		
 													<td class="tdate"><?php echo $row['TDate'];?></td>
-													
 													<td>
 													
 														<?php 
 															$path = 'uploads/dct_documents/'.$this->session->center_id.'/'.date('Y-m',$tym).'/'.$row['VNumber'].'/';
 
-															if(file_exists($path) && (new \FilesystemIterator($path))->valid() ){?>
+															if(file_exists($path) && (new \FilesystemIterator($path))->valid() && ($row['VType'] == 'UDCTB' || $row['VType'] == 'UDCTC') ){?>
 															
 																<a href='<?php echo base_url();?>ifms.php/dct/dct_documents_download/<?= $this->session->center_id;?>/<?=$tym;?>/<?=$row['VNumber'];?>' ><?=$row['VType'];?></a>
 															<?php }else{?>
@@ -414,9 +410,31 @@ tr.shown td.details-control {
 													</td>
 													<td><?php echo $row['TDescription'];?></td>
 													<?php
-														$mixed_chq = explode("-", $row['ChqNo']);
+													    
+														//$mixed_chq = explode("-", $row['ChqNo']);
 													?>
-													<td><?php echo $mixed_chq[0];?></td>
+													<td><?php 
+													      //Modified by Onduso/karisa 28/5/2020 start
+														   //echo $mixed_chq[0];
+														//    if($row['VType']=='UDCTB') echo $mixed_chq[1].'-'.$mixed_chq[2];
+														//    else $mixed_chq[0];//for non UDTCB
+
+														   $mixed_chq= "";
+
+															if($row['VType'] !== 'UDCTB'){
+																$mixed_chq = explode('-',$row['ChqNo'])[0];
+															}else{
+																$arr = explode('-',$row['ChqNo']);
+																array_pop($arr);
+
+																$mixed_chq = implode('-',$arr);
+															}
+
+															echo $mixed_chq;
+
+														   //Modified by Onduso/karisa 28/5/2020 end
+														   
+													    ?></td>
 													
 													<!-- Bank Income and Expenses -->
 													
@@ -427,7 +445,7 @@ tr.shown td.details-control {
 														//if($row['VType']==='CR'||$row['VType']==='PCR') $cr = $row['totals'];
 														//if($row['VType']==='CHQ' || $row['VType'] ==='BCHG') $chq = $row['totals'];
 														if($row['VType']==='CR'||$row['VType']==='PCR') $cr = $this->db->select_sum('Cost')->get_where('voucher_body',array('hID'=>$row['hID']))->row()->Cost;
-														if($row['VType']==='CHQ' || $row['VType'] ==='BCHG') $chq = $this->db->select_sum('Cost')->get_where('voucher_body',array('hID'=>$row['hID']))->row()->Cost;;
+														if($row['VType']==='CHQ' || $row['VType'] ==='BCHG' || $row['VType'] === 'UDCTB') $chq = $this->db->select_sum('Cost')->get_where('voucher_body',array('hID'=>$row['hID']))->row()->Cost;
 														
 														$bank_balance += $cr-$chq; 
 														
@@ -440,21 +458,29 @@ tr.shown td.details-control {
 													
 													<?php
 														
-														$get_body = $this->db->select_sum('Cost')->select(array("AccNo","VType"))->get_where("voucher_body",array("hID"=>$row['hID']))->result_array();
-														//print_r($get_body);
+														$this->db->where_not_in('AccNo',['2000','2001']);
+														$pc_get_body = $this->db->select_sum('Cost')->select(array("AccNo","VType"))	
+														->get_where("voucher_body",array("hID"=>$row['hID']))->row_array();
+														
+														$this->db->where_in('AccNo',['2000','2001']);
+														$pcr_get_body = $this->db->select_sum('Cost')->select(array("AccNo","VType"))
+														->get_where("voucher_body",array("hID"=>$row['hID']))->row_array();
+														
 															$pcr = '0';
 															$pc = '0';
-														foreach($get_body as $rows):
 															
-															if($rows['AccNo']==='2000' || $rows['AccNo']==='2001') $pcr = $rows['Cost'];
-															if($rows['VType']==='PC' || $rows['VType']==='PCR') $pc = $rows['Cost'];
+														//foreach($get_body as $rows):
+															
+															if($pcr_get_body['AccNo']==='2000' || $pcr_get_body['AccNo']==='2001') $pcr = $pcr_get_body['Cost'];
+															if($pc_get_body['VType']==='PC' || $pc_get_body['VType']==='PCR' || $pc_get_body['VType'] === 'UDCTC') $pc = $pc_get_body['Cost'];
+															
 															$pc_balance += $pcr-$pc; 
 													?>
 														<td><?php echo number_format($pcr,2);?></td>
 														<td><?php echo number_format($pc,2);?></td>
 														<td><?php echo number_format($begin_pc+$pc_balance,2);?></td>
 													<?php		
-														endforeach;
+														//endforeach;
 													?>
 														
 													<!--Spread starts here -->
@@ -731,5 +757,19 @@ $('#print_vouchers').click(function(){
 	
 });
 
+$('.chq_dctb_vtype_change').on('click',function(){
+	var voucher_number = $(this).data('voucher');
+	var hid = $(this).data('hid');
+	var cnfrm = prompt('If you are sure you want to change voucher ' + voucher_number + ' to UDCTB, please enter the cheque number below. This process is not reversible.');
+
+	var url = "<?=base_url();?>ifms.php/partner/chq_dctb_vtype_change";
+	var post_data = {'voucher_number':voucher_number,'hid':hid,'cheque_number':cnfrm};
+	
+	$.post(url,post_data,function(response){
+		alert(response);
+		window.location.reload();
+	});
+	
+});
 	
 </script>				

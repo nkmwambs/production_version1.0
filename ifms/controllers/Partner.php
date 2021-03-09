@@ -44,9 +44,9 @@ class Partner extends CI_Controller
         if ($this->session->userdata('admin_login') != 1)
             redirect(base_url(), 'refresh');
 		
-			$max_mfr_id = $this->db->select_max('balHdID')->get_where('opfundsbalheader',array('icpNo'=>$this->session->center_id))->row()->balHdID;
+		//$max_mfr_id = $this->db->select_max('balHdID')->get_where('opfundsbalheader',array('icpNo'=>$this->session->center_id))->row()->balHdID;
 		 	
-		$page_data['tym']  = strtotime($this->finance_model->current_financial_month($this->session->center_id));	
+		//$page_data['tym']  = strtotime($this->finance_model->current_financial_month($this->session->center_id));	
         $page_data['page_name']  = 'dashboard';
         $page_data['page_title'] = get_phrase('finance_dashboard');
         $this->load->view('backend/index', $page_data);
@@ -61,6 +61,7 @@ class Partner extends CI_Controller
 		
 		$period_time_stamp = strtotime($this->finance_model->current_financial_month($this->session->center_id));
 
+		$page_data['month'] = $this->finance_model->current_financial_month($this->session->center_id);
 		$page_data['cash_journal'] = $this->cash_journal_grid($period_time_stamp);
 		$page_data['tym']  = strtotime($this->finance_model->current_financial_month($this->session->center_id));//strtotime('+1 month',strtotime($last_mfr->closureDate));		
         $page_data['month'] = date("Y-m-t",strtotime($this->finance_model->current_financial_month($this->session->center_id)));
@@ -92,16 +93,17 @@ private function cash_journal_grid($period_time_stamp){
 	$cash_payment = 0;
 	$cash_closing_balance = $cash_balance_brought_forward;
 
+	$cash_journal['period'] = $end_period_date;
+	$cash_journal['is_bank_reconciled'] = $is_bank_reconciled;
+	$cash_journal['is_proof_of_cash_correct'] = $is_proof_of_cash_correct;
+	$cash_journal['is_mfr_submitted'] = $is_mfr_submitted;
+
+
+	$cash_journal['month_utilized_income_accounts'] = [];
+	$cash_journal['month_utilized_expense_accounts'] = [];
+	
+
 	if(!empty($vouchers)){
-
-		$cash_journal['period'] = $end_period_date;
-		$cash_journal['is_bank_reconciled'] = $is_bank_reconciled;
-		$cash_journal['is_proof_of_cash_correct'] = $is_proof_of_cash_correct;
-		$cash_journal['is_mfr_submitted'] = $is_mfr_submitted;
-
-
-		$cash_journal['month_utilized_income_accounts'] = [];
-		$cash_journal['month_utilized_expense_accounts'] = [];
 
 		foreach($vouchers as $voucher){
 
@@ -173,20 +175,21 @@ private function cash_journal_grid($period_time_stamp){
 
 		$cash_closing_balance = $cash_balance_brought_forward + $cash_deposit - $cash_payment;
 
-		$cash_journal['bank'] = [
-			'balance_bf' => $bank_balance_brought_forward,
-			'deposit' =>  $bank_deposit,
-			'payment' => $bank_payment,
-			'closing_balance' => $bank_closing_balance
-		];
-		
-		$cash_journal['cash'] = [
-			'balance_bf' =>  $cash_balance_brought_forward,
-			'deposit' => $cash_deposit,
-			'payment' => $cash_payment,
-			'closing_balance' => $cash_closing_balance
-		];
 	}
+
+	$cash_journal['bank'] = [
+		'balance_bf' => $bank_balance_brought_forward,
+		'deposit' =>  $bank_deposit,
+		'payment' => $bank_payment,
+		'closing_balance' => $bank_closing_balance
+	];
+	
+	$cash_journal['cash'] = [
+		'balance_bf' =>  $cash_balance_brought_forward,
+		'deposit' => $cash_deposit,
+		'payment' => $cash_payment,
+		'closing_balance' => $cash_closing_balance
+	];
 
 	return $cash_journal;
 }

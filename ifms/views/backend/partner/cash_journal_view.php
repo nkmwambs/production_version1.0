@@ -31,6 +31,8 @@
 
         </tr>
 
+        </thead>
+        <tbody>
         <?php 
             $bank_balance = 0;
             $pc_balance = 0;
@@ -192,5 +194,5 @@
                 endforeach;
             }
         ?>
-    </thead>
+    </<tbody>>
 </table>

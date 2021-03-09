@@ -1,6 +1,6 @@
 <?php
 
-print_r($cash_journal);
+print_r($month);
 
 extract($cash_journal);
 

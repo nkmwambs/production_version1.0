@@ -57,9 +57,11 @@ class Partner extends CI_Controller
             redirect(base_url().'admin.php', 'refresh');
 		
 		
-		$max_mfr_id = $this->db->select_max('balHdID')->get_where('opfundsbalheader',array('icpNo'=>$this->session->center_id))->row()->balHdID;
+		//$max_mfr_id = $this->db->select_max('balHdID')->get_where('opfundsbalheader',array('icpNo'=>$this->session->center_id))->row()->balHdID;
 		
-		$page_data['cash_journal'] = $this->cash_journal_grid();
+		$period_time_stamp = strtotime($this->finance_model->current_financial_month($this->session->center_id));
+
+		$page_data['cash_journal'] = $this->cash_journal_grid($period_time_stamp);
 		$page_data['tym']  = strtotime($this->finance_model->current_financial_month($this->session->center_id));//strtotime('+1 month',strtotime($last_mfr->closureDate));		
         $page_data['month'] = date("Y-m-t",strtotime($this->finance_model->current_financial_month($this->session->center_id)));
         $page_data['page_name']  = 'cash_journal';
@@ -67,156 +69,124 @@ class Partner extends CI_Controller
 		$this->load->view('backend/index', $page_data);
 }
 
-private function cash_journal_grid(){
-	$cash_journal = [
-		'period' => '2021-02-01',
-		'is_bank_reconciled' => false,
-		'is_proof_of_cash_correct' => true,
-		'is_mfr_submitted' => false,
-		'month_utilized_income_accounts' => [
-			'100' => [
-				'account_code' => 'R100',
-				'account_name' => 'Support Funds'
-			],
-			'200' => [
-				'account_code' => 'R200',
-				'account_name' => 'Gift Funds'
-			],
-			'510' => [
-				'account_code' => 'R510',
-				'account_name' => 'Parents Contribution'
-			]
-		],
-		'month_utilized_expense_accounts' => [
-			'10' => [
-				'account_code' => 'E10',
-				'account_name' => 'Education Expenses'
-			],
-			'45' => [
-				'account_code' => 'E45',
-				'account_name' => 'Domestic Assistance'
-			],
-			'30' => [
-				'account_code' => 'E30',
-				'account_name' => 'Personal Hygiene'
-			],
-			'65' => [
-				'account_code' => 'E65',
-				'account_name' => 'Salaries & Wages'
-			],
-			'70' => [
-				'account_code' => 'E70',
-				'account_name' => 'Administration Cost'
-			]
-		],
-		'bank' => [
-			'balance_bf'=> 250650.23,
-			'deposit' => 8000,
-			'payment' => 3000,
-			'closing_balance' => 0
-		],
-		'cash' => [
-			'balance_bf'=> 4560.00,
-			'deposit' => 3000,
-			'payment' => 1000,
-			'closing_balance' => 0
-		],
-		'voucher_records' => [
-			'10' => [
-				'voucher_number'=> '210101',
-				'voucher_status' => 0,
-				'voucher_date' => '2021-01-01',
-				'voucher_type' => 'CR',
-				'payee' => 'ABC',
-				'description' => 'blah blah blah',
-				'cheque_number' => 0,
-				'clear_state' => 0,
-				'clear_month' => '0000-00-00',
-				'is_editable' => true,
-				'running_balance' => [
-					'income' => 8000,
-					'expense' => 0
-				],
-				'spread' => [
-					'100' => [
-						'account_code' => 'R100',
-						'account_number' => 100,
-						'account_name' => 'Support Funds',
-						'amount' => 6000
-					],
-					'200' => [
-						'account_code' => 'R200',
-						'account_number' => 200,
-						'account_name' => 'Gift Funds',
-						'amount' => 2000
-					]
-				]
-			],
-			'11' => [
-				'voucher_number'=> '210102',
-				'voucher_status' => 0,
-				'voucher_date' => '2021-01-10',
-				'voucher_type' => 'CHQ',
-				'payee' => 'XYZ',
-				'description' => 'blah2 blah2 blah2',
-				'cheque_number' => 1001,
-				'clear_state' => 1,
-				'clear_month' => '2021-01-31',
-				'is_editable' => true,
-				'running_balance' => [
-					'income' => 0,
-					'expense' => 6000
-				],
-				'spread' => [
-					'10' => [
-						'account_code' => 'E10',
-						'account_number' => 10,
-						'account_name' => 'Educational Expenses',
-						'amount' => 2000
-					],
-					'30' => [
-						'account_code' => 'E30',
-						'account_number' => 30,
-						'account_name' => 'Personal Hygiene Expenses',
-						'amount' => 1000
-					],
-					'65' => [
-						'account_code' => 'E65',
-						'account_number' => 65,
-						'account_name' => 'Salaries and Wages',
-						'amount' => 3000
-					],
-					
-				]
-			],
-			'12' => [
-				'voucher_number'=> '210103',
-				'voucher_status' => 0,
-				'voucher_date' => '2021-01-11',
-				'voucher_type' => 'CHQ',
-				'payee' => 'XYZ ABC',
-				'description' => 'blah3 blah3 blah3',
-				'cheque_number' => 1002,
-				'clear_state' => 0,
-				'clear_month' => '0000-00-00',
-				'is_editable' => true,
-				'running_balance' => [
-					'income' => 0,
-					'expense' => 15000
-				],
+
+private function cash_journal_grid($period_time_stamp){
+
+	$cash_journal = [];
+
+	$end_period_date = date("Y-m-t",$period_time_stamp);
+
+	$is_bank_reconciled = $this->finance_model->bank_reconciled($this->session->center_id,$end_period_date) <> 0 ? false : true;
+	$is_proof_of_cash_correct = $this->finance_model->proof_of_cash($this->session->center_id,$end_period_date) <> 0 ? false : true;
+	$is_mfr_submitted = $this->finance_model->mfr_submitted($this->session->center_id,$end_period_date) == 1 ? true : false;
+
+	$vouchers = $this->finance_model->cash_journal_result($this->session->center_id,$period_time_stamp);
+
+	$bank_balance_brought_forward = $this->finance_model->opening_bank_balance($end_period_date,$this->session->center_id);;
+	$bank_deposit = 0;
+	$bank_payment = 0;
+	$bank_closing_balance = $bank_balance_brought_forward;
+
+	$cash_balance_brought_forward = $this->finance_model->opening_pc_balance($end_period_date,$this->session->center_id);;
+	$cash_deposit = 0;
+	$cash_payment = 0;
+	$cash_closing_balance = $cash_balance_brought_forward;
+
+	if(!empty($vouchers)){
+
+		$cash_journal['period'] = $end_period_date;
+		$cash_journal['is_bank_reconciled'] = $is_bank_reconciled;
+		$cash_journal['is_proof_of_cash_correct'] = $is_proof_of_cash_correct;
+		$cash_journal['is_mfr_submitted'] = $is_mfr_submitted;
+
+
+		$cash_journal['month_utilized_income_accounts'] = [];
+		$cash_journal['month_utilized_expense_accounts'] = [];
+
+		foreach($vouchers as $voucher){
+
+			$bank_deposit += $voucher['voucher_type'] == 'CR' || $voucher['voucher_type'] == 'PCR' ? $voucher['Cost'] : 0; 
+			$bank_payment += $voucher['voucher_type'] == 'CHQ' || $voucher['voucher_type'] == 'BCHG' || $voucher['voucher_type'] == 'UDCTB' ? $voucher['Cost'] : 0;
+			
+			$cash_deposit += $voucher['account_number'] == '2000' || $voucher['account_number'] == '2001' ? $voucher['Cost'] : 0; 
+			$cash_payment += $voucher['voucher_type'] == 'PC' || $voucher['voucher_type'] == 'PCR' || $voucher['voucher_type'] == 'UDCTC' ? $voucher['Cost'] : 0; 
+			
+			$cash_journal['voucher_records'][$voucher['voucher_id']] = [
+				'voucher_number' => $voucher['voucher_number'],
+				'voucher_date' => $voucher['voucher_date'],
+				'voucher_type' => $voucher['voucher_type'],
+				'payee' => $voucher['payee'],
+				'description' => $voucher['description'],
+				'cheque_number' => $voucher['cheque_number'],
+				'clear_state' => $voucher['clear_state'],
+				'clear_month' => $voucher['clear_month'],
+				'is_editable' => $voucher['is_editable']
+			];
+
+			if($voucher['account_group'] == 1){
 				
-				'spread' => [
-					'Petty Cash' => [
-						'account_code' => 'Petty Cash',
-						'account_number' => 2000,
-						'account_name' => 'Petty Cash',
-						'amount' => 15000
-					]
-					
-				]
-			]
-		]
-	];
+				$cash_journal['month_utilized_income_accounts'][$voucher['account_number']] = [
+					'account_code' => $voucher['account_code'],
+					'account_name' => $voucher['account_name']
+				];
+
+				if(isset($cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['income'])){
+					$cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['income'] += $voucher['Cost'];
+				}else{
+					$cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['income'] = 0;
+				}
+				
+				
+			}elseif($voucher['account_group'] == 0){
+				
+				$cash_journal['month_utilized_expense_accounts'][$voucher['account_number']] = [
+					'account_code' => $voucher['account_code'],
+					'account_name' => $voucher['account_name']
+				];
+
+				if(isset($cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'])){
+					$cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'] += $voucher['Cost'];
+				}else{
+					$cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'] = 0;
+				}
+				
+
+			}elseif($voucher['account_group'] == 3){
+				
+				if(isset($cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'])){
+					$cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'] += $voucher['Cost'];
+				}else{
+					$cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'] = 0;
+				}
+				
+			}
+
+			//$cash_journal['voucher_records'][$voucher['voucher_id']]['spread'][$voucher['account_number']] = $voucher['Cost'];
+		}
+
+		foreach($vouchers as $voucher){
+			$cash_journal['voucher_records'][$voucher['voucher_id']]['spread'][$voucher['account_number']] = $voucher['Cost'];
+		}
+
+
+		$bank_closing_balance = $bank_balance_brought_forward + $bank_deposit - $bank_payment;
+
+		$cash_closing_balance = $cash_balance_brought_forward + $cash_deposit - $cash_payment;
+
+		$cash_journal['bank'] = [
+			'balance_bf' => $bank_balance_brought_forward,
+			'deposit' =>  $bank_deposit,
+			'payment' => $bank_payment,
+			'closing_balance' => $bank_closing_balance
+		];
+		
+		$cash_journal['cash'] = [
+			'balance_bf' =>  $cash_balance_brought_forward,
+			'deposit' => $cash_deposit,
+			'payment' => $cash_payment,
+			'closing_balance' => $cash_closing_balance
+		];
+	}
 
 	return $cash_journal;
 }
@@ -226,30 +196,31 @@ private function cash_journal_grid(){
 		 if ($this->session->userdata('admin_login') != 1)
              redirect(base_url().'admin.php', 'refresh');
 		
-		
-		 $max_mfr_id = $this->db->select_max('balHdID')->get_where('opfundsbalheader',array('icpNo'=>$this->session->center_id))->row()->balHdID;
-// 		
-		 if($flag!==""){
-// 		
+	
+		 if($flag !== ""){
+ 		
 			 $sign = '+';
-// 			
-			 if($flag==='prev'){
+ 			
+			 if($flag == 'prev'){
 				 $sign = '-';
 			}
-// 			 	
-			 $page_data['tym']  = strtotime($sign.$cnt.' months',$date);
-			 $page_data['month']  = date("Y-m-t",strtotime($sign.$cnt.' months',$date));				
+ 			 	
+			 $tym  = strtotime('first day of '.$sign.$cnt.'month',$date);
+
+			 $page[$tym] = $tym;
+			 //$page_data['month']  = date("Y-m-t",strtotime('first day of '.$sign.$cnt.'month',$date));
+			 $page_data['cash_journal'] = $this->cash_journal_grid($tym); 				
 		}else{
-			 $page_data['tym']  = $date;	
-			 $page_data['month']  = date("Y-m-t",$date);	
+			 $tym  = $date;
+			 $page[$tym] = $tym;	
+			 $page_data['cash_journal'] = $this->cash_journal_grid($tym); 
+			 //$page_data['month']  = date("Y-m-t",$date);	
 		 }
-// 	
+
+			
         $page_data['page_name']  = 'cash_journal';
         $page_data['page_title'] = get_phrase('cash_journal');
 		$this->load->view('backend/index', $page_data);
-		//$page_data['tym'] = strtotime($date);
-		//$data['month'] = date("Y-m-t",strtotime($cnt." months",strtotime($date)));
-		//echo $this->load->view('backend/partner/load_cash_journal', $data,TRUE);
 
 }  
 
@@ -1303,15 +1274,20 @@ public function multiple_vouchers($tym){
 		
 		$data['ChqState'] = $param2;
 		$data['clrMonth'] = $param3;
+
+		$message = 'Transaction clearance failed';
 		
-		if($param2===0){
+		if($param2 == 0 && $this->finance_model->mfr_submitted($this->session->center_id,$param3) != 1){
 			$data['clrMonth'] ="0000-00-00";	
+			$this->db->where(array('hID'=>$param1))->update('voucher_header',$data);
+			$message = "Transaction cleared successfully";
+		}elseif($param2 <> 0){
+			$this->db->where(array('hID'=>$param1))->update('voucher_header',$data);
+			$message = "Transaction cleared successfully";
 		}
 		
-		$this->db->where(array('hID'=>$param1))->update('voucher_header',$data);
+		echo $message;
 		
-		//echo $this->db->affected_rows();
-		//echo $param2;
 	}
 
 function create_budget_item($project){

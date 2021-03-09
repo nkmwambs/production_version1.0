@@ -19,13 +19,13 @@
 
             <?php foreach($month_utilized_income_accounts as $utilized):?>
 			
-            <th class="spread"><?=$utilized['account_code'];?></th>
+            <th class="spread" title="<?=$utilized['account_name'];?>"><?=$utilized['account_code'];?></th>
 		    
             <?php endforeach;?>
 											
 			<?php foreach($month_utilized_expense_accounts as $utilized_exp):?>
 			
-            <th class="spread"><?=$utilized_exp['account_code'];?></th>
+            <th class="spread"  title="<?=$utilized['account_name'];?>"><?=$utilized_exp['account_code'];?></th>
 			
             <?php endforeach;?>
 
@@ -137,7 +137,7 @@
                         $voucher_record['voucher_type'] == 'PCR'
                     ) 
                             
-                        $cr = $voucher_record['running_balance']['income'];//$this->db->select_sum('Cost')->get_where('voucher_body',array('hID'=>$row['hID']))->row()->Cost;
+                        $cr = isset($voucher_record['spread']) ? array_sum($voucher_record['spread']) : 0;//$voucher_record['running_balance']['income'];//$this->db->select_sum('Cost')->get_where('voucher_body',array('hID'=>$row['hID']))->row()->Cost;
 						
                     if(
                         $voucher_record['voucher_type'] == 'CHQ' || 
@@ -145,7 +145,7 @@
                         $voucher_record['voucher_type'] == 'UDCTB'
                     ) 
                         
-                        $chq = $voucher_record['running_balance']['expense'];//$this->db->select_sum('Cost')->get_where('voucher_body',array('hID'=>$row['hID']))->row()->Cost;
+                        $chq = isset($voucher_record['spread']) ? array_sum($voucher_record['spread']) : 0;//$voucher_record['running_balance']['expense'];//$this->db->select_sum('Cost')->get_where('voucher_body',array('hID'=>$row['hID']))->row()->Cost;
 						$bank_balance += $cr-$chq; 
 														
 				?>
@@ -159,19 +159,17 @@
 				    $pc = '0';
 															
 					if(
-                        isset($voucher_record['spread']['Petty Cash']) && 
-                        ($voucher_record['spread']['Petty Cash']['account_number'] == '2000' || 
-                        $voucher_record['spread']['Petty Cash']['account_number'] == '2001')
+                        isset($voucher_record['spread']['2000']) || isset($voucher_record['spread']['2001'])
                     ) 
                         
-                        $pcr = $voucher_record['spread']['Petty Cash']['amount'];
+                        $pcr = array_sum($voucher_record['spread']);//$voucher_record['spread']['Petty Cash'];
 						
                     if(
                         $voucher_record['voucher_type'] == 'PC' || 
                         $voucher_record['voucher_type'] == 'PCR' || 
                         $voucher_record['voucher_type'] == 'UDCTC'
                     ) 
-                        $pc = $voucher_record['running_balance']['expense'];
+                        $pc = isset($voucher_record['spread']) ? array_sum($voucher_record['spread']) : 0;//$voucher_record['running_balance']['expense'];
 															
 						$pc_balance += $pcr-$pc; 
 				?>
@@ -180,11 +178,11 @@
 					<td><?php echo number_format($cash['balance_bf']+$pc_balance,2);?></td>
 
                 <?php foreach($month_utilized_income_accounts as $account_number => $income_account){?>
-                    <td class="spread"><?=isset($voucher_record['spread'][$account_number]) ? $voucher_record['spread'][$account_number]['amount'] : 0;?></td>
+                    <td class="spread"><?=number_format(isset($voucher_record['spread'][$account_number]) ? $voucher_record['spread'][$account_number] : 0,2);?></td>
                 <?php }?>	
 
                 <?php foreach($month_utilized_expense_accounts as $account_number => $income_account){?>
-                    <td class="spread"><?=isset($voucher_record['spread'][$account_number]) ? $voucher_record['spread'][$account_number]['amount'] : 0;?></td>
+                    <td class="spread"><?=number_format(isset($voucher_record['spread'][$account_number]) ? $voucher_record['spread'][$account_number] : 0,2);?></td>
                 <?php }?>													
 
             </tr>

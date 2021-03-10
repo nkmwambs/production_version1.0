@@ -563,9 +563,12 @@ function budget_summary(){
 		 if ($this->session->userdata('admin_login') != 1)
             redirect(base_url(), 'refresh');
 		 
-		 
-		$page_data['fyr'] = $this->finance_model->current_fy($this->session->center_id);
-        $page_data['page_name']  = 'budget_summary';
+		$fyr = $this->finance_model->current_fy($this->session->center_id);
+		$page_data['fyr'] = $fyr;
+		$page_data['budget_summary'] = $this->finance_model->budget_spread_grid_by_income_accounts($fyr,$this->session->center_id);
+        $page_data['months_range'] = ['July','August','September','October','November','December',
+		'January','February','March','April','May','June'];
+		$page_data['page_name']  = 'budget_summary';
         $page_data['page_title'] = get_phrase('budget_summary');
 		$this->load->view('backend/index', $page_data);		
 }
@@ -575,6 +578,9 @@ function scroll_budget_summary($fy){
             redirect(base_url(), 'refresh');
 
 		$page_data['fyr'] = $fy;
+		$page_data['budget_summary'] = $this->finance_model->budget_spread_grid_by_income_accounts($fy,$this->session->center_id);
+        $page_data['months_range'] = ['July','August','September','October','November','December',
+		'January','February','March','April','May','June'];
         $page_data['page_name']  = 'budget_summary';
         $page_data['page_title'] = get_phrase('budget_summary');
 		$this->load->view('backend/index', $page_data);	 	

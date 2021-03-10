@@ -81,7 +81,7 @@ private function cash_journal_grid($period_time_stamp){
 	$is_proof_of_cash_correct = $this->finance_model->proof_of_cash($this->session->center_id,$end_period_date) <> 0 ? false : true;
 	$is_mfr_submitted = $this->finance_model->mfr_submitted($this->session->center_id,$end_period_date) == 1 ? true : false;
 
-	$vouchers = $this->finance_model->cash_journal_result($this->session->center_id,$period_time_stamp);
+	$vouchers = $this->finance_model->list_month_vouchers_for_fcp($this->session->center_id,$period_time_stamp);
 
 	$bank_balance_brought_forward = $this->finance_model->opening_bank_balance($end_period_date,$this->session->center_id);;
 	$bank_deposit = 0;
@@ -149,7 +149,7 @@ private function cash_journal_grid($period_time_stamp){
 				if(isset($cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'])){
 					$cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'] += $voucher['Cost'];
 				}else{
-					$cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'] = 0;
+					$cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'] = $voucher['Cost'];
 				}
 				
 
@@ -158,18 +158,16 @@ private function cash_journal_grid($period_time_stamp){
 				if(isset($cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'])){
 					$cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'] += $voucher['Cost'];
 				}else{
-					$cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'] = 0;
+					$cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'] = $voucher['Cost'];
 				}
 				
 			}
 
-			//$cash_journal['voucher_records'][$voucher['voucher_id']]['spread'][$voucher['account_number']] = $voucher['Cost'];
 		}
 
 		foreach($vouchers as $voucher){
 			$cash_journal['voucher_records'][$voucher['voucher_id']]['spread'][$voucher['account_number']] = $voucher['Cost'];
 		}
-
 
 		$bank_closing_balance = $bank_balance_brought_forward + $bank_deposit - $bank_payment;
 
@@ -809,8 +807,44 @@ function load_expense_data($param1="",$param2="",$param3=""){
 	$page_data['center_id'] =  $param1;
 	$page_data['AccNo'] =  $param2;
 	$page_data['month'] =  $param3;
+	$acc = $this->db->get_where('accounts',array("AccNo"=>$param2))->row();
+	$page_data['acc'] = $acc;
+	$page_data['expense_account'] = $this->finance_model->expense_accounts($acc->accID);
+	$page_data['expense_report_grid']= $this->expense_report_grid($param1,$param3,$param2);
+	$page_data['budget_spread_grid'] = $this->finance_model->budget_spread_grid(get_fy($param3),$param1,$acc->accID,$param3);
 	
+	//echo json_encode([$param1,$param2,$param3]);
 	echo $this->load->view('backend/partner/expense_report_data', $page_data,TRUE);	
+}
+
+function expense_report_grid($fcp_number,$period_end_date,$income_account_number){
+
+	$period_start_date = fy_start_date($period_end_date,$fcp_number);
+
+	$this->db->where(array('AccNo'=>$income_account_number));
+	$parent_account_id = $this->db->get('accounts')->row()->accID;
+
+	$condition = array('parentAccID'=>$parent_account_id);
+	
+	$expense_report = [];
+
+	$vouchers = $this->finance_model->list_to_date_vouchers_for_fcp($fcp_number,$period_start_date,$period_end_date,$condition);
+		
+	foreach($vouchers as $voucher){
+			
+		if($voucher['voucher_date'] == $period_end_date){
+			$expense_report['month_expenses'][$voucher['account_number']] = $voucher['Cost'];
+		}
+
+		if(isset($expense_report['expense_to_date'][$voucher['account_number']])){
+			$expense_report['expense_to_date'][$voucher['account_number']] += $voucher['Cost'];
+		}else{
+			$expense_report['expense_to_date'][$voucher['account_number']] = $voucher['Cost'];
+		}
+			
+	}
+
+	return $expense_report;
 }
 
  /***End Load Default Pages***/

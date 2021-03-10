@@ -2741,6 +2741,70 @@ class Finance_model extends CI_Model {
 		return $budget_items;
 	}
 
+	function fcp_year_budget_to_date_for_all_income_accounts($fy,$fcp_number){
+
+
+		$this->db->select(array('income_accounts.income_account_number as income_account_number',
+		'accounts.AccText as expense_account_code','plansschedule.AccNo as expense_account_number'));
+		$this->db->select(array('month_1_amount','month_2_amount','month_3_amount','month_4_amount'));
+		$this->db->select(array('month_5_amount','month_6_amount','month_7_amount','month_8_amount'));
+		$this->db->select(array('month_9_amount','month_10_amount','month_11_amount','month_12_amount'));
+		$this->db->where(array('fy'=>$fy,'icpNo'=>$fcp_number));
+		$this->db->join('planheader','planheader.planHeaderID=plansschedule.planHeaderID');
+		$this->db->join('accounts','accounts.AccNo=plansschedule.AccNo');
+		$this->db->join('(select accID as account_id, AccNo as income_account_number,AccText as income_account_code FROM accounts WHERE AccGrp = 1) as income_accounts','income_accounts.account_id=accounts.parentAccID','LEFT',NULL);
+		$budget_items_obj = $this->db->get('plansschedule');
+
+		$budget_items = [];
+
+		if($budget_items_obj->num_rows() > 0){
+			$budget_items = $budget_items_obj->result_array();
+		}
+
+		return $budget_items;
+	}
+
+	function budget_spread_grid_by_income_accounts($fy,$fcp_number, $month = ''){
+		
+		$month_number = $month != '' ? date('n',strtotime($month)) : 0;
+
+		$budget_items = $this->fcp_year_budget_to_date_for_all_income_accounts($fy,$fcp_number);
+		$budget_spread = [];
+
+		foreach($budget_items as $spread){
+			$income_account_number = array_shift($spread);
+			$expense_account_number = array_shift($spread);
+			$budget_spread[$income_account_number][$expense_account_number][] = $spread; 
+		}
+
+		$sum_budget_spread = [];
+
+		foreach($budget_spread as $income_account_number => $expense_sum_spread){
+
+			foreach($expense_sum_spread as $expense_account_number => $sum_spread){
+				$sum_array = [];
+
+				$month_range = [7,8,9,10,11,12,1,2,3,4,5,6];
+
+				$cnt = 1;
+				foreach($month_range as $month){
+
+					$sum_array[$month] = array_sum(array_column($sum_spread,'month_'.$cnt.'_amount'));
+					
+					$cnt++;
+					
+					if($month_number > 0 && $month_number == $month) break;
+				}
+
+				$sum_budget_spread[$income_account_number][$expense_account_number] = $sum_array;
+				$sum_budget_spread[$income_account_number][$expense_account_number]['total_cost'] = array_sum($sum_array);
+			}
+
+		}
+
+		return $sum_budget_spread;
+	}
+
 	function budget_spread_grid($fy,$fcp_number,$income_account_id,$month = ''){
 
 		$month_number = $month != '' ? date('n',strtotime($month)) : 0;

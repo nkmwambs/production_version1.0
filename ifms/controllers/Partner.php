@@ -811,7 +811,7 @@ function load_expense_data($param1="",$param2="",$param3=""){
 	$page_data['acc'] = $acc;
 	$page_data['expense_account'] = $this->finance_model->expense_accounts($acc->accID);
 	$page_data['expense_report_grid']= $this->expense_report_grid($param1,$param3,$param2);
-	$page_data['budget_spread_grid'] = $this->finance_model->budget_spread_grid(get_fy($param3),$param1,$param3);
+	$page_data['budget_spread_grid'] = $this->finance_model->budget_spread_grid(get_fy($param3),$param1,$acc->accID,$param3);
 	
 	//echo json_encode([$param1,$param2,$param3]);
 	echo $this->load->view('backend/partner/expense_report_data', $page_data,TRUE);	

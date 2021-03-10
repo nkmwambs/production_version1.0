@@ -2721,13 +2721,13 @@ class Finance_model extends CI_Model {
 		return $list_to_date_vouchers_for_fcp;
 	}
 
-	function fcp_year_budget_to_date($fy,$fcp_number,$income_account_id){
+	function approved_fcp_year_budget_to_date($fy,$fcp_number,$income_account_id){
 
 		$this->db->select(array('plansschedule.AccNo as account_number'));
 		$this->db->select(array('month_1_amount','month_2_amount','month_3_amount','month_4_amount'));
 		$this->db->select(array('month_5_amount','month_6_amount','month_7_amount','month_8_amount'));
 		$this->db->select(array('month_9_amount','month_10_amount','month_11_amount','month_12_amount'));
-		$this->db->where(array('fy'=>$fy,'icpNo'=>$fcp_number,'parentAccID'=>$income_account_id));
+		$this->db->where(array('fy'=>$fy,'icpNo'=>$fcp_number,'parentAccID'=>$income_account_id,'approved'=>2));
 		$this->db->join('planheader','planheader.planHeaderID=plansschedule.planHeaderID');
 		$this->db->join('accounts','accounts.AccNo=plansschedule.AccNo');
 		$budget_items_obj = $this->db->get('plansschedule');
@@ -2742,7 +2742,6 @@ class Finance_model extends CI_Model {
 	}
 
 	function fcp_year_budget_to_date_for_all_income_accounts($fy,$fcp_number){
-
 
 		$this->db->select(array('income_accounts.income_account_number as income_account_number',
 		'accounts.AccText as expense_account_code','plansschedule.AccNo as expense_account_number'));
@@ -2810,7 +2809,7 @@ class Finance_model extends CI_Model {
 		$month_number = $month != '' ? date('n',strtotime($month)) : 0;
 
 		$budget_spread = [];
-		$budget_spread_grid = $this->fcp_year_budget_to_date($fy,$fcp_number,$income_account_id);
+		$budget_spread_grid = $this->approved_fcp_year_budget_to_date($fy,$fcp_number,$income_account_id);
 
 		foreach($budget_spread_grid as $spread){
 			$account_number = array_shift($spread);

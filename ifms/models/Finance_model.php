@@ -1061,6 +1061,26 @@ class Finance_model extends CI_Model {
 		
 		return $total;
 	}
+
+	function get_income_account_with_expenses($project_id,$month){
+		$accounts = [];
+
+		$fy_start_date = fy_start_date($month,$project_id);
+
+		$this->db->select(array('DISTINCT(accounts.AccNo) as account_number','accounts.AccText as account_code',
+		'accounts.AccName as account_name'));
+		$this->db->where(array("AccGrp"=>"1",'icpNo'=>$project_id));
+		$this->db->where(array('TDate>='=>date('Y-m-01',strtotime($fy_start_date)),'TDate<='=>date('Y-m-t',strtotime($month))));
+		$this->db->join('voucher_body','voucher_body.AccNo=accounts.AccNo');
+		$accounts_obj = $this->db->get('accounts');
+
+		if($accounts_obj->num_rows() > 0){
+			$accounts = $accounts_obj->result_object();
+		}
+
+		return $accounts;
+	}
+
 	
 	function total_revenue_to_date_per_revenue_vote($project_id,$rev_id,$month){
 		
@@ -2639,12 +2659,12 @@ class Finance_model extends CI_Model {
 	}
 
 
-	function cash_journal_result($fcp_id,$period_time_stamp){
+	function list_month_vouchers_for_fcp($fcp_id,$period_time_stamp,$additional_condition_array = []){
 
 		$end_period_date = date("Y-m-t",$period_time_stamp);
 		$start_period_date = date("Y-m-01",$period_time_stamp);
 
-		$cash_journal_result = [];
+		$list_month_vouchers_for_fcp = [];
 
 		$this->db->select(array('voucher_header.hID as voucher_id','voucher_header.TDate as voucher_date','voucher_header.VNumber as voucher_number'));
 		$this->db->select(array('voucher_header.Payee as payee','voucher_header.VType as voucher_type'));
@@ -2656,27 +2676,107 @@ class Finance_model extends CI_Model {
 		$this->db->select_sum('Cost');
 		$this->db->where(array('voucher_header.TDate>='=>$start_period_date,'voucher_header.TDate<='=>$end_period_date));
 		$this->db->where(array('voucher_header.icpNo'=>$fcp_id));
+
+		if(!empty($additional_condition_array)){
+			$this->db->where($additional_condition_array);
+		}
+
 		$this->db->join('voucher_header','voucher_header.hID=voucher_body.hID');
 		$this->db->join('accounts','accounts.AccNo=voucher_body.AccNo');
 		$this->db->group_by(array('voucher_header.VNumber','voucher_body.AccNo'));
 		$vouchers_obj = $this->db->get('voucher_body');
 
 		if($vouchers_obj->num_rows() > 0){
-			$cash_journal_result = $vouchers_obj->result_array();
+			$list_month_vouchers_for_fcp = $vouchers_obj->result_array();
 		}
 
-		return $cash_journal_result;
+		return $list_month_vouchers_for_fcp;
 	}
 
-	// function journal_records_spread(){
-	// 	$vouchers = $this->cash_journal_result('KE611',strtotime('2018-03-31'));
 
-	// 	$cash_journal = [];
+	function list_to_date_vouchers_for_fcp($fcp_id,$start_period_date,$end_period_date,$additional_condition_array = []){
 
-	// 	foreach($vouchers as $voucher){
-	// 		$cash_journal['voucher_records'][$voucher['voucher_id']]['spread'][$voucher['account_number']] = $voucher['Cost'];
-	// 	}
 
-	// 	return $cash_journal;
-	// }
+		$list_to_date_vouchers_for_fcp = [];
+
+		$this->db->select(array("LAST_DAY(DATE_FORMAT(voucher_header.TDate,'%Y-%m-%d')) as voucher_date",
+		'accounts.AccNo as account_number','accounts.AccText as account_code'));
+		$this->db->select_sum('Cost');
+		$this->db->where(array('voucher_header.TDate>='=>$start_period_date,'voucher_header.TDate<='=>$end_period_date));
+		$this->db->where(array('voucher_header.icpNo'=>$fcp_id));
+
+		if(!empty($additional_condition_array)){
+			$this->db->where($additional_condition_array);
+		}
+
+		$this->db->join('voucher_header','voucher_header.hID=voucher_body.hID');
+		$this->db->join('accounts','accounts.AccNo=voucher_body.AccNo');
+		$this->db->group_by(array("DATE_FORMAT(voucher_header.TDate,'%Y-%m')",'voucher_body.AccNo'));
+		$vouchers_obj = $this->db->get('voucher_body');
+
+		if($vouchers_obj->num_rows() > 0){
+			$list_to_date_vouchers_for_fcp = $vouchers_obj->result_array();
+		}
+
+		return $list_to_date_vouchers_for_fcp;
+	}
+
+	function fcp_year_budget_to_date($fy,$fcp_number){
+
+		$this->db->select(array('AccNo as account_number'));
+		$this->db->select(array('month_1_amount','month_2_amount','month_3_amount','month_4_amount'));
+		$this->db->select(array('month_5_amount','month_6_amount','month_7_amount','month_8_amount'));
+		$this->db->select(array('month_9_amount','month_10_amount','month_11_amount','month_12_amount'));
+		$this->db->where(array('fy'=>$fy,'icpNo'=>$fcp_number));
+		$this->db->join('planheader','planheader.planHeaderID=plansschedule.planHeaderID');
+		$budget_items_obj = $this->db->get('plansschedule');
+
+		$budget_items = [];
+
+		if($budget_items_obj->num_rows() > 0){
+			$budget_items = $budget_items_obj->result_array();
+		}
+
+		return $budget_items;
+	}
+
+	function budget_spread_grid($fy,$fcp_number,$month = ''){
+
+		$month_number = $month != '' ? date('n',strtotime($month)) : 0;
+
+		$budget_spread = [];
+		$budget_spread_grid = $this->fcp_year_budget_to_date($fy,$fcp_number);
+
+		foreach($budget_spread_grid as $spread){
+			$account_number = array_shift($spread);
+			$budget_spread[$account_number][] = $spread; 
+		}
+
+		$sum_budget_spread = [];
+
+		foreach($budget_spread as $account_number => $sum_spread){
+
+			$sum_array = [];
+ 
+			$month_range = [7,8,9,10,11,12,1,2,3,4,5,6];
+
+			$cnt = 1;
+			foreach($month_range as $month){
+
+				$sum_array[$month] = array_sum(array_column($sum_spread,'month_'.$cnt.'_amount'));
+				
+				$cnt++;
+				
+				if($month_number > 0 && $month_number == $month) break;
+			}
+
+			$sum_budget_spread[$account_number] = $sum_array;
+			$sum_budget_spread[$account_number]['total_cost'] = array_sum($sum_array);
+		}
+
+		return $sum_budget_spread;
+	}
+
+
+	
 }

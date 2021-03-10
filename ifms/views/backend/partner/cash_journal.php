@@ -1,7 +1,5 @@
 <?php
 
-//print_r($this->finance_model->budget_spread_grid(18,'KE611','2018-05-31'));
-
 extract($cash_journal);
 
 $rec_chk = "Ok";

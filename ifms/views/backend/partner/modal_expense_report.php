@@ -27,15 +27,14 @@
 							<select class="form-control" id="revenue_id" name="revenue_id">
 								<option><?=get_phrase('select');?></option>
 								<?php
-									$rev = $this->db->get_where('accounts',array("AccGrp"=>"1"))->result_object();
+									$rev = $this->finance_model->get_income_account_with_expenses($this->session->center_id,$param2);
 									
 									foreach($rev as $row):
 									
-									if($this->finance_model->total_expense_to_date_per_revenue_vote($this->session->center_id,$row->accID,$param2)>0){
 								?>
-									<option value="<?=$row->AccNo;?>"><?=$row->AccText;?> - <?=$row->AccName;?></option>
+									<option value="<?=$row->account_number;?>"><?=$row->account_code;?> - <?=$row->account_name;?></option>
 								<?php
-									}
+								
 									endforeach;
 								?>
 							</select>		
@@ -71,17 +70,6 @@ $(document).ready(function(){
 $('#revenue_id').change(function(ev){
 
 	var rpt_id = $('#revenue_id').val();
-	
-	//alert(rpt_id);
-	
-	//$('.expense_report').each(function(i,e){
-
-		//if($(e).attr('id')===rpt_id){
-			//$(e).css('display','block');
-		//}else{
-			//$(e).css('display','none');
-		//}
-	//});
 	
 	var url = '<?=base_url();?>ifms.php/partner/load_expense_data/<?=$this->session->center_id?>/'+rpt_id+'/<?=$param2?>';
 	

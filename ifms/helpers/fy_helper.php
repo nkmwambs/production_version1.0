@@ -1,4 +1,4 @@
-<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+<?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 /**
  * CodeIgniter
  *
@@ -14,75 +14,97 @@
  */
 
 
-if ( ! function_exists('g_fy'))
-{
-	function g_fy($date = '',$project="") {
-		
-		$CI =& get_instance();
-		
+if (!function_exists('g_fy')) {
+	function g_fy($date = '', $project = "")
+	{
+
+		$CI = &get_instance();
+
 		$CI->load->database();
-		
-		$fy_start_month = $CI->db->get_where('settings',array('type'=>'fy_start_month'))->row()->description; 
-		
-		$months = range(1,12);
-		
-		$range['first'] = range($fy_start_month,12);
-		$range['second'] = range(1,$fy_start_month-1);
-		
-		$fy = date('y',strtotime($date));
-		
-		if(in_array(date('n',strtotime($date)), $range['first'])){
-			$fy = date('y',strtotime($date))+1;
+
+		$fy_start_month = $CI->db->get_where('settings', array('type' => 'fy_start_month'))->row()->description;
+
+		$months = range(1, 12);
+
+		$range['first'] = range($fy_start_month, 12);
+		$range['second'] = range(1, $fy_start_month - 1);
+
+		$fy = date('y', strtotime($date));
+
+		if (in_array(date('n', strtotime($date)), $range['first'])) {
+			$fy = date('y', strtotime($date)) + 1;
 		}
 
-		return $fy; 
+		return $fy;
 	}
 }
 
-if ( ! function_exists('fy_start_date'))
-{
-	function fy_start_date($date = '',$project="") {
-				$fy = get_fy($date,$project)-1;
-					
-				$fy_start_date = '20'.$fy."-07-01";
-			    return $fy_start_date;                                               
-        	}
- }
+if (!function_exists('fy_start_date')) {
+	function fy_start_date($date = '', $project = "")
+	{
+		$fy = get_fy($date, $project) - 1;
 
-if ( ! function_exists('fy_end_date'))
-{
-	function fy_end_date($date = '',$project="") {
-				$fy = get_fy($date,$project);
-					
-				$fy_end_date = '20'.$fy."-06-30";
-			    return $fy_end_date;                                               
-        	}
- }
+		$fy_start_date = '20' . $fy . "-07-01";
+		return $fy_start_date;
+	}
+}
+
+if (!function_exists('fy_end_date')) {
+	function fy_end_date($date = '', $project = "")
+	{
+		$fy = get_fy($date, $project);
+
+		$fy_end_date = '20' . $fy . "-06-30";
+		return $fy_end_date;
+	}
+}
 
 
-if( ! function_exists('months_elapsed'))
-{
+if (!function_exists('months_elapsed')) {
 	function months_elapsed($date1, $date2)
 	{
 		$datetime1 = date_create($date1);
 		$datetime2 = date_create($date2);
 		$interval = date_diff($datetime1, $datetime2);
-		
+
 		return $interval->format('%m');
-	}	
+	}
 }
 
-if(! function_exists('validateDate')){
+if (!function_exists('validateDate')) {
 	function validateDate($date)
-		{
-		    $d = DateTime::createFromFormat('Y-m-d', $date);
-		    return $d && $d->format('Y-m-d') === $date;
-		}
+	{
+		$d = DateTime::createFromFormat('Y-m-d', $date);
+		return $d && $d->format('Y-m-d') === $date;
+	}
 }
 
-if(! function_exists('checkIsAValidDate')){
-	function checkIsAValidDate($myDateString){
-    	return (bool)strtotime($myDateString);
+if (!function_exists('checkIsAValidDate')) {
+	function checkIsAValidDate($myDateString)
+	{
+		return (bool)strtotime($myDateString);
+	}
+}
+
+if (!function_exists('order_of_months_in_fy')) {
+	function order_of_months_in_fy($fy_start_month = 7)
+	{
+		$months = range(1, 12);
+
+		$forward_months = [];
+		$backward_months = [];
+
+		foreach ($months as $month) {
+			if ($month < $fy_start_month) {
+				$backward_months[] = $month;
+			} else {
+				$forward_months[] = $month;
+			}
+		}
+
+		$new_month_order = array_merge($forward_months, $backward_months);
+
+		return $new_month_order;
 	}
 }
 // ------------------------------------------------------------------------

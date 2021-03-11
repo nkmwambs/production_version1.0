@@ -1067,18 +1067,36 @@ class Finance_model extends CI_Model {
 
 		$fy_start_date = fy_start_date($month,$project_id);
 
-		$this->db->select(array('DISTINCT(accounts.AccNo) as account_number','accounts.AccText as account_code',
-		'accounts.AccName as account_name'));
-		$this->db->where(array("AccGrp"=>"1",'icpNo'=>$project_id));
+		$join_query = "SELECT accID as join_income_account_id,AccText as join_account_code,AccName as join_account_name,AccNo as join_account_number FROM accounts WHERE AccGrp = 1";
+		
+		$this->db->select(array('DISTINCT(accounts.AccNo) as account_number'));
+
+		$this->db->select(array('join_account_code','join_account_name','join_account_number','accID as account_id','parentAccID as parent_account_id',
+		'accounts.AccText as account_code','accounts.AccName as account_name'));
+		
+		
+
+		$this->db->where(array('icpNo'=>$project_id,'AccGrp<>'=>3));
 		$this->db->where(array('TDate>='=>date('Y-m-01',strtotime($fy_start_date)),'TDate<='=>date('Y-m-t',strtotime($month))));
 		$this->db->join('voucher_body','voucher_body.AccNo=accounts.AccNo');
+		$this->db->join('('.$join_query.') as join_accounts','join_accounts.join_income_account_id=accounts.parentAccID','LEFT',NULL);
 		$accounts_obj = $this->db->get('accounts');
 
 		if($accounts_obj->num_rows() > 0){
 			$accounts = $accounts_obj->result_object();
 		}
 
-		return $accounts;
+		$income_accounts_array = [];
+
+		foreach($accounts as $account){
+			if($account->parent_account_id == 0 && !isset($income_accounts_array[$account->account_id])){
+				$income_accounts_array[$account->account_number] = ['account_code'=>$account->account_code,'account_name'=>$account->account_name];
+			}else{
+				$income_accounts_array[$account->join_account_number] = ['account_code'=>$account->join_account_code,'account_name'=>$account->join_account_name];
+			}
+		}
+
+		return $income_accounts_array;
 	}
 
 	
@@ -2699,7 +2717,7 @@ class Finance_model extends CI_Model {
 
 		$list_to_date_vouchers_for_fcp = [];
 
-		$this->db->select(array("LAST_DAY(DATE_FORMAT(voucher_header.TDate,'%Y-%m-%d')) as voucher_date",
+		$this->db->select(array("LAST_DAY(voucher_header.TDate) as voucher_date",
 		'accounts.AccNo as account_number','accounts.AccText as account_code'));
 		$this->db->select_sum('Cost');
 		$this->db->where(array('voucher_header.TDate>='=>$start_period_date,'voucher_header.TDate<='=>$end_period_date));
@@ -2711,7 +2729,7 @@ class Finance_model extends CI_Model {
 
 		$this->db->join('voucher_header','voucher_header.hID=voucher_body.hID');
 		$this->db->join('accounts','accounts.AccNo=voucher_body.AccNo');
-		$this->db->group_by(array("DATE_FORMAT(voucher_header.TDate,'%Y-%m')",'voucher_body.AccNo'));
+		$this->db->group_by(array("LAST_DAY(voucher_header.TDate)",'voucher_body.AccNo'));
 		$vouchers_obj = $this->db->get('voucher_body');
 
 		if($vouchers_obj->num_rows() > 0){
@@ -2822,9 +2840,10 @@ class Finance_model extends CI_Model {
 
 			$sum_array = [];
  
-			$month_range = [7,8,9,10,11,12,1,2,3,4,5,6];
+			$month_range = order_of_months_in_fy();//[7,8,9,10,11,12,1,2,3,4,5,6];
 
 			$cnt = 1;
+			
 			foreach($month_range as $month){
 
 				$sum_array[$month] = array_sum(array_column($sum_spread,'month_'.$cnt.'_amount'));

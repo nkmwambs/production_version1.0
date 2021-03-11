@@ -48,7 +48,7 @@ $fund_balance_report_grid = $this->finance_model->fund_balance_report_grid($fcp_
 								$month_expense = isset($fund_balance_report_grid[$account['account_number']]['expense']) ? $fund_balance_report_grid[$account['account_number']]['expense'] : 0;
 								$end_balance = $opening_balance + $month_income - $month_expense;
 
-								if($opening_balance && $month_income == 0 && $month_expense == 0) continue;
+								//if($opening_balance && $month_income == 0 && $month_expense == 0) continue;
 						?>
 							<tr>
 								<td><?=$account['account_code'].' - '.$account['account_name'];?></td>

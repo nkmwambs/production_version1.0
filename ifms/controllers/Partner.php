@@ -140,26 +140,10 @@ private function cash_journal_grid($period_time_stamp){
 				$cash_journal['month_utilized_expense_accounts'][$voucher['account_number']] = [
 					'account_code' => $voucher['account_code'],
 					'account_name' => $voucher['account_name']
-				];
-
-				// if(isset($cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'])){
-				// 	$cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'] += $voucher['Cost'];
-				// }else{
-				// 	$cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'] = $voucher['Cost'];
-				// }
-				
+				];		
 
 			}
-			// elseif($voucher['account_group'] == 3){
-				
-			// 	if(isset($cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'])){
-			// 		$cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'] += $voucher['Cost'];
-			// 	}else{
-			// 		$cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'] = $voucher['Cost'];
-			// 	}
-				
-			// }
-
+			
 		}
 
 		foreach($vouchers as $voucher){

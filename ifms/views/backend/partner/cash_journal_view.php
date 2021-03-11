@@ -166,7 +166,7 @@
                         isset($voucher_record['spread']['2000']) || isset($voucher_record['spread']['2001'])
                     ) 
                         
-                        $pcr = array_sum($voucher_record['spread']);//$voucher_record['spread']['Petty Cash'];
+                        $pcr = isset($voucher_record['spread']) ? array_sum($voucher_record['spread']) : 0;//$voucher_record['spread']['Petty Cash'];
 						
                     if(
                         $voucher_record['voucher_type'] == 'PC' || 

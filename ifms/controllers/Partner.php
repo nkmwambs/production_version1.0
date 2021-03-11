@@ -57,11 +57,8 @@ class Partner extends CI_Controller
             redirect(base_url().'admin.php', 'refresh');
 		
 		
-		//$max_mfr_id = $this->db->select_max('balHdID')->get_where('opfundsbalheader',array('icpNo'=>$this->session->center_id))->row()->balHdID;
-		
 		$period_time_stamp = strtotime($this->finance_model->current_financial_month($this->session->center_id));
 
-		$page_data['month'] = $this->finance_model->current_financial_month($this->session->center_id);
 		$page_data['cash_journal'] = $this->cash_journal_grid($period_time_stamp);
 		$page_data['tym']  = strtotime($this->finance_model->current_financial_month($this->session->center_id));//strtotime('+1 month',strtotime($last_mfr->closureDate));		
         $page_data['month'] = date("Y-m-t",strtotime($this->finance_model->current_financial_month($this->session->center_id)));
@@ -97,13 +94,12 @@ private function cash_journal_grid($period_time_stamp){
 	$cash_journal['is_bank_reconciled'] = $is_bank_reconciled;
 	$cash_journal['is_proof_of_cash_correct'] = $is_proof_of_cash_correct;
 	$cash_journal['is_mfr_submitted'] = $is_mfr_submitted;
-
-
-	$cash_journal['month_utilized_income_accounts'] = [];
-	$cash_journal['month_utilized_expense_accounts'] = [];
 	
 
 	if(!empty($vouchers)){
+
+		$cash_journal['month_utilized_income_accounts'] = [];
+		$cash_journal['month_utilized_expense_accounts'] = [];
 
 		foreach($vouchers as $voucher){
 
@@ -135,7 +131,7 @@ private function cash_journal_grid($period_time_stamp){
 				if(isset($cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['income'])){
 					$cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['income'] += $voucher['Cost'];
 				}else{
-					$cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['income'] = 0;
+					$cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['income'] = $voucher['Cost'];
 				}
 				
 				
@@ -146,22 +142,23 @@ private function cash_journal_grid($period_time_stamp){
 					'account_name' => $voucher['account_name']
 				];
 
-				if(isset($cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'])){
-					$cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'] += $voucher['Cost'];
-				}else{
-					$cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'] = $voucher['Cost'];
-				}
+				// if(isset($cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'])){
+				// 	$cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'] += $voucher['Cost'];
+				// }else{
+				// 	$cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'] = $voucher['Cost'];
+				// }
 				
 
-			}elseif($voucher['account_group'] == 3){
-				
-				if(isset($cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'])){
-					$cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'] += $voucher['Cost'];
-				}else{
-					$cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'] = $voucher['Cost'];
-				}
-				
 			}
+			// elseif($voucher['account_group'] == 3){
+				
+			// 	if(isset($cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'])){
+			// 		$cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'] += $voucher['Cost'];
+			// 	}else{
+			// 		$cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'] = $voucher['Cost'];
+			// 	}
+				
+			// }
 
 		}
 

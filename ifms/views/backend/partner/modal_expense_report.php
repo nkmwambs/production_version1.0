@@ -29,10 +29,10 @@
 								<?php
 									$rev = $this->finance_model->get_income_account_with_expenses($this->session->center_id,$param2);
 									
-									foreach($rev as $row):
+									foreach($rev as $account_number => $row):
 									
 								?>
-									<option value="<?=$row->account_number;?>"><?=$row->account_code;?> - <?=$row->account_name;?></option>
+									<option value="<?=$account_number;?>"><?=$row['account_code'];?> - <?=$row['account_name'];?></option>
 								<?php
 								
 									endforeach;

@@ -140,26 +140,10 @@ private function cash_journal_grid($period_time_stamp){
 				$cash_journal['month_utilized_expense_accounts'][$voucher['account_number']] = [
 					'account_code' => $voucher['account_code'],
 					'account_name' => $voucher['account_name']
-				];
-
-				// if(isset($cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'])){
-				// 	$cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'] += $voucher['Cost'];
-				// }else{
-				// 	$cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'] = $voucher['Cost'];
-				// }
-				
+				];		
 
 			}
-			// elseif($voucher['account_group'] == 3){
-				
-			// 	if(isset($cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'])){
-			// 		$cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'] += $voucher['Cost'];
-			// 	}else{
-			// 		$cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['expense'] = $voucher['Cost'];
-			// 	}
-				
-			// }
-
+			
 		}
 
 		foreach($vouchers as $voucher){
@@ -810,7 +794,9 @@ function load_expense_data($param1="",$param2="",$param3=""){
 	$page_data['center_id'] =  $param1;
 	$page_data['AccNo'] =  $param2;
 	$page_data['month'] =  $param3;
+
 	$acc = $this->db->get_where('accounts',array("AccNo"=>$param2))->row();
+
 	$page_data['acc'] = $acc;
 	$page_data['expense_account'] = $this->finance_model->expense_accounts($acc->accID);
 	$page_data['expense_report_grid']= $this->expense_report_grid($param1,$param3,$param2);
@@ -834,11 +820,13 @@ function expense_report_grid($fcp_number,$period_end_date,$income_account_number
 	$vouchers = $this->finance_model->list_to_date_vouchers_for_fcp($fcp_number,$period_start_date,$period_end_date,$condition);
 		
 	foreach($vouchers as $voucher){
-			
+		
+		// Computes expense of the month
 		if($voucher['voucher_date'] == $period_end_date){
 			$expense_report['month_expenses'][$voucher['account_number']] = $voucher['Cost'];
 		}
 
+		// Compute expense to date in the FY
 		if(isset($expense_report['expense_to_date'][$voucher['account_number']])){
 			$expense_report['expense_to_date'][$voucher['account_number']] += $voucher['Cost'];
 		}else{

@@ -2718,7 +2718,8 @@ class Finance_model extends CI_Model {
 		$list_to_date_vouchers_for_fcp = [];
 
 		$this->db->select(array("LAST_DAY(voucher_header.TDate) as voucher_date",
-		'accounts.AccNo as account_number','accounts.AccText as account_code'));
+		'accounts.AccNo as account_number','accounts.AccText as account_code',
+		'AccGrp as account_group','accID as account_id','parentAccID as parent_account_id'));
 		$this->db->select_sum('Cost');
 		$this->db->where(array('voucher_header.TDate>='=>$start_period_date,'voucher_header.TDate<='=>$end_period_date));
 		$this->db->where(array('voucher_header.icpNo'=>$fcp_id));
@@ -2737,6 +2738,97 @@ class Finance_model extends CI_Model {
 		}
 
 		return $list_to_date_vouchers_for_fcp;
+	}
+
+	function list_to_date_vouchers_for_fund_balance($fcp_id,$start_period_date,$end_period_date,$additional_condition_array = []){
+
+		$list_to_date_vouchers_for_fcp = [];
+		$join_query = "SELECT accID as join_account_id, AccNo as join_account_number, AccText as join_account_code, AccName as join_account_name FROM accounts WHERE AccGrp = 1";
+
+		$this->db->select(array("LAST_DAY(voucher_header.TDate) as voucher_date",
+		'accounts.AccNo as account_number','accounts.AccText as account_code','AccName as account_name',
+		'AccGrp as account_group','accID as account_id','parentAccID as parent_account_id',
+		'join_account_number','join_account_code','join_account_name'));
+
+		$this->db->select_sum('Cost');
+		$this->db->where(array('voucher_header.TDate>='=>$start_period_date,'voucher_header.TDate<='=>$end_period_date));
+		$this->db->where(array('voucher_header.icpNo'=>$fcp_id));
+
+		if(!empty($additional_condition_array)){
+			$this->db->where($additional_condition_array);
+		}
+
+		$this->db->join('voucher_header','voucher_header.hID=voucher_body.hID');
+		$this->db->join('accounts','accounts.AccNo=voucher_body.AccNo');
+		$this->db->join('('.$join_query.') as join_accounts','join_accounts.join_account_id=accounts.parentAccID','LEFT',NULL);
+		$this->db->group_by(array("LAST_DAY(voucher_header.TDate)",'voucher_body.AccNo'));
+		$vouchers_obj = $this->db->get('voucher_body');
+
+		if($vouchers_obj->num_rows() > 0){
+			$list_to_date_vouchers_for_fcp = $vouchers_obj->result_array();
+		}
+
+		return $list_to_date_vouchers_for_fcp;
+	}
+
+	function previous_month_closing_fund_balance($fcp_id,$month){
+
+		$month = date('Y-m-t',strtotime('last day of previous month',strtotime($month)));
+
+		$this->db->join("opfundsbalheader","opfundsbalheader.balHdID=opfundsbal.balHdID");
+		$this->db->join("accounts","accounts.AccNo=opfundsbal.funds");
+		$this->db->select(array("accID as account_id","AccNo as account_number",
+		'AccText as account_code','AccName as account_name',"amount"));
+		$this->db->where(array("icpNo"=>$fcp_id,"closureDate"=>$month));
+		$revenue_balance_obj = $this->db->get("opfundsbal");
+
+		$revenue_balance = [];
+
+		if($revenue_balance_obj->num_rows() > 0){
+			$revenue_balance = $revenue_balance_obj->result_array();
+		}
+
+		return $revenue_balance;
+	}
+
+	function fund_balance_report_grid($fcp_id,$start_period_date,$end_period_date){
+		$vouchers = $this->list_to_date_vouchers_for_fund_balance($fcp_id,$start_period_date,$end_period_date);
+		$month_closing_fund_balance = $this->previous_month_closing_fund_balance($fcp_id,$end_period_date);
+
+		$fund_balance_report = [];
+
+		foreach($month_closing_fund_balance as $opening_balance){
+			$fund_balance_report[$opening_balance['account_number']]['opening_balance'] = $opening_balance['amount'];
+			$fund_balance_report[$opening_balance['account_number']]['income_account'] = ['account_code' => $opening_balance['account_code'],'account_name'=>$opening_balance['account_name'],'account_number'=>$opening_balance['account_number']];
+		}
+
+		foreach($vouchers as $voucher){
+
+			if(!isset($fund_balance_report[$voucher['join_account_number']]['income_account']) && $voucher['join_account_number'] != ''){
+				$fund_balance_report[$voucher['join_account_number']]['income_account'] = ['account_code' => $voucher['join_account_code'],'account_name'=>$voucher['join_account_name'],'account_number'=>$voucher['join_account_number']];
+			}elseif($voucher['account_group'] == 1){
+				$fund_balance_report[$voucher['account_number']]['income_account'] = ['account_code' => $voucher['account_code'],'account_name'=>$voucher['account_name'],'account_number'=>$voucher['account_number']];
+			}
+
+			if($voucher['account_group'] == 0){
+				if(isset($fund_balance_report[$voucher['join_account_number']]['expense'])){
+					$fund_balance_report[$voucher['join_account_number']]['expense'] += $voucher['Cost'];
+				}else{
+					$fund_balance_report[$voucher['join_account_number']]['expense'] = $voucher['Cost']; 
+				}
+			}elseif($voucher['account_group'] == 1){
+				if(isset($fund_balance_report[$voucher['account_number']]['income'])){
+					$fund_balance_report[$voucher['account_number']]['income'] += $voucher['Cost']; 
+				}else{
+					$fund_balance_report[$voucher['account_number']]['income']  = $voucher['Cost']; 
+				}
+			}
+
+		}
+
+		$fund_balance_report['utilized_income_accounts'] = array_column($fund_balance_report,'income_account');
+
+		return $fund_balance_report;
 	}
 
 	function approved_fcp_year_budget_to_date($fy,$fcp_number,$income_account_id){
@@ -2843,7 +2935,7 @@ class Finance_model extends CI_Model {
 			$month_range = order_of_months_in_fy();//[7,8,9,10,11,12,1,2,3,4,5,6];
 
 			$cnt = 1;
-			
+
 			foreach($month_range as $month){
 
 				$sum_array[$month] = array_sum(array_column($sum_spread,'month_'.$cnt.'_amount'));

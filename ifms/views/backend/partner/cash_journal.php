@@ -1,14 +1,4 @@
 <?php
-//$fcp_id = 'KE463';
-// $start_period_date = '2017-07-01';
-//$end_period_date = '2018-05-31';
-// $condition = array('parentAccID'=>1);
-// print_r($this->finance_model->list_to_date_vouchers_for_fcp($fcp_id,$start_period_date,$end_period_date,$condition));
-
-//$income_account_id = 1;
-//$fy = 18;
-
-//print_r($this->finance_model->budget_spread_grid($fy,$fcp_id,$income_account_id));
 
 extract($cash_journal);
 

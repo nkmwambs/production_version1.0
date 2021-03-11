@@ -1,7 +1,7 @@
 <?php
 $end_period_date = $param2;
 $fcp_id = $this->session->center_id;
-$start_period_date = fy_start_date($end_period_date,$fcp_id);
+$start_period_date = date('Y-m-01',strtotime($end_period_date));
 
 $fund_balance_report_grid = $this->finance_model->fund_balance_report_grid($fcp_id,$start_period_date,$end_period_date);
 

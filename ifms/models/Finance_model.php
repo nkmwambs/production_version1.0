@@ -2893,7 +2893,7 @@ class Finance_model extends CI_Model {
 			foreach($expense_sum_spread as $expense_account_number => $sum_spread){
 				$sum_array = [];
 
-				$month_range = [7,8,9,10,11,12,1,2,3,4,5,6];
+				$month_range = order_of_months_in_fy();//[7,8,9,10,11,12,1,2,3,4,5,6];
 
 				$cnt = 1;
 				foreach($month_range as $month){

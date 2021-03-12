@@ -2804,6 +2804,7 @@ class Finance_model extends CI_Model {
 
 		foreach($vouchers as $voucher){
 
+			// Creating an income account elements in the array
 			if(!isset($fund_balance_report[$voucher['join_account_number']]['income_account']) && $voucher['join_account_number'] != ''){
 				$fund_balance_report[$voucher['join_account_number']]['income_account'] = ['account_code' => $voucher['join_account_code'],'account_name'=>$voucher['join_account_name'],'account_number'=>$voucher['join_account_number']];
 			}elseif($voucher['account_group'] == 1){

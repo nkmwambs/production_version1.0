@@ -106,7 +106,7 @@
                 <td><?php echo $voucher_record['payee'];?></td>
 
                 <td>																				
-				    <div id="" class="btn btn-green popover-primary popup-ajax" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="<?=get_phrase('click_on_the_button_to_view_a_voucher');?>" data-original-title="<?=get_phrase('tooltip');?>" >
+				    <div class="btn btn-green popover-primary popup-ajax" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="<?=get_phrase('click_on_the_button_to_view_a_voucher');?>" data-original-title="<?=get_phrase('tooltip');?>" >
 						<input type="checkbox" class="chk_voucher" name="voucher_<?=$voucher_record['voucher_number']?>" value="<?=$voucher_record['voucher_number']?>" id="<?=$voucher_record['voucher_number']?>"/>
 							<a href="#" onclick="showAjaxModal('<?php echo base_url();?>ifms.php/modal/popup/modal_view_voucher/<?php echo $voucher_id;?>');">
 								<?php echo $voucher_record['voucher_number'];?>
@@ -194,5 +194,5 @@
                 endforeach;
             }
         ?>
-    </<tbody>>
+    </tbody>
 </table>

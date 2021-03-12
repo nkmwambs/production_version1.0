@@ -62,7 +62,7 @@
                     <h4 class="modal-title"><?php echo $system_name;?></h4>
                 </div>
                 
-                <div class="modal-body" id="pop_modal_body" style="">
+                <div class="modal-body" id="pop_modal_body">
                 
                     
                     

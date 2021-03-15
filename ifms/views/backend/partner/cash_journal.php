@@ -1,5 +1,10 @@
 <?php
 
+//insert_planheader_id_to_variance_explanation();
+// $month = '2018-05-31';
+// $center_id = 'KE463';
+// print_r($this->finance_model->budget_spread_grid(get_fy($month),$center_id,1,$month));
+
 extract($cash_journal);
 
 $rec_chk = "Ok";

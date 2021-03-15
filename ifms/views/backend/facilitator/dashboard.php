@@ -26,18 +26,24 @@
 								<table class="table table-striped datatable">
 									<thead>
 										<tr>
-											<th><?= get_phrase('fcp_number'); ?></th>
+											<th rowspan="2"><?= get_phrase('fcp_number'); ?></th>
+											<th colspan="3"><?=get_phrase('financial_report_checks');?></th>
+											<th rowspan="2"><?= get_phrase('report_validation'); ?></th>
+											<th colspan="6"><?=get_phrase('Budget_checks');?></th>
+											<th rowspan="2"><?= get_phrase('action'); ?></th>
+										</tr>
+										<tr>
+								
 											<th><?= get_phrase('mfr_submitted'); ?></th>
 											<th><?= get_phrase('mfr_submitted_date'); ?></th>
 											<th><?= get_phrase('total_fund_balance'); ?></th>
-											<th><?= get_phrase('report_validated'); ?></th>
+
 											<th><?= get_phrase('new'); ?></th>
 											<th><?= get_phrase('submitted'); ?></th>
 											<th><?= get_phrase('declined'); ?></th>
 											<th><?= get_phrase('reinstated'); ?></th>
 											<th><?= get_phrase('allow_edit'); ?></th>
 											<th><?= get_phrase('unapproved_budget'); ?></th>
-											<th><?= get_phrase('action'); ?></th>
 										</tr>
 									</thead>
 									<tbody>

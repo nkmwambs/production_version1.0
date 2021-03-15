@@ -1,5 +1,40 @@
 <?php
 
+
+if(!function_exists('insert_planheader_id_to_variance_explanation')){
+    function insert_planheader_id_to_variance_explanation(){
+
+        $CI =& get_instance();
+
+        $fys = [
+            16 => ['2015-07-01','2016-06-30'],
+            17 => ['2016-07-01','2017-06-30'],
+            18 => ['2017-07-01','2018-06-30'],
+            19 => ['2018-07-01','2019-06-30'],
+            20 => ['2019-07-01','2020-06-30'],
+            21 => ['2020-07-01','2021-06-30'],
+        ];
+
+        $CI->db->select(array('icpNo'));
+        $projectsdetails = $CI->db->get('projectsdetails')->result_array();
+
+        //$cnt = 0;
+        foreach($projectsdetails as $fcp){
+            
+            //if($cnt == 5) break;
+
+            foreach($fys as $fy => $dates){
+                $sql = "UPDATE varjustify SET planHeaderID = (SELECT planHeaderID FROM planheader WHERE icpNo = '".$fcp['icpNo']."' AND fy = $fy)  WHERE varjustify.icpNo = '".$fcp['icpNo']."' AND varjustify.reportMonth >= '".$dates[0]."' AND varjustify.reportMonth <= '".$dates[1]."'";
+                
+                $CI->db->query($sql);
+            }
+            
+            //$cnt++;
+        }
+        
+    }
+}
+
 if(!function_exists('attachment_insert_array')){
 
     function attachment_insert_array($projectsdetails,$bank_statements,$claiming_fcp_projectsdetails,$document_types = ['bank_statements','dct_documents','medical']){

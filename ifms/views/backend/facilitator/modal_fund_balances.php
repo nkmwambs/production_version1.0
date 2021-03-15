@@ -1,6 +1,14 @@
 <?php
-//echo $param2;
-?>
+$end_period_date = $param2;
+$fcp_id = $param3;
+$start_period_date = date('Y-m-01',strtotime($end_period_date));
+
+$fund_balance_report_grid = $this->finance_model->fund_balance_report_grid($fcp_id,$start_period_date,$end_period_date);
+
+//print_r($fund_balance_report_grid);
+
+?>	
+
 <div class="row">
 	<div class="col-sm-12">
 			<div class="panel panel-primary" data-collapsed="0">
@@ -12,70 +20,69 @@
             </div>
 			<div class="panel-body"  style="max-width:50; overflow: auto;">	
 			<div class="row">
-					<div class="col-sm-12">
+					<div class="col-sm-6">
 						<a href="#" class="fa fa-print" onclick="PrintElem('#tbl_fund_balance');"><?=get_phrase('print');?></a>
 					</div>
+					
 				</div>
 	
-			<table class="table table-bordered" id="tbl_fund_balance">
-						<thead>
-							<tr>
-								<th colspan="5">
-									<?php echo get_phrase('fund_balance_report_for_the_month_ending')." ".date('t-m-Y',strtotime($param2));?> 
-								</th>
-							</tr>
-							<tr>
-								<th><?php echo get_phrase('fund');?></th>
-								<th><?php echo get_phrase('beginning_balance');?></th>
-								<th><?php echo get_phrase('month_income');?></th>
-								<th><?php echo get_phrase('month_expenses');?></th>
-								<th><?php echo get_phrase('ending_balance');?></th>
-							</tr>
-						</thead>
-						<tbody>
-								<?php
-									$rec_accs = $this->db->get_where('accounts',array("AccGrp"=>"1"))->result_object();
-									
-									foreach($rec_accs as $row):
-									if(
-										$this->finance_model->months_opening_fund_balances($param3,$row->AccNo,$param2)<>0
-										||
-										$this->finance_model->months_closing_fund_balance_per_revenue_vote($param3,$row->AccNo,$param2)<>0
-										||
-										$this->finance_model->months_incomes_per_revenue_vote($param3,$row->AccNo,$param2)<>0
-										||
-										$this->finance_model->months_expenses_per_revenue_vote($param3,$row->accID,$param2)<>0
-									){
-								?>
-								<tr>
-									<td><?=$row->AccText;?> - <?=$row->AccName;?></td>
-									<td style="text-align: right;"><?=number_format($this->finance_model->months_opening_fund_balances($param3,$row->AccNo,$param2),2);?></td>
-									<td style="text-align: right;"><?=number_format($this->finance_model->months_incomes_per_revenue_vote($param3,$row->AccNo,$param2),2);?></td>
-									<td style="text-align: right;"><?=number_format($this->finance_model->months_expenses_per_revenue_vote($param3,$row->accID,$param2),2);?></td>
-									<td style="text-align: right;"><?=number_format($this->finance_model->months_closing_fund_balance_per_revenue_vote($param3,$row->AccNo,$param2),2);?></td>
-								</tr>
-										
-								<?php
-									}
-								endforeach;
-								
-								?>
-						</tbody>
-						<tfoot>
-							<tr>
-								<td><?=get_phrase('total');?></td>
-								<td style="text-align: right;"><?=number_format($this->finance_model->total_months_opening_revenues($param3,$param2),2);?></td>
-								<td style="text-align: right;"><?=number_format($this->finance_model->total_months_incomes($param3,$param2),2);?></td>
-								<td style="text-align: right;"><?=number_format($this->finance_model->total_months_expenses($param3,$param2),2);?></td>
-								<td style="text-align: right;"><?=number_format($this->finance_model->total_months_closing_balance($param3,$param2),2);?></td>
-							</tr>
-						</tfoot>
-			</table>
-		</div>
-		<div class="panel-footer">
-		
+				<div id="tbl_fund_balance">
+				<table class="table table-striped">
+					<thead>
+						<tr>
+							<th colspan="5">Fund Balance Report for the Month Ending <?=$end_period_date;?></th>
+						</tr>
+						<tr>
+							<th style="font-weight:bold;"><?=get_phrase('account');?></th>
+							<th style="text-align: right;font-weight:bold;"><?=get_phrase('opening_balance');?></th>
+							<th style="text-align: right;font-weight:bold;"><?=get_phrase('month_income');?></th>
+							<th style="text-align: right;font-weight:bold;"><?=get_phrase('month_expense');?></th>
+							<th style="text-align: right;font-weight:bold;"><?=get_phrase('ending_balance');?></th>
+						</tr>
+					</thead>
+					<tbody>
+						<?php 
+							foreach($fund_balance_report_grid['utilized_income_accounts'] as $account){
+								$opening_balance = isset($fund_balance_report_grid[$account['account_number']]['opening_balance']) ? $fund_balance_report_grid[$account['account_number']]['opening_balance'] : 0;
+								$month_income = isset($fund_balance_report_grid[$account['account_number']]['income']) ? $fund_balance_report_grid[$account['account_number']]['income'] : 0;
+								$month_expense = isset($fund_balance_report_grid[$account['account_number']]['expense']) ? $fund_balance_report_grid[$account['account_number']]['expense'] : 0;
+								$end_balance = $opening_balance + $month_income - $month_expense;
 
-		</div>
+								//if($opening_balance && $month_income == 0 && $month_expense == 0) continue;
+						?>
+							<tr>
+								<td><?=$account['account_code'].' - '.$account['account_name'];?></td>
+								<td style="text-align: right;"><?=number_format($opening_balance,2);?></td>
+								<td style="text-align: right;"><?=number_format($month_income,2);?></td>
+								<td style="text-align: right;"><?=number_format($month_expense,2);?></td>
+								<td style="text-align: right;"><?=number_format($end_balance,2);?></td>
+							</tr>
+						<?php 
+														
+							}
+						?>
+					</tbody>
+					<tfoot>
+							<?php 
+								$total_opening_balance = array_sum(array_column($fund_balance_report_grid,'opening_balance'));
+								$total_month_income = array_sum(array_column($fund_balance_report_grid,'income'));
+								$total_month_expense = array_sum(array_column($fund_balance_report_grid,'expense'));
+								$total_ending_balance = $total_opening_balance + $total_month_income - $total_month_expense;
+							?>
+							<tr>
+								<td style="font-weight:bold;"><?=get_phrase('total');?></td>
+								<td style="text-align: right;font-weight:bold;"><?=number_format($total_opening_balance,2);?></td>
+								<td style="text-align: right;font-weight:bold;"><?=number_format($total_month_income,2);?></td>
+								<td style="text-align: right;font-weight:bold;"><?=number_format($total_month_expense,2);?></td>
+								<td style="text-align: right;font-weight:bold;"><?=number_format($total_ending_balance,2);?></td>
+							</tr>
+					</tfoot>
+				</table>
+		
+				</div>
+			
+			</div>
+		
 	</div>
 </div>		
 

@@ -2838,7 +2838,7 @@ class Finance_model extends CI_Model {
 		$this->db->select(array('month_1_amount','month_2_amount','month_3_amount','month_4_amount'));
 		$this->db->select(array('month_5_amount','month_6_amount','month_7_amount','month_8_amount'));
 		$this->db->select(array('month_9_amount','month_10_amount','month_11_amount','month_12_amount'));
-		$this->db->where(array('fy'=>$fy,'icpNo'=>$fcp_number,'parentAccID'=>$income_account_id,'approved'=>2));
+		$this->db->where(array('fy'=>$fy,'planheader.icpNo'=>$fcp_number,'parentAccID'=>$income_account_id,'approved'=>2));
 		$this->db->join('planheader','planheader.planHeaderID=plansschedule.planHeaderID');
 		$this->db->join('accounts','accounts.AccNo=plansschedule.AccNo');
 		$budget_items_obj = $this->db->get('plansschedule');
@@ -2850,6 +2850,22 @@ class Finance_model extends CI_Model {
 		}
 
 		return $budget_items;
+	}
+
+	function get_variance_comments_for_the_year($reporting_month,$fcp_number){
+
+		$this->db->select(array('AccNo as account_number','Details as variance_comment'));
+		$this->db->where(array('icpNo'=>$fcp_number,'reportMonth'=>$reporting_month));
+		$varjustify_obj = $this->db->get('varjustify');
+
+		$varjustify = [];
+
+		if($varjustify_obj->num_rows() > 0){
+			$varjustify = $varjustify_obj->result_array();
+		}
+
+		return $varjustify;
+
 	}
 
 	function fcp_year_budget_to_date_for_all_income_accounts($fy,$fcp_number){
@@ -2915,16 +2931,29 @@ class Finance_model extends CI_Model {
 		return $sum_budget_spread;
 	}
 
+	private function variance_comments_with_account_number_keys($fcp_number,$month){
+		$variance_comments = $this->get_variance_comments_for_the_year(date('Y-m-t',strtotime($month)),$fcp_number);
+
+		$variance_account_number_array = array_column($variance_comments,'account_number');
+		$variance_account_comment_array = array_column($variance_comments,'variance_comment');
+
+		$variance_comment_array = array_combine($variance_account_number_array,$variance_account_comment_array);
+
+		return $variance_comment_array;
+	}
+
 	function budget_spread_grid($fy,$fcp_number,$income_account_id,$month = ''){
 
 		$month_number = $month != '' ? date('n',strtotime($month)) : 0;
 
 		$budget_spread = [];
 		$budget_spread_grid = $this->approved_fcp_year_budget_to_date($fy,$fcp_number,$income_account_id);
+		$variance_comment_array = $this->variance_comments_with_account_number_keys($fcp_number,$month);
 
 		foreach($budget_spread_grid as $spread){
 			$account_number = array_shift($spread);
 			$budget_spread[$account_number][] = $spread; 
+			//$budget_spread[$account_number]['comments'] = $variance_comment_array[$account_number];
 		}
 
 		$sum_budget_spread = [];
@@ -2933,7 +2962,7 @@ class Finance_model extends CI_Model {
 
 			$sum_array = [];
  
-			$month_range = order_of_months_in_fy();//[7,8,9,10,11,12,1,2,3,4,5,6];
+			$month_range = order_of_months_in_fy();
 
 			$cnt = 1;
 
@@ -2949,6 +2978,8 @@ class Finance_model extends CI_Model {
 			$sum_budget_spread[$account_number] = $sum_array;
 			$sum_budget_spread[$account_number]['total_cost'] = array_sum($sum_array);
 		}
+
+		$sum_budget_spread['comments'] = $variance_comment_array;
 
 		return $sum_budget_spread;
 	}

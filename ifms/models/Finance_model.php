@@ -2985,5 +2985,45 @@ class Finance_model extends CI_Model {
 	}
 
 
+	function cluster_financial_report_data($month,$cluster_name){
+
+		$this->db->select(array('projectsdetails.icpNo as fcp_number','submitted as is_mfr_submitted',
+		'totalBal as total_fund_balance','mfr_submitted_date','allowEdit as is_not_mfr_validated'));
+		$this->db->where(array('closureDate'=>$month,'clusterName'=>$cluster_name));
+		$this->db->join('projectsdetails','projectsdetails.icpNo=opfundsbalheader.icpNo','RIGHT');
+		$this->db->join('clusters','clusters.clusters_id=projectsdetails.cluster_id');
+		$opfundsbalheader_obj = $this->db->get('opfundsbalheader');
+
+		$opfundsbalheader = [];
+
+		if($opfundsbalheader_obj->num_rows() > 0){
+			$opfundsbalheader = $opfundsbalheader_obj->result_array();
+		}
+
+		return $opfundsbalheader;//array_column($opfundsbalheader,'fcp_number');
+	}
+
+	function cluster_unapproved_budget_items($cluster_name, $month)
+	{
+
+		$fy = get_fy($month);
+
+		$this->db->select(array('planheader.icpNo as fcp_number','approved as status_code'));
+		$this->db->select_sum('totalCost');
+		$this->db->group_by(array('planheader.icpNo','approved'));
+		$this->db->where(array('clusterName'=>$cluster_name,'fy' => $fy, 'AccNo<>' => 0));
+		$this->db->join('planheader','planheader.planHeaderID=plansschedule.planHeaderID');
+		$this->db->join('projectsdetails','projectsdetails.icpNo=planheader.icpNo');
+		$this->db->join('clusters','clusters.clusters_id=projectsdetails.cluster_id');
+		$plansschedule_obj = $this->db->get('plansschedule');
+
+		$plansschedules = [];
+
+		if($plansschedule_obj->num_rows() > 0){
+			$plansschedules = $plansschedule_obj->result_array();
+		}
+
+		return $plansschedules;
+	}
 	
 }

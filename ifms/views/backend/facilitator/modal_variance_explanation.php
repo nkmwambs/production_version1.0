@@ -1,182 +1,84 @@
-<?php
-
-$rev_acc = $this->finance_model->budgeted_revenue_accounts();
-
-//echo $this->finance_model->months_budget_variance_percent_per_expense_account($param3,get_fy($param2,$param3),1,$param2);
-
-//echo $this->finance_model->months_budget_variance_per_expense_account($param3,get_fy($param2,$param3),1,$param2);
-?>
-
-
-	<div class="form-group">
-		<label class="col-sm-4 control-label">Select Revenue Account</label>
-		<div class="col-sm-5">
-			<select id="accounts" class="form-control">
-				<option><?php echo get_phrase('select');?></option>
-				
-				<?php foreach($rev_acc as $acc):?>
-					<option value="<?=$acc->AccNo;?>"><?php echo $acc->AccName." (".$acc->AccText.")";?></option>
-				<?php endforeach;?>
-			</select>
-		</div>
-		<div class="col-sm-3"><button id="account_btn" class="btn btn-primary btn-icon"><i class="entypo-search"></i>Search</button></div>
-	</div>
-
-<?php
-if($param3>0){
-	
-	$account_name = $this->db->get_where('accounts',array('AccNo'=>$param3))->row()->AccName;
-	
-	$accNo = $this->db->get_where('accounts',array('AccNo'=>$param3))->row()->AccText;
-	
-	$parentAccID = $this->db->get_where('accounts',array('AccNo'=>$param3))->row()->accID;
-	
-	$exp = $this->db->get_where('accounts',array('parentAccID'=>$parentAccID))->result_object();
-	
-	//echo $param3;
-
-?>
-
 <div class="row">
 	<div class="col-sm-12">
-	
-			<div class="panel panel-primary" data-collapsed="0">
+		<div class="panel panel-primary" data-collapsed="0">
         	<div class="panel-heading">
             	<div class="panel-title" >
-            		<i class="entypo-plus-circled"></i>
-					<?php echo get_phrase('variance_explanation').' - '.$account_name;?>
+            		<i class="fa fa-vcard"></i>
+					<?php echo get_phrase('budget_variance_explanation');?>
             	</div>
             </div>
 			<div class="panel-body"  style="max-width:50; overflow: auto;">	
 			
+						
 			<div class="row">
 					<div class="col-sm-12">
-						<a href="#" class="fa fa-print" onclick="PrintElem('#varTable');"><?=get_phrase('print');?></a>
+						<a href="#" class="fa fa-print" onclick="PrintElem('#frm_expenses');"><?=get_phrase('print');?></a>
 					</div>
-				</div>		
-				
-		<?php echo form_open(base_url() . 'ifms.php/partner/variance_explanation/' , array('id'=>'frm_variance','class' => 'form-horizontal'));?>			
-				<table class="table table-hover" id="varTable">
-							<thead>
-								<tr>
-									<td><?php echo get_phrase('account');?></td>
-									<td><?php echo get_phrase('variance');?></td>
-									<td><?php echo get_phrase('%_variance');?></td>
-									<td><?php echo get_phrase('explanation');?></td>
-								</tr>
-							</thead>
-							<tbody>
-								<?php 
-									$counter = 0;
-									
-									foreach($exp as $row):
-									
-									$per_var = $this->finance_model->months_budget_variance_percent_per_expense_account($param3,get_fy($param2,$param3),$row->AccNo,$param2);//$this->finance_model->percentage_budget_variance_per_account($param2,$row['AccNo']);
-									$var = $this->finance_model->months_budget_variance_per_expense_account($param3,get_fy($param2,$param3),$row->AccNo,$param2);//$this->finance_model->budget_variance_per_account($param2,$row['AccNo']);
-									
-									if(($per_var>10||$per_var<-10)&& $var !==0){
-								?>
-
-										<tr>
-											<td><?php echo $row->AccText." - ".$row->AccName;?></td>
-											<input type="hidden" value="<?php echo $param3;?>" name="rec[<?= $counter?>][icpNo]"/>
-											<input type="hidden" value="<?php echo $row->AccNo;?>" name="rec[<?= $counter?>][AccNo]"/>
-											<input type="hidden" value="<?php echo $param2;?>" name="rec[<?= $counter?>][reportMonth]"/>
-											<td><?php echo number_format($var,2);?></td>
-											<td><?php echo number_format($per_var,2)."%";?></td>
-											<td>
-												<div class="form-group">
-													<?php
-														$var_statement = "";//$this->db->get_where('varjustify',array('icpNo'=>$this->session->icp_no,'reportMonth'=>$param2,'AccNo'=>$row['AccNo']))->row()->Details;
-														
-														if($this->db->get_where('varjustify',array('icpNo'=>$param3,'reportMonth'=>$param2,'AccNo'=>$row->AccNo))->num_rows()>0){
-															$var_statement = $this->db->get_where('varjustify',array('icpNo'=>$param3,'reportMonth'=>$param2,'AccNo'=>$row->AccNo))->row()->Details;
-														}
-														
-													?>
-													<textarea class="form-control" rows="5" id="" name="rec[<?= $counter?>][Details]"  data-validate="required" data-message-required="<?php echo get_phrase('value_required');?>"><?=$var_statement;?></textarea>
-												</div>
-											</td>
-										</tr>
-									
-								<?php 
-									}else{
-										
-								?>
-									<tr>
-										<td><?php echo $row->AccText." - ".$row->AccName;?></td>
-										<td><?php echo number_format($var,2);?></td>
-										<td><?php echo number_format($per_var,2)."%";?></td>
-										
-										<td><div class="well well-primary">Variance is within the acceptable limit</div></td>
-										
-									</tr>
+			</div>	
+			<div id="frm_expenses">		
+				<?php echo form_open('', array('id'=>'frm_expense_accounts','class' => 'form-horizontal'));?>
+			
+					<div class="form-group">
+						<label class="control-label col-sm-4"><?=get_phrase('revenue');?></label>
+						<div class="col-sm-8">
+							<select class="form-control" id="revenue_id" name="revenue_id">
+								<option><?=get_phrase('select');?></option>
 								<?php
-											
-								} 
-									$counter++;
+									$rev = $this->finance_model->get_income_account_with_expenses($param3,$param2);
+									
+									foreach($rev as $account_number => $row):
+									
+								?>
+									<option value="<?=$account_number;?>"><?=$row['account_code'];?> - <?=$row['account_name'];?></option>
+								<?php
+								
 									endforeach;
 								?>
-							</tbody>
-						</table>
-					</form>										
+							</select>		
+						</div>				
+					</div>	
+					
+			</form>
+				
+			
+			<div class="row">
+				<div class="col-sm-12" id="expense_data">
+					
+				</div>
+			</div>	
 			
 			</div>
 			
-			<div class="panel panel-footer">
-			<button class="btn btn-primary btn-icon" id="save"><i class="fa fa-save"></i>Save</button>
+			</div>
 		</div>
 	</div>
-			
-	</div>
-	
 </div>
 
-<?php
-}
-?>
 
 <script>
-	$(document).ready(function(){
-		
-		$('#save').click(function(){
-			var postData = $('#frm_variance').serializeArray();
-		    var formURL = $('#frm_variance').attr("action");
-		    $.ajaxSetup({ cache: false });
-		    $.ajax(
-		    {
-		        url : formURL,
-		        type: "POST",
-		        data : postData,
-		        success:function(data, textStatus, jqXHR) 
-		        {
-					
-		            //alert(data);
-		            
-		            $('#modal_ajax').modal('toggle');
-		            
-		        },
-		        error: function(jqXHR, textStatus, errorThrown) 
-		        {
-		            //if fails
-		            alert(textStatus+' - '+errorThrown);     
-		            
-		        }
-		    });
-		    //e.preventDefault(); //STOP default action
-		    //e.unbind(); //unbind. to stop multiple form submit.
-		    
-		   
-		});
+$(document).ready(function(){
+	$('.expense_report').css('display','none');
+});	
+
+$('#revenue_id').change(function(ev){
+
+	var rpt_id = $('#revenue_id').val();
 	
-		$('#account_btn').click(function(){
-			var rev_id = $('#accounts').val();
-			showAjaxModal('<?php echo base_url();?>ifms.php/modal/popup/modal_variance_explanation/<?php echo $param2;?>/'+rev_id)
-		});
-		
+	var url = '<?=base_url();?>ifms.php/partner/load_variance_explanation/<?=$param3;?>/'+rpt_id+'/<?=$param2?>';
+	
+	jQuery('#expense_data').html('<div style="text-align:center;margin-top:200px;"><img src="<?php echo base_url();?>uploads/preloader.gif" /></div>');
+	
+	$.ajax({
+		url:url,
+		success:function(response){
+			$('#expense_data').html(response);
+		}
 	});
 	
-	    function PrintElem(elem)
+	ev.preventDefault();
+});
+
+	   function PrintElem(elem)
     {
         $(elem).printThis({ 
 		    debug: false,              
@@ -190,5 +92,5 @@ if($param3>0){
 		    header: null,             
 		    formValues: true          
 		});
-    }	
-</script>
+    }
+</script>	

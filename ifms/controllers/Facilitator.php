@@ -305,8 +305,11 @@ public function validate_mfr(){
 		$new_status_code = true;
 	}
 	
-	$cond = $this->db->where(array('icpNo'=>$post['fcp'],'closureDate'=>$post['month']));
+	$this->db->where(array('icpNo'=>$post['fcp'],'closureDate'=>$post['month']));
 	$this->db->update("opfundsbalheader",$data);
+
+	// Register dashboard change after a run
+	$this->finance_model->register_dashboard_change($post['fcp'],strtotime($post['month']));
 
 	echo $new_status_code;
 	

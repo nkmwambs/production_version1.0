@@ -60,12 +60,44 @@ class Facilitator extends CI_Controller
 				$page_data['tym']  = strtotime($sign.$param2.' months',$param1);	
 		}
 		
+		$cluster_name = $this->session->cluster;
+
+		$page_data['dashboard_parameters'] = $this->dashboard_grid(date('Y-m-t',$page_data['tym']),$cluster_name);
+		$page_data['cluster_fcps'] = $this->cluster_fcps();
+		$page_data['dashboard_budget'] = $this->cluster_unapproved_budget_items($cluster_name, date('Y-m-t',$page_data['tym']));
+
         $page_data['page_name']  = 'dashboard';
         $page_data['page_title'] = get_phrase('finance_dashboard');
         $this->load->view('backend/index', $page_data);
     }
-	
-	
+
+	function dashboard_grid($month,$cluster_name){
+		
+		$cluster_financial_report_data =  $this->finance_model->cluster_financial_report_data($month,$cluster_name);
+		//$cluster_unapproved_budget_items = $this->cluster_unapproved_budget_items($cluster_name, $month);
+
+		$financial_report = [];
+
+		foreach($cluster_financial_report_data as $month_report){
+			$fcp_number = array_shift($month_report);
+			$financial_report[$fcp_number] = $month_report;
+		}
+		
+		return $financial_report;
+	}	
+
+	function cluster_unapproved_budget_items($cluster_name, $month){
+		$budget_items = $this->finance_model->cluster_unapproved_budget_items($cluster_name, $month);
+
+		$items = [];
+
+		foreach($budget_items as $budget_item){
+			$fcp_number = array_shift($budget_item);
+			$items[$fcp_number][$budget_item['status_code']] = $budget_item['totalCost'];
+		}
+
+		return $items;
+	}
 	
 	function cash_journal($param1 = '', $param2 = '', $param3 = ''){
 		 if ($this->session->userdata('admin_login') != 1)
@@ -258,28 +290,26 @@ private function remove_fund_balance_records_if_month_has_no_voucher($fcp_number
 	}
 }
 
-public function validate_mfr($project,$tym,$code){
-	if ($this->session->userdata('admin_login') != 1)
-            redirect(base_url().'admin.php', 'refresh');
+public function validate_mfr(){
+	$post = $this->input->post();
 	
-	$msg = get_phrase("report_validated");
+	//extract($post);
 	
 	$data['allowEdit'] = "1";	
 	$data['mfr_validation_date'] = '0000-00-00';
-	$msg = get_phrase("report_unvalidated");
+	$new_status_code  = false;
 				 	
-	if($code==="1"){
+	if(!$post['validated']){
 		$data['allowEdit'] = "0";
 		$data['mfr_validation_date'] = date('Y-m-d h:i:s');
-		$msg = get_phrase("report_validated");
+		$new_status_code = true;
 	}
 	
-	$cond = $this->db->where(array('icpNo'=>$project,'closureDate'=>$tym));
+	$cond = $this->db->where(array('icpNo'=>$post['fcp'],'closureDate'=>$post['month']));
 	$this->db->update("opfundsbalheader",$data);
+
+	echo $new_status_code;
 	
-	$this->session->set_flashdata('flash_message',$msg);
-	
-	redirect(base_url().'ifms.php/facilitator/dashboard/'.strtotime($tym),'refresh');	
 }
 
 function decline_mfr($month="",$project=""){

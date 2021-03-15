@@ -39,7 +39,7 @@
 							$disable = "disabled";
 						}
 					?>
-					<td><textarea <?=$disable;?> class='form-control' placeholder="Enter you explanation here"><?=isset($budget_spread_grid['comments'][$acc->AccNo]) ? $budget_spread_grid['comments'][$acc->AccNo] : '';?></textarea></td>
+					<td><textarea <?=$disable;?> data-account_number="<?=$acc->AccNo;?>" class='form-control variance_comment' placeholder="Enter you explanation here"><?=isset($budget_spread_grid['comments'][$acc->AccNo]) ? $budget_spread_grid['comments'][$acc->AccNo] : '';?></textarea></td>
 				</tr>
 			<?php endforeach; ?>
 		</tbody>
@@ -66,3 +66,19 @@
 			</tr>
 		</tfoot>
 	</table>
+
+	<script>
+		$(".variance_comment").on('change',function(){
+			//alert('Hello');
+			var url = "<?=base_url();?>ifms.php/partner/post_edit_variance_comment";
+			var month = '<?=$month;?>';
+			var account_number = $(this).data('account_number');
+			var comment = $(this).val();
+
+			var data = {'month':month,'account_number':account_number,'comment':comment};
+
+			$.post(url,data,function(response){
+				//alert(response);
+			});
+		})
+	</script>

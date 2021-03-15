@@ -1408,6 +1408,30 @@ function create_budget_item($project){
 
 	}
 
+	function post_edit_variance_comment(){
+		$post = $this->input->post();
+
+		$condition = array('icpNo'=>$this->session->center_id,'AccNo'=>$post['account_number'],
+		'reportMonth'=>$post['month']);
+
+		$this->db->where($condition);
+		$varjustify_obj = $this->db->get('varjustify');
+
+		if($varjustify_obj->num_rows() > 0){
+
+			$this->db->where($condition);
+			$this->db->update('varjustify',['Details'=>$post['comment']]);
+
+		}else{
+			$data = array('icpNo'=>$this->session->center_id,'AccNo'=>$post['account_number'],
+			'reportMonth'=>$post['month'],'Details'=>$post['comment']);
+
+			$this->db->insert('varjustify',$data);
+		}
+
+		//echo json_encode($post);
+	}	
+
 	// private function get_uploaded_bank_statement($reporting_month,$fcp_id = ''){
 
 	// 	$fcp_id = $fcp_id == ''?$this->session->center_id:$fcp_id;

@@ -3025,5 +3025,30 @@ class Finance_model extends CI_Model {
 
 		return $plansschedules;
 	}
+
+	function register_dashboard_change($fcp_id,$date){
+		$dashboard_run = $this->db->get_where('dashboard_run',array('month'=>date('Y-m-t',$date)));
+
+			$projectsdetails = $this->db->get_where('projectsdetails',
+			array('icpNo'=>$fcp_id));
+
+			if($dashboard_run->num_rows() > 0 && $projectsdetails->num_rows() > 0){
+
+				$dashboard_change = $this->db->get_where('dashboard_change',
+				array('projectsdetails_id'=>$projectsdetails->row()->ID,
+				'month'=>date('Y-m-t',$date),'status'=>1));
+				
+				if($dashboard_change->num_rows() == 0){
+					$dashboard_change_data['projectsdetails_id'] = $projectsdetails->row()->ID;
+				
+					$dashboard_change_data['change_date'] = date('Y-m-d H:i:s');
+					$dashboard_change_data['month'] = date('Y-m-t',$date);
+					$dashboard_change_data['status'] = 1;
+
+					$this->db->insert('dashboard_change',$dashboard_change_data);
+				}
+				
+			}
+	}
 	
 }

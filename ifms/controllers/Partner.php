@@ -567,6 +567,19 @@ function scroll_budget_summary($fy){
 		$this->load->view('backend/index', $page_data);	 	
 }
 
+function load_variance_explanation($center_id,$income_account_number,$month){
+
+	$acc = $this->db->get_where('accounts',array("AccNo"=>$income_account_number))->row();
+
+	$page_data['acc'] = $acc;
+	$page_data['month'] = $month;
+	$page_data['expense_account'] = $this->finance_model->expense_accounts($acc->accID);
+	$page_data['expense_report_grid']= $this->expense_report_grid($center_id,$month,$income_account_number);
+	$page_data['budget_spread_grid'] = $this->finance_model->budget_spread_grid(get_fy($month),$center_id,$acc->accID,$month);
+	
+	echo $this->load->view('backend/partner/variance_explanation_data', $page_data,TRUE);	
+}
+
 function budget_schedules(){
 		 if ($this->session->userdata('admin_login') != 1)
             redirect(base_url(), 'refresh');
@@ -1394,6 +1407,30 @@ function create_budget_item($project){
 		}
 
 	}
+
+	function post_edit_variance_comment(){
+		$post = $this->input->post();
+
+		$condition = array('icpNo'=>$this->session->center_id,'AccNo'=>$post['account_number'],
+		'reportMonth'=>$post['month']);
+
+		$this->db->where($condition);
+		$varjustify_obj = $this->db->get('varjustify');
+
+		if($varjustify_obj->num_rows() > 0){
+
+			$this->db->where($condition);
+			$this->db->update('varjustify',['Details'=>$post['comment']]);
+
+		}else{
+			$data = array('icpNo'=>$this->session->center_id,'AccNo'=>$post['account_number'],
+			'reportMonth'=>$post['month'],'Details'=>$post['comment']);
+
+			$this->db->insert('varjustify',$data);
+		}
+
+		//echo json_encode($post);
+	}	
 
 	// private function get_uploaded_bank_statement($reporting_month,$fcp_id = ''){
 

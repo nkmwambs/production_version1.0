@@ -62,20 +62,19 @@ class Facilitator extends CI_Controller
 		
 		$cluster_name = $this->session->cluster;
 
-		$page_data['dashboard_parameters'] = $this->dashboard_grid(date('Y-m-t',$page_data['tym']),$cluster_name);
+		$page_data['dashboard_financial_report'] = $this->dashboard_financial_report_check_grid(date('Y-m-t',$page_data['tym']),$cluster_name);
 		$page_data['cluster_fcps'] = $this->cluster_fcps();
-		$page_data['dashboard_budget'] = $this->cluster_unapproved_budget_items($cluster_name, date('Y-m-t',$page_data['tym']));
+		$page_data['dashboard_budget'] = $this->dashboard_budget_check_grid($cluster_name, date('Y-m-t',$page_data['tym']));
 
         $page_data['page_name']  = 'dashboard';
         $page_data['page_title'] = get_phrase('finance_dashboard');
         $this->load->view('backend/index', $page_data);
     }
 
-	function dashboard_grid($month,$cluster_name){
+	function dashboard_financial_report_check_grid($month,$cluster_name){
 		
 		$cluster_financial_report_data =  $this->finance_model->cluster_financial_report_data($month,$cluster_name);
-		//$cluster_unapproved_budget_items = $this->cluster_unapproved_budget_items($cluster_name, $month);
-
+		
 		$financial_report = [];
 
 		foreach($cluster_financial_report_data as $month_report){
@@ -86,7 +85,7 @@ class Facilitator extends CI_Controller
 		return $financial_report;
 	}	
 
-	function cluster_unapproved_budget_items($cluster_name, $month){
+	function dashboard_budget_check_grid($cluster_name, $month){
 		$budget_items = $this->finance_model->cluster_unapproved_budget_items($cluster_name, $month);
 
 		$items = [];

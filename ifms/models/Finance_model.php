@@ -2984,6 +2984,14 @@ class Finance_model extends CI_Model {
 		return $sum_budget_spread;
 	}
 
+	function fcp_projectsdetails_available($fcp_number){
+
+		$this->db->where(array('icpNo'=>$fcp_number,'status'=>1));
+		$count_of_projectsdetails = $this->db->get('projectsdetails')->num_rows();
+
+		return $count_of_projectsdetails > 0 ? true : false;
+	}
+
 
 	function cluster_financial_report_data($month,$cluster_name){
 

@@ -48,18 +48,18 @@
 									<tbody>
 										<?php
 										foreach ($cluster_fcps as $fcp) {
-											$is_mfr_submitted = isset($dashboard_parameters[$fcp]['is_mfr_submitted']) && $dashboard_parameters[$fcp]['is_mfr_submitted'] == 1 ? true : false;
+											$is_mfr_submitted = isset($dashboard_financial_report[$fcp]['is_mfr_submitted']) && $dashboard_financial_report[$fcp]['is_mfr_submitted'] == 1 ? true : false;
 										?>
 											<tr>
 												<td><?= $fcp; ?></td>
-												<td><?= isset($dashboard_parameters[$fcp]['is_mfr_submitted']) && $dashboard_parameters[$fcp]['is_mfr_submitted'] == 1 ? get_phrase('yes') : get_phrase('no'); ?></td>
-												<td><?= isset($dashboard_parameters[$fcp]['mfr_submitted_date']) ? $dashboard_parameters[$fcp]['mfr_submitted_date']: ''; ?></td>
-												<td><?= number_format(isset($dashboard_parameters[$fcp]['total_fund_balance']) ? $dashboard_parameters[$fcp]['total_fund_balance']: 0,2); ?></td>
+												<td><?= $is_mfr_submitted ? get_phrase('yes') : get_phrase('no'); ?></td>
+												<td><?= isset($dashboard_financial_report[$fcp]['mfr_submitted_date']) ? $dashboard_financial_report[$fcp]['mfr_submitted_date']: ''; ?></td>
+												<td><?= number_format(isset($dashboard_financial_report[$fcp]['total_fund_balance']) ? $dashboard_financial_report[$fcp]['total_fund_balance']: 0,2); ?></td>
 												
 												<?php
 												$is_mfr_validated = true;
 
-												if ((isset($dashboard_parameters[$fcp]['is_not_mfr_validated']) && $dashboard_parameters[$fcp]['is_not_mfr_validated'] == 1) || !isset($dashboard_parameters[$fcp]['is_not_mfr_validated'])) {
+												if ((isset($dashboard_financial_report[$fcp]['is_not_mfr_validated']) && $dashboard_financial_report[$fcp]['is_not_mfr_validated'] == 1) || !isset($dashboard_financial_report[$fcp]['is_not_mfr_validated'])) {
 													$is_mfr_validated = false;
 												}
 

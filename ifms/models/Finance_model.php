@@ -486,7 +486,7 @@ class Finance_model extends CI_Model {
 		
 		$adj = $statement+($deposit_in_transit-$outstanding_cheques);
 		
-		return floor($adj);
+		return $adj;
 	}
 	//Perfect
 	public function months_bank_income($date,$project){

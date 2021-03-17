@@ -3,7 +3,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/dropzone.css">
 
 <?php
-   // $uploaded_files = $this->dct_model->uploaded_dct_documents();
+// $uploaded_files = $this->dct_model->uploaded_dct_documents();
 ?>
 
 <div class='row'>
@@ -18,11 +18,17 @@
 
             <div class="panel-body" style="max-width:50;  overflow: auto;">
 
-            <div class="row">
-                    <div class="col-xs-12">
-                        <?php echo form_open("", array('id' => 'frm_dct_documents', 'class' => 'form-vertical form-groups-bordered validate', 'enctype' => 'multipart/form-data')); ?>
+                <?php if (!$this->finance_model->fcp_projectsdetails_available($this->session->center_id)) { ?>
 
-                        <!-- <div class='form-group'>
+                    <div class="well">Your FCP set up is incomplete. Please contact the Admninistrator</div>
+
+                <?php } else { ?>
+
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <?php echo form_open("", array('id' => 'frm_dct_documents', 'class' => 'form-vertical form-groups-bordered validate', 'enctype' => 'multipart/form-data')); ?>
+
+                            <!-- <div class='form-group'>
                                 <label class='control-label col-xs-12'><?= get_phrase('reference_number'); ?></label>
                                 <div class='col-xs-12'>
                                     <input type='text' id='modal_dct_reference' class='form-control' value = '<?= $param5; ?>' name = '' />
@@ -31,42 +37,49 @@
 
                             <hr style='margin:25px 0px 25px 0px'/> -->
 
-                        <div class='form-group'>
-                            <label class='control-label col-xs-12'><?= get_phrase('reference_documents'); ?></label>
-                            <div class='col-xs-12'>
-                                <div id="myDropzone" class="dropzone">
-                                    <div class="dropzone-previews"></div>
-                                    <div class="fallback">
-                                        <!-- this is the fallback if JS isn't working -->
-                                        <input name="fileToUpload" type="file" multiple />
+                            <div class='form-group'>
+                                <label class='control-label col-xs-12'><?= get_phrase('reference_documents'); ?></label>
+                                <div class='col-xs-12'>
+                                    <div id="myDropzone" class="dropzone">
+                                        <div class="dropzone-previews"></div>
+                                        <div class="fallback">
+                                            <!-- this is the fallback if JS isn't working -->
+                                            <input name="fileToUpload" type="file" multiple />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <hr style='margin:25px 0px 25px 0px' />
+                            <hr style='margin:25px 0px 25px 0px' />
 
-                        <div class='form-group'>
-                            <label class='control-label col-xs-12'></label>
-                            <div class='col-xs-12'>
-                                <div data-dismiss='modal' id='btn_save_uploads' data-row_id="<?= $param3; ?>" class='btn btn-default'><?= get_phrase('save'); ?></div>
+                            <div class='form-group'>
+                                <label class='control-label col-xs-12'></label>
+                                <div class='col-xs-12'>
+                                    <div data-dismiss='modal' id='btn_save_uploads' data-row_id="<?= $param3; ?>" class='btn btn-default'><?= get_phrase('save'); ?></div>
+                                </div>
                             </div>
+
+                            </form>
+
                         </div>
-
-                        </form>
-
                     </div>
-                </div>    
 
-                <div class="row">
-                    <div class="col-xs-12">
-                        <?php 
-                            echo list_s3_uploaded_documents($this->dct_model->uploaded_dct_documents($param2,$param5,$param4,$param3));
-                        ?>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <?php
+                            echo list_s3_uploaded_documents($this->dct_model->uploaded_dct_documents($param2, $param5, $param4, $param3));
+                            ?>
+                        </div>
                     </div>
-                </div>
+
+             <?php
+                }
+
+            ?>
 
             </div>
+
+       
         </div>
     </div>
 </div>
@@ -80,12 +93,12 @@
 
     // });
 
-    var max_voucher_upload_files_size = "<?=$this->config->item('max_voucher_upload_files_size');?>";
+    var max_voucher_upload_files_size = "<?= $this->config->item('max_voucher_upload_files_size'); ?>";
     var compute_upload_size = parseInt($("#compute_upload_size").val());
     var total_upload_count = 0;
-    var max_size_limit = '<?=$this->config->item('max_voucher_row_uploaded_files_size');?>';
-    var max_upload_file_count_limit = '<?=$this->config->item('max_voucher_row_upload_file_count');?>';
-    
+    var max_size_limit = '<?= $this->config->item('max_voucher_row_uploaded_files_size'); ?>';
+    var max_upload_file_count_limit = '<?= $this->config->item('max_voucher_row_upload_file_count'); ?>';
+
     var myDropzone = new Dropzone("#myDropzone", {
         url: "<?= base_url() ?>ifms.php?/dct/create_uploads_temp",
         paramName: "file", // The name that will be used to transfer the file
@@ -107,14 +120,14 @@
                 done();
             }
 
-            this.on('completemultiple',function(){
+            this.on('completemultiple', function() {
                 $("#btn_save_uploads").removeClass('disabled');
             });
 
             this.on("uploadprogress", function(file, progress, bytesSent) {
                 $("#btn_save_uploads").addClass('disabled');
-                
-                
+
+
                 // var alreadyUploadedTotalSize = getTotalPreviousUploadedFilesSize();   
                 // var row_total_size = alreadyUploadedTotalSize + bytesSent;
                 // compute_upload_size += parseInt(row_total_size);   
@@ -164,13 +177,13 @@
 
             //[increase the totalsize by adding each file uploaded]
             this.on("addedfile", function(file) {
-                total_upload_count ++;//= parseFloat((file.size / (1024 * 1024)).toFixed(2));
+                total_upload_count++; //= parseFloat((file.size / (1024 * 1024)).toFixed(2));
 
                 //$('#check_upload_size').val(totalsize);
 
             });
 
-            
+
 
             //[increase the totalsize by adding each file uploaded]
 
@@ -183,7 +196,7 @@
             // });
             //[On error reduce totalsize]
             this.on("error", function(file) {
-                total_upload_count --;//= parseFloat((file.size / (1024 * 1024)).toFixed(2));
+                total_upload_count--; //= parseFloat((file.size / (1024 * 1024)).toFixed(2));
             });
 
             // /**End of Onduso addition 7/8/2020 **/
@@ -220,7 +233,7 @@
     myDropzone.on('removedfile', function(file) {
 
         /* here do AJAX call to the server ... */
-        var url = "<?= base_url() ?>ifms.php/dct/remove_dct_files_in_temp/<?= $param2; ?>/<?= $param3; ?>/<?= $param4;?>/<?= $param5;?>";
+        var url = "<?= base_url() ?>ifms.php/dct/remove_dct_files_in_temp/<?= $param2; ?>/<?= $param3; ?>/<?= $param4; ?>/<?= $param5; ?>";
         var file_name = file.name;
         $.ajax({
             //async: false,
@@ -239,7 +252,7 @@
 
                 //Added by Onduso 7/8/2020
                 //var dct_file_size = $("#bodyTable tr").eq('<?= $param3; ?>').find('td.td_support_mode').find('input.dct_file_size');
-                total_upload_count --;//= parseFloat((file.size / (1024 * 1024)).toFixed(2));
+                total_upload_count--; //= parseFloat((file.size / (1024 * 1024)).toFixed(2));
                 //$('#check_upload_size').val(totalsize)
                 //End of Onduso addition
             },
@@ -260,7 +273,7 @@
 
     //Hide close button
 
-    $(document).ready(function(){
+    $(document).ready(function() {
         $(".modal-footer").hide();
         $('.modal-header button').hide();
     });

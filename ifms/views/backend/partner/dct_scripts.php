@@ -557,20 +557,21 @@
 
 		//alert(support_mode_id);
 
-		//alert(dct_uploads_count_label.hasClass('badge'));
+		if(support_mode_id > 0){
+			
+			var url = "<?= base_url(); ?>ifms.php?/dct/count_files_in_temp_dir_for_ajax_use/" + voucher_detail_row_index + "/" + voucher_number + "/" + support_mode_id + '/' + reporting_month;
 
-		var url = "<?= base_url(); ?>ifms.php?/dct/count_files_in_temp_dir_for_ajax_use/" + voucher_detail_row_index + "/" + voucher_number + "/" + support_mode_id + '/' + reporting_month;
+			$.get(url, function(response) {
+				dct_uploads_count_label.html(response + " files [Click here to Update]");
 
-		$.get(url, function(response) {
-			//alert(response);
-			dct_uploads_count_label.html(response + " files [Click here to Update]");
+				dct_uploads_count_label.siblings('input.check_upload_count').val(response);
 
-			dct_uploads_count_label.siblings('input.check_upload_count').val(response);
-			//var file_size=10;
-			//retrieve_size_of_uploaded_files(file_size,voucher_detail_row_index);
+			});
+		}else{
+			dct_uploads_count_label.html("0 files [Click here to Update]");
 
-		});
-
+			dct_uploads_count_label.siblings('input.check_upload_count').val(0);
+		}
 
 	});
 

@@ -446,21 +446,27 @@ class Dct extends CI_Controller
 
 	function count_files_in_temp_dir_for_ajax_use($voucher_detail_row_index,$voucher_number, $support_mode_id,$reporting_month){
 
-		// $count_of_files=$this->count_files_in_temp_dir($voucher_detail_row_index,$voucher_number, $support_mode_id);
+		$count_of_attachments = 0;
 
-		// echo $count_of_files;
 		$this->db->where(array('icpNo'=>$this->session->center_id));
-		$projectsdetails_id = $this->db->get('projectsdetails')->row()->ID;
+			$projectsdetails_obj = $this->db->get('projectsdetails');
 
-		$vnum_row_mode = $voucher_number.'_'.$voucher_detail_row_index.'_'.$support_mode_id;
-		//$attachment_url = 'uploads/dct_documents/'+$voucher_number+'';
-		$attachment_url = 'uploads/dct_documents/'.$this->session->center_id.'/'.date('Y-m',strtotime($reporting_month)).'/'.$voucher_number.'/'.$vnum_row_mode;//.'/'.sha1($filename);
+		if($support_mode_id > 0 && $projectsdetails_obj->num_rows() > 0){
 
-		$this->db->where(array('fk_projectsdetails_id'=>$projectsdetails_id,
-		'attachment_primary_id'=>$voucher_number,'attachment_url'=>$attachment_url));
-		$attachment_obj = $this->db->get('attachment');
+			$projectsdetails_id = $projectsdetails_obj->row()->ID;
+			
+			$vnum_row_mode = $voucher_number.'_'.$voucher_detail_row_index.'_'.$support_mode_id;
+			$attachment_url = 'uploads/dct_documents/'.$this->session->center_id.'/'.date('Y-m',strtotime($reporting_month)).'/'.$voucher_number.'/'.$vnum_row_mode;//.'/'.sha1($filename);
 
-		echo $attachment_obj->num_rows();
+			$this->db->where(array('fk_projectsdetails_id'=>$projectsdetails_id,
+			'attachment_primary_id'=>$voucher_number,'attachment_url'=>$attachment_url));
+			$attachment_obj = $this->db->get('attachment');
+
+			$count_of_attachments = $attachment_obj->num_rows();
+
+		}
+
+		echo $count_of_attachments;
 		
 	}
 

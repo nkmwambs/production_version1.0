@@ -139,7 +139,7 @@ class Facilitator extends CI_Controller
 			$page_data['cash_journal'] = $this->finance_model->cash_journal_grid($tym, $project);
 		}
 
-		$page_data['project'] = $project;
+		$page_data['fcp_number'] = $project;
 		$page_data['page_name']  = 'cash_journal';
 		$page_data['page_title'] = get_phrase('cash_journal');
 		$this->load->view('backend/index', $page_data);

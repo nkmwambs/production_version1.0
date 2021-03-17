@@ -26,7 +26,7 @@ if ($is_mfr_submitted) {
 
 $tym = strtotime($period);
 
-if ($this->finance_model->check_opening_balances($project)) {
+if ($this->finance_model->check_opening_balances($fcp_number)) {
 
 ?>
 
@@ -224,7 +224,7 @@ if ($this->finance_model->check_opening_balances($project)) {
 
 			var flag = $(this).attr('id');
 
-			var url = '<?php echo base_url(); ?>ifms.php/facilitator/scroll_cash_journal/<?= $project; ?>/' + dt + '/' + cnt + '/' + flag;
+			var url = '<?php echo base_url(); ?>ifms.php/facilitator/scroll_cash_journal/<?= $fcp_number; ?>/' + dt + '/' + cnt + '/' + flag;
 
 			$(this).attr('href', url);
 		});

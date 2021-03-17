@@ -16,31 +16,31 @@ if(!function_exists('fcp_reports_dropdown')){
             ],
             'outstanding_cheques' => [
                 'href'=> "#",
-                'onclick' => "showAjaxModal('".base_url()."ifms.php/modal/popup/modal_outstanding_cheques/".date('Y-m-01',$month)."/".$fcp_id."')"
+                'onclick' => "showAjaxModal('".base_url()."ifms.php/modal/popup/modal_outstanding_cheques/".date('Y-m-t',$month)."/".$fcp_id."')"
             ],
             'deposits_in_transit' => [
                 'href'=> "#",
-                'onclick' => "showAjaxModal('".base_url()."ifms.php/modal/popup/modal_transit_deposits/".date('Y-m-01',$month)."/".$fcp_id."')"
+                'onclick' => "showAjaxModal('".base_url()."ifms.php/modal/popup/modal_transit_deposits/".date('Y-m-t',$month)."/".$fcp_id."')"
             ],
             'bank_reconciliation' => [
                 'href'=> "#",
-                'onclick' => "showAjaxModal('".base_url()."ifms.php/modal/popup/modal_bank_reconcile/".date('Y-m-01',$month)."/".$fcp_id."')"
+                'onclick' => "showAjaxModal('".base_url()."ifms.php/modal/popup/modal_bank_reconcile/".date('Y-m-t',$month)."/".$fcp_id."')"
             ],
             'variance_explanation' => [
                 'href'=> "#",
-                'onclick' => "showAjaxModal('".base_url()."ifms.php/modal/popup/modal_variance_explanation/".date('Y-m-01',$month)."/".$fcp_id."')"
+                'onclick' => "showAjaxModal('".base_url()."ifms.php/modal/popup/modal_variance_explanation/".date('Y-m-t',$month)."/".$fcp_id."')"
             ],
             'proof_of_cash' => [
                 'href'=> "#",
-                'onclick' => "showAjaxModal('".base_url()."ifms.php/modal/popup/modal_proof_of_cash/".date('Y-m-01',$month)."/".$fcp_id."')"
+                'onclick' => "showAjaxModal('".base_url()."ifms.php/modal/popup/modal_proof_of_cash/".date('Y-m-t',$month)."/".$fcp_id."')"
             ],
             'fund_balance_report' => [
                 'href'=> "#",
-                'onclick' => "showAjaxModal('".base_url()."ifms.php/modal/popup/modal_fund_balances/".date('Y-m-01',$month)."/".$fcp_id."')"
+                'onclick' => "showAjaxModal('".base_url()."ifms.php/modal/popup/modal_fund_balances/".date('Y-m-t',$month)."/".$fcp_id."')"
             ],
             'expense_report' => [
                 'href'=> "#",
-                'onclick' => "showAjaxModal('".base_url()."ifms.php/modal/popup/modal_expense_report/".date('Y-m-01',$month)."/".$fcp_id."')"
+                'onclick' => "showAjaxModal('".base_url()."ifms.php/modal/popup/modal_expense_report/".date('Y-m-t',$month)."/".$fcp_id."')"
             ],
             'cash_journal' => [
                 'href'=> base_url().'ifms.php/accountant/cash_journal/'.$month.'/'.$fcp_id,

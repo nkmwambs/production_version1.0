@@ -75,14 +75,14 @@ if(empty($none_requested_params) && empty($requested_params)){
 			<thead>
 				
 				<tr>
-					<th rowspan="2">FCP ID</th>
-					<th rowspan="2">Comment</th>
-					<th rowspan="2">Risk</th>
+					<th rowspan="2"><?=get_phrase('FCP_ID');?></th>
+					<th rowspan="2"><?=get_phrase('comment');?></th>
+					<th rowspan="2"><?=get_phrase('risk');?></th>
 					<?php if(!empty($none_requested_params)){?>
-					<th colspan="<?= count($none_requested_params); ?>">Non Requested Parameters</th>
+					<th colspan="<?= count($none_requested_params); ?>"><?=get_phrase('non_requested_parameters');?></th>
 					<?php } ?>
 					<?php if(!empty($requested_params)){?>
-					<th colspan="<?= count($requested_params); ?>">Requested Parameters</th>
+					<th colspan="<?= count($requested_params); ?>"><?=get_phrase('requested_parameters')?></th>
 					<?php } ?>
 				</tr>
 				<tr>

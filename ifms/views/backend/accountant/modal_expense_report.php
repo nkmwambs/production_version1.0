@@ -1,7 +1,8 @@
 <?php
-//echo get_fy($param2,$this->session->center_id);]
-//echo $param3;
+	$month = $param2;
+	$fcp_number = $param3;
 ?>
+
 <div class="row">
 	<div class="col-sm-12">
 		<div class="panel panel-primary" data-collapsed="0">
@@ -19,31 +20,30 @@
 						<a href="#" class="fa fa-print" onclick="PrintElem('#frm_expenses');"><?=get_phrase('print');?></a>
 					</div>
 			</div>	
-					
+			<div id="frm_expenses">		
 				<?php echo form_open('', array('id'=>'frm_expense_accounts','class' => 'form-horizontal'));?>
-			<div id="frm_expenses">
+			
 					<div class="form-group">
 						<label class="control-label col-sm-4"><?=get_phrase('revenue');?></label>
 						<div class="col-sm-8">
 							<select class="form-control" id="revenue_id" name="revenue_id">
 								<option><?=get_phrase('select');?></option>
 								<?php
-									$rev = $this->db->get_where('accounts',array("AccGrp"=>"1"))->result_object();
+									$rev = $this->finance_model->get_income_account_with_expenses($fcp_number,$month);
 									
-									foreach($rev as $row):
+									foreach($rev as $account_number => $row):
 									
-									if($this->finance_model->total_expense_to_date_per_revenue_vote($param3,$row->accID,$param2)>0){
 								?>
-									<option value="<?=$row->AccNo;?>"><?=$row->AccText;?> - <?=$row->AccName;?></option>
+									<option value="<?=$account_number;?>"><?=$row['account_code'];?> - <?=$row['account_name'];?></option>
 								<?php
-									}
+								
 									endforeach;
 								?>
 							</select>		
 						</div>				
 					</div>	
 					
-					</div>
+					
 					
 					<!--<div class="form-group">
 						<button id="btn_check" class="btn btn-primary btn-icon"><i class="fa fa-search-plus"></i><?=get_phrase('search');?></button>
@@ -57,7 +57,7 @@
 				</div>
 			</div>	
 			
-			
+			</div>
 			
 			</div>
 		</div>
@@ -73,18 +73,7 @@ $('#revenue_id').change(function(ev){
 
 	var rpt_id = $('#revenue_id').val();
 	
-	//alert(rpt_id);
-	
-	//$('.expense_report').each(function(i,e){
-
-		//if($(e).attr('id')===rpt_id){
-			//$(e).css('display','block');
-		//}else{
-			//$(e).css('display','none');
-		//}
-	//});
-	
-	var url = '<?=base_url();?>ifms.php/partner/load_expense_data/<?=$param3?>/'+rpt_id+'/<?=$param2?>';
+	var url = '<?=base_url();?>ifms.php/partner/load_expense_data/<?=$fcp_number?>/'+rpt_id+'/<?=$month?>';
 	
 	jQuery('#expense_data').html('<div style="text-align:center;margin-top:200px;"><img src="<?php echo base_url();?>uploads/preloader.gif" /></div>');
 	
@@ -106,7 +95,7 @@ $('#revenue_id').change(function(ev){
 		    importStyle: true,         
 		    printContainer: false,       
 		    loadCSS: "", 
-		    pageTitle: "<?php echo get_phrase('expense_report');?>",             
+		    pageTitle: "<?php echo get_phrase('payment_voucher');?>",             
 		    removeInline: false,        
 		    printDelay: 333,            
 		    header: null,             

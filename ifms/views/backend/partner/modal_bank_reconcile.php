@@ -64,7 +64,7 @@ $statement = $this->finance_model->statement_balance($this->session->center_id,$
 							<label class="control-label col-sm-4"><?php echo get_phrase('bank_reconciled');?></label>
 							<div class="col-sm-8">	
 								<?php
-									if(abs(floor($this->finance_model->bank_reconciled($this->session->center_id,date('Y-m-t',strtotime($param2)))))>0){
+									if(floor($this->finance_model->bank_reconciled($this->session->center_id,date('Y-m-t',strtotime($param2))))>0){
 								?>
 									<div class="label label-danger"><?=get_phrase('bank_reconciliation_failure');?></div>
 								<?php

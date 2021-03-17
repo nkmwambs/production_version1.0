@@ -1,9 +1,4 @@
 <?php
-//echo $bank_reconciled_amount;
-//insert_planheader_id_to_variance_explanation();
-// $month = '2018-05-31';
-// $center_id = 'KE463';
-// print_r($this->finance_model->budget_spread_grid(get_fy($month),$center_id,1,$month));
 
 extract($cash_journal);
 
@@ -30,8 +25,9 @@ if ($is_mfr_submitted) {
 }
 
 $tym = strtotime($period);
+$fcp_number = $this->session->center_id;
 
-if($this->finance_model->check_opening_balances($this->session->center_id)){ 
+if($this->finance_model->check_opening_balances($fcp_number)){ 
 
 ?>
 

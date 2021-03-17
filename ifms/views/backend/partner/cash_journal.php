@@ -1,5 +1,5 @@
 <?php
-
+//echo $bank_reconciled_amount;
 //insert_planheader_id_to_variance_explanation();
 // $month = '2018-05-31';
 // $center_id = 'KE463';

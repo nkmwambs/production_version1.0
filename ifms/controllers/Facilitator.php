@@ -98,15 +98,15 @@ class Facilitator extends CI_Controller
 		return $items;
 	}
 	
-	function cash_journal($param1 = '', $param2 = '', $param3 = ''){
+	function cash_journal($timestamp = '', $fcp_number = '', $param3 = ''){
 		 if ($this->session->userdata('admin_login') != 1)
             redirect(base_url().'admin.php', 'refresh');
 		
-		
-		$max_mfr_id = $this->db->select_max('balHdID')->get_where('opfundsbalheader',array('icpNo'=>$param2))->row()->balHdID;
-		 	
-		$page_data['tym']  = $param1;//strtotime($this->db->select_max('closureDate')->get_where('opfundsbalheader',array('icpNo'=>$param2))->row()->closureDate);//strtotime('+1 month',strtotime($last_mfr->closureDate));		
-        $page_data['project'] = $param2;
+
+		$page_data['project'] = $fcp_number;
+		$page_data['cash_journal'] = $this->finance_model->cash_journal_grid($timestamp,$fcp_number);
+		$page_data['tym']  = $timestamp;//strtotime($this->finance_model->current_financial_month($fcp_number));
+        $page_data['month'] = date("Y-m-t",strtotime($this->finance_model->current_financial_month($fcp_number)));
         $page_data['page_name']  = 'cash_journal';
         $page_data['page_title'] = get_phrase('cash_journal');
 		$this->load->view('backend/index', $page_data);
@@ -116,25 +116,29 @@ class Facilitator extends CI_Controller
 		 if ($this->session->userdata('admin_login') != 1)
             redirect(base_url().'admin.php', 'refresh');
 		
-		
-		$max_mfr_id = $this->db->select_max('balHdID')->get_where('opfundsbalheader',array('icpNo'=>$project))->row()->balHdID;
-		
-		if($flag!==""){
+
+		if($flag !== ""){
+ 		
 			$sign = '+';
-		
-			if($flag==='prev'){
-				$sign = '-';
-			}
 			
-			$page_data['tym']  = strtotime($sign.$cnt.' months',$date);	
-		}else{
-			$page_data['tym']  = $date;	
+			if($flag == 'prev'){
+				$sign = '-';
+		   }
+				 
+			$tym  = strtotime('first day of '.$sign.$cnt.'month',$date);
+
+			$page[$tym] = $tym;
+			$page_data['cash_journal'] = $this->finance_model->cash_journal_grid($tym,$project); 				
+	   }else{
+			$tym  = $date;
+			$page[$tym] = $tym;	
+			$page_data['cash_journal'] = $this->finance_model->cash_journal_grid($tym,$project); 
 		}
-		
-		$page_data['project'] = 	$project;
-        $page_data['page_name']  = 'cash_journal';
-        $page_data['page_title'] = get_phrase('cash_journal');
-		$this->load->view('backend/index', $page_data);
+	
+		$page_data['project'] = $project;   
+	   $page_data['page_name']  = 'cash_journal';
+	   $page_data['page_title'] = get_phrase('cash_journal');
+	   $this->load->view('backend/index', $page_data);
 
 }
 

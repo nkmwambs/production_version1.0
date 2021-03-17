@@ -3058,5 +3058,111 @@ class Finance_model extends CI_Model {
 				
 			}
 	}
+
+
+	public function cash_journal_grid($period_time_stamp,$fcp_number){
+
+		$cash_journal = [];
+	
+		$end_period_date = date("Y-m-t",$period_time_stamp);
+	
+		$is_bank_reconciled = floor($this->finance_model->bank_reconciled($fcp_number,$end_period_date)) > 0 ? false : true;
+		$is_proof_of_cash_correct = $this->finance_model->proof_of_cash($fcp_number,$end_period_date) <> 0 ? false : true;
+		$is_mfr_submitted = $this->finance_model->mfr_submitted($fcp_number,$end_period_date) == 1 ? true : false;
+	
+		$vouchers = $this->finance_model->list_month_vouchers_for_fcp($fcp_number,$period_time_stamp);
+	
+		$bank_balance_brought_forward = $this->finance_model->opening_bank_balance($end_period_date,$fcp_number);;
+		$bank_deposit = 0;
+		$bank_payment = 0;
+		$bank_closing_balance = $bank_balance_brought_forward;
+	
+		$cash_balance_brought_forward = $this->finance_model->opening_pc_balance($end_period_date,$fcp_number);;
+		$cash_deposit = 0;
+		$cash_payment = 0;
+		$cash_closing_balance = $cash_balance_brought_forward;
+	
+		$cash_journal['period'] = $end_period_date;
+		$cash_journal['is_bank_reconciled'] = $is_bank_reconciled;
+		$cash_journal['is_proof_of_cash_correct'] = $is_proof_of_cash_correct;
+		$cash_journal['is_mfr_submitted'] = $is_mfr_submitted;
+		
+	
+		if(!empty($vouchers)){
+	
+			$cash_journal['month_utilized_income_accounts'] = [];
+			$cash_journal['month_utilized_expense_accounts'] = [];
+	
+			foreach($vouchers as $voucher){
+	
+				$bank_deposit += $voucher['voucher_type'] == 'CR' || $voucher['voucher_type'] == 'PCR' ? $voucher['Cost'] : 0; 
+				$bank_payment += $voucher['voucher_type'] == 'CHQ' || $voucher['voucher_type'] == 'BCHG' || $voucher['voucher_type'] == 'UDCTB' ? $voucher['Cost'] : 0;
+				
+				$cash_deposit += $voucher['account_number'] == '2000' || $voucher['account_number'] == '2001' ? $voucher['Cost'] : 0; 
+				$cash_payment += $voucher['voucher_type'] == 'PC' || $voucher['voucher_type'] == 'PCR' || $voucher['voucher_type'] == 'UDCTC' ? $voucher['Cost'] : 0; 
+				
+				$cash_journal['voucher_records'][$voucher['voucher_id']] = [
+					'voucher_number' => $voucher['voucher_number'],
+					'voucher_date' => $voucher['voucher_date'],
+					'voucher_type' => $voucher['voucher_type'],
+					'payee' => $voucher['payee'],
+					'description' => $voucher['description'],
+					'cheque_number' => $voucher['cheque_number'],
+					'clear_state' => $voucher['clear_state'],
+					'clear_month' => $voucher['clear_month'],
+					'is_editable' => $voucher['is_editable']
+				];
+	
+				if($voucher['account_group'] == 1){
+					
+					$cash_journal['month_utilized_income_accounts'][$voucher['account_number']] = [
+						'account_code' => $voucher['account_code'],
+						'account_name' => $voucher['account_name']
+					];
+	
+					if(isset($cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['income'])){
+						$cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['income'] += $voucher['Cost'];
+					}else{
+						$cash_journal['voucher_records'][$voucher['voucher_id']]['running_balance']['income'] = $voucher['Cost'];
+					}
+					
+					
+				}elseif($voucher['account_group'] == 0){
+					
+					$cash_journal['month_utilized_expense_accounts'][$voucher['account_number']] = [
+						'account_code' => $voucher['account_code'],
+						'account_name' => $voucher['account_name']
+					];		
+	
+				}
+				
+			}
+	
+			foreach($vouchers as $voucher){
+				$cash_journal['voucher_records'][$voucher['voucher_id']]['spread'][$voucher['account_number']] = $voucher['Cost'];
+			}
+	
+			$bank_closing_balance = $bank_balance_brought_forward + $bank_deposit - $bank_payment;
+	
+			$cash_closing_balance = $cash_balance_brought_forward + $cash_deposit - $cash_payment;
+	
+		}
+	
+		$cash_journal['bank'] = [
+			'balance_bf' => $bank_balance_brought_forward,
+			'deposit' =>  $bank_deposit,
+			'payment' => $bank_payment,
+			'closing_balance' => $bank_closing_balance
+		];
+		
+		$cash_journal['cash'] = [
+			'balance_bf' =>  $cash_balance_brought_forward,
+			'deposit' => $cash_deposit,
+			'payment' => $cash_payment,
+			'closing_balance' => $cash_closing_balance
+		];
+	
+		return $cash_journal;
+	}
 	
 }

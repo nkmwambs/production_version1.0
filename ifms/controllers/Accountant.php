@@ -23,7 +23,7 @@ class Accountant extends CI_Controller
 		// $this->output->set_header('Pragma: no-cache');
         
         //if(count($this->uri->segment_array()) < 4){
-           $this->output->cache(120);
+           //$this->output->cache(120);
         //}		
 		
 

@@ -3,7 +3,7 @@
 	<table class="table table-bordered">
 		<thead>
 			<tr>
-    			<th colspan="6" style="text-align: center;font-weight: bold;"><?php echo $this->session->userdata('center_id');?><br/><?=get_phrase('cash_journal');?></th>
+    			<th colspan="6" style="text-align: center;font-weight: bold;"><?php echo $fcp_number;?><br/><?=get_phrase('cash_journal');?></th>
 			</tr>
 	
     	</thead>

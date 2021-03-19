@@ -59,6 +59,7 @@ class Partner extends CI_Controller
 		$period_time_stamp = strtotime($this->finance_model->current_financial_month($this->session->center_id));
 
 		//$page_data['bank_reconciled_amount'] = $this->finance_model->bank_reconciled($this->session->center_id,$this->finance_model->current_financial_month($this->session->center_id));
+		$page_data['fcp_number'] = $this->session->center_id;
 		$page_data['cash_journal'] = $this->finance_model->cash_journal_grid($period_time_stamp, $this->session->center_id);
 		$page_data['tym']  = strtotime($this->finance_model->current_financial_month($this->session->center_id)); //strtotime('+1 month',strtotime($last_mfr->closureDate));		
 		$page_data['month'] = date("Y-m-t", strtotime($this->finance_model->current_financial_month($this->session->center_id)));
@@ -198,7 +199,7 @@ class Partner extends CI_Controller
 			$page_data['cash_journal'] = $this->finance_model->cash_journal_grid($tym, $this->session->center_id);
 		}
 
-
+		$page_data['fcp_number'] = $this->session->center_id;
 		$page_data['page_name']  = 'cash_journal';
 		$page_data['page_title'] = get_phrase('cash_journal');
 		$this->load->view('backend/index', $page_data);

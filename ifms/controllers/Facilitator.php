@@ -106,7 +106,7 @@ class Facilitator extends CI_Controller
 			redirect(base_url() . 'admin.php', 'refresh');
 
 
-		$page_data['project'] = $fcp_number;
+		$page_data['fcp_number'] = $fcp_number;
 		$page_data['cash_journal'] = $this->finance_model->cash_journal_grid($timestamp, $fcp_number);
 		$page_data['tym']  = $timestamp; //strtotime($this->finance_model->current_financial_month($fcp_number));
 		$page_data['month'] = date("Y-m-t", strtotime($this->finance_model->current_financial_month($fcp_number)));

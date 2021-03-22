@@ -353,34 +353,34 @@ class Dct extends CI_Controller
 		// echo $cnt;
 		
 		
-		$count_deleted_files = 0;
+		// $count_deleted_files = 0;
 
-		$this->db->where(array('icpNo'=>$this->session->center_id));
-		$projectsdetails_id = $this->db->get('projectsdetails')->row()->ID;
+		// $this->db->where(array('icpNo'=>$this->session->center_id));
+		// $projectsdetails_id = $this->db->get('projectsdetails')->row()->ID;
 
-		$this->db->where(array('attachment_primary_id'=>$voucher_number,
-		'item_name'=>'dct_documents','fk_projectsdetails_id'=>$projectsdetails_id));
+		// $this->db->where(array('attachment_primary_id'=>$voucher_number,
+		// 'item_name'=>'dct_documents','fk_projectsdetails_id'=>$projectsdetails_id));
 
-		$attachment_obj = $this->db->get('attachment');
+		// $attachment_obj = $this->db->get('attachment');
 	
 
-		if($attachment_obj->num_rows() > 0){
-			$s3_path = '';
+		// if($attachment_obj->num_rows() > 0){
+		// 	$s3_path = '';
 
-			foreach($attachment_obj->result_array() as $attachment){
-				$s3_path = $attachment['attachment_url'];
+		// 	foreach($attachment_obj->result_array() as $attachment){
+		// 		$s3_path = $attachment['attachment_url'];
 
-				$this->aws_attachment_library->delete_s3_objects($s3_path);
+		// 		$this->aws_attachment_library->delete_s3_objects($s3_path);
 
-				$this->db->where(array('attachment_url'=>$s3_path,'is_upload_to_s3_completed'=>0));
-				$this->db->delete('attachment');
+		// 		$this->db->where(array('attachment_url'=>$s3_path,'is_upload_to_s3_completed'=>0));
+		// 		$this->db->delete('attachment');
 
-				$count_deleted_files++;
-			}
-		}
+		// 		$count_deleted_files++;
+		// 	}
+		// }
 
 
-		return $count_deleted_files;
+		// return $count_deleted_files;
 
 	}
 
@@ -390,7 +390,7 @@ class Dct extends CI_Controller
 		  foreach ($objects as $object) { 
 			if ($object != "." && $object != "..") { 
 			  if (is_dir($dir. DIRECTORY_SEPARATOR .$object) && !is_link($dir."/".$object))
-				rrmdir($dir. DIRECTORY_SEPARATOR .$object);
+				rmdir($dir. DIRECTORY_SEPARATOR .$object);
 			  else
 				unlink($dir. DIRECTORY_SEPARATOR .$object); 
 			} 

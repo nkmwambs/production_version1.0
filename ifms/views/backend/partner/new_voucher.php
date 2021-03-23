@@ -484,7 +484,7 @@ include "dct_scripts.php";
 								$('.unit').css("border", "1px solid red");
 
 								$('#error_msg').html('Quantity and Unit cost field can\'t be negative or zero value');
-								
+
 								return;
 							}
 							$('#error_msg').html('');

@@ -207,7 +207,7 @@
 					<div class="row">
 						<div class="col-sm-12">
 							<table id="bodyTable" class="table table-bordered">
-								
+
 								<thead>
 
 									<tr style="font-weight: bold;" id='th_detail_table'>
@@ -222,32 +222,32 @@
 									</tr>
 								</thead>
 								<tbody>
-								<tr>
-									<!-- Add row -->
-									<div id='addrow_div' class='hidden'>
-										<a id='addrow' class="btn btn-primary  hidden-print pull-left"><?php echo get_phrase('add_item_row'); ?></a>
-									</div>
-								</tr>
-								<hr>
+									<tr>
+										<!-- Add row -->
+										<div id='addrow_div' class='hidden'>
+											<a id='addrow' class="btn btn-primary  hidden-print pull-left"><?php echo get_phrase('add_item_row'); ?></a>
+										</div>
+									</tr>
+									<hr>
 								</tbody>
 							</table>
 
 							<div class="row">
 								<div class='col-xs-12'>
-								<div class="btn-group">
-									<!-- Post Voucher Btn -->
-									
+									<div class="btn-group">
+										<!-- Post Voucher Btn -->
+
 										<a style='margin-right:10px;' href="#" id="btnPostVch" class="btn btn-primary hidden-print"><?= get_phrase('post_voucher') ?></a>
-										
-									
-								<!-- </div>
+
+
+										<!-- </div>
 								<div class="col-xs-1"> -->
 
-									<a href='#'  id="resetBtn" class="btn btn-primary hidden-print">
-										<?php echo get_phrase('reset_voucher'); ?> </a>
-									<!-- <i class="entypo-plus-circled"></i> -->
+										<a href='#' id="resetBtn" class="btn btn-primary hidden-print">
+											<?php echo get_phrase('reset_voucher'); ?> </a>
+										<!-- <i class="entypo-plus-circled"></i> -->
+									</div>
 								</div>
-							</div>
 							</div>
 							<input type='hidden' name='' value="0" id='compute_upload_size'>
 						</div>
@@ -326,6 +326,34 @@ include "dct_scripts.php";
 		});
 
 	}
+
+	function disallow_negative_values() {
+
+		var negative_value = '';
+
+		var unit_cost = parseInt($('.unit').val());
+
+		var qty = parseInt($('.qty').val());
+
+		if ((qty < 0 || qty == 0) && (unit_cost < 0 || unit_cost == 0)) {
+			negative_value = 'both';
+
+		}
+		else if ((qty > 0 || qty != 0) && (unit_cost < 0 || unit_cost == 0)) {
+			negative_value = 'unit';
+
+		}
+		else if ((qty < 0 || qty == 0) && (unit_cost > 0 || unit_cost != 0)) {
+			negative_value = 'qty';
+
+		}
+		return negative_value;
+	}
+
+
+
+	//End of addition
+
 	$(document).ready(function() {
 
 		remove_all_temp_files();
@@ -347,9 +375,11 @@ include "dct_scripts.php";
 			$('#VType').removeClass('hidden');
 		});
 
+
+
 		$('#btnPostVch,#btnPostVch_footer').click(function(e) {
 			// added by onduso on 19/5/2020 start
-		
+
 			var reference_number = ($('#DCTReference') && $('#DCTReference').val() !== "") ? $('#DCTReference').val() : 0;
 			var voucher_number = $('#Generated_VNumber').val();
 			//alert(reference_number);
@@ -363,8 +393,8 @@ include "dct_scripts.php";
 				$('#error_msg').html('<?php echo get_phrase('error:missing_dct_uploads'); ?>');
 				e.preventDefault();
 
-			} else if ($("#bodyTable > tbody").children().length === 1)//one row means= add_row tr
-			 {
+			} else if ($("#bodyTable > tbody").children().length === 1) //one row means= add_row tr
+			{
 				//alert("Here 2");
 				$('#error_msg').html('<?php echo get_phrase('error:_voucher_missing_details'); ?>');
 				e.preventDefault();
@@ -430,6 +460,32 @@ include "dct_scripts.php";
 								});
 								return;
 
+							} else if (disallow_negative_values() == 'qty') {
+								$('.unit').css("border", "1px solid grey");
+
+								$('.qty').css("border", "1px solid red");
+
+								$('#error_msg').html('Quantity field can\'t be negative or zero value');
+
+								return;
+							} else if (disallow_negative_values() == 'unit') {
+
+								$('.qty').css("border", "1px solid grey");
+
+								$('.unit').css("border", "1px solid red");
+
+								$('#error_msg').html('Unit field can\'t be negative or zero value');
+
+								return;
+							} else if (disallow_negative_values() == 'both') {
+
+								$('.qty').css("border", "1px solid red");
+
+								$('.unit').css("border", "1px solid red");
+
+								$('#error_msg').html('Quantity and Unit cost field can\'t be negative or zero value');
+
+								return;
 							}
 							$('#error_msg').html('');
 
@@ -645,7 +701,7 @@ include "dct_scripts.php";
 
 
 		function add_detail_row(elem) {
-			
+
 			//Corrects the error of clicking the post before adding detail row when dct voucher type had bn selected
 			if ($('#error_msg').html() == 'Error: Voucher Missing Details') {
 
@@ -910,7 +966,7 @@ include "dct_scripts.php";
 						x.add(option1, x[0]);
 
 						for (i = 0; i < obj.length; i++) {
-							
+
 							var option = document.createElement("option");
 							if (obj[i].AccTextCIVA !== null && obj[i].open === "1") {
 								option.text = obj[i].AccTextCIVA;
@@ -938,7 +994,7 @@ include "dct_scripts.php";
 						element6.name = "civaCode[]";
 						element6.setAttribute('readonly', 'readonly');
 						element6.className = "civaCode form-control";
-						cell6.className='td_civacode';
+						cell6.className = 'td_civacode';
 						element6.id = "civaCode" + rowCount;
 						cell6.appendChild(element6);
 
@@ -950,47 +1006,49 @@ include "dct_scripts.php";
 
 
 	});
-
 </script>
 
 <style>
-#overlay{
-    position: fixed; /* Sit on top of the page content */
-    display: none; /* Hidden by default */
-    width: 100%; /* Full width (cover the whole page) */
-    height: 100%; /* Full height (cover the whole page) */
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0,0,0,0.5); /* Black background with opacity */
-    z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
-    cursor: pointer; /* Add a pointer on hover */
-}
+	#overlay {
+		position: fixed;
+		/* Sit on top of the page content */
+		display: none;
+		/* Hidden by default */
+		width: 100%;
+		/* Full width (cover the whole page) */
+		height: 100%;
+		/* Full height (cover the whole page) */
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-color: rgba(0, 0, 0, 0.5);
+		/* Black background with opacity */
+		z-index: 2;
+		/* Specify a stack order in case you're using a different order for other elements */
+		cursor: pointer;
+		/* Add a pointer on hover */
+	}
 
-#overlay img {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-}
+	#overlay img {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+	}
 </style>
 
-<div id="overlay"><img src='<?php echo base_url()."uploads/preloader4.gif";?>'/></div>
+<div id="overlay"><img src='<?php echo base_url() . "uploads/preloader4.gif"; ?>' /></div>
 
 <script>
-$( document ).ajaxSend(function() {
-  $("#overlay").css("display","block");
-});
+	$(document).ajaxSend(function() {
+		$("#overlay").css("display", "block");
+	});
 
-$(document).ajaxSuccess(function() {
-    $("#overlay").css("display","none");
-});
+	$(document).ajaxSuccess(function() {
+		$("#overlay").css("display", "none");
+	});
 
-$(document).ajaxError(function(xhr) {
-    alert('Error has occurred');
-});
-
+	$(document).ajaxError(function(xhr) {
+		alert('Error has occurred');
+	});
 </script>
-
-
-

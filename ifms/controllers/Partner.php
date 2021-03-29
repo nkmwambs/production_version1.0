@@ -257,9 +257,9 @@ class Partner extends CI_Controller
 		if ($this->session->userdata('admin_login') != 1)
 			redirect(base_url(), 'refresh');
 
-		if ($param1 == 'scroll') {
-			$page_data['cur_fy'] = $this->input->post('cur_fy');
-		}
+
+		$page_data['cur_fy'] = $this->input->post('cur_fy');
+
 
 		$page_data['page_name']  = 'new_budget_item';
 		$page_data['page_title'] = get_phrase('budget_item');
@@ -1368,7 +1368,7 @@ class Partner extends CI_Controller
 		if ($this->session->userdata('admin_login') != 1)
 			redirect(base_url(), 'refresh');
 
-		if (count($this->db->get_where('planheader', array('icpNo' => $project, 'fy' => $this->input->post('fy')))->row()) === 0) {
+		if ($this->db->get_where('planheader', array('icpNo' => $project, 'fy' => $this->input->post('fy')))->num_rows() === 0) {
 
 			$header['icpNo'] = 	$project;
 			$header['fy'] = $this->input->post('fy');
@@ -1380,7 +1380,7 @@ class Partner extends CI_Controller
 
 		$body['planHeaderID'] = $planHeaderID;
 		$body['AccNo'] = $this->input->post('AccNo');
-		$body['plan_item_tag_id'] = $this->input->post('plan_item_tag_id');
+		$body['plan_item_tag_id'] = 0;
 		$body['details'] = $this->input->post('details');
 		$body['qty'] = $this->input->post('qty');
 		$body['unitCost'] = $this->input->post('unitCost');
@@ -1407,11 +1407,13 @@ class Partner extends CI_Controller
 		//$this->session->set_flashdata('flash_message',get_phrase('limit_exceeded'));
 		//}else{
 		$this->db->insert('plansschedule', $body);
-		//$this->session->set_flashdata('flash_message',get_phrase('record_created'));
+
 		//}
 
-		$page_data['param2'] = $this->input->post('fy');
+		$page_data['cur_fy'] = $this->input->post('fy');
 		$page_data['msg'] = get_phrase('record_created');
+
+		//$this->session->set_flashdata('flash_message',get_phrase('record_created'));
 
 		echo $this->load->view('backend/partner/modal_new_budget_item', $page_data, TRUE);
 		//redirect(base_url().'ifms.php/partner/scroll_budget_schedules/'.$this->input->post('fy'),'refresh');

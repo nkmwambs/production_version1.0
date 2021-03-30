@@ -270,6 +270,12 @@ class Medical extends CI_Controller
 
 		$icp_id = $this->session->userdata('center_id');
 		
+		if(substr($icp_id,0,3)=='KE0'){
+
+			$icp_id='KE'.substr($icp_id,3);
+
+		}
+		
 		$cluster = $this->session->userdata('cluster');
 
 		$page_data['center'] = $icp_id;

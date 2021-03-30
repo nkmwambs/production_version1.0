@@ -374,6 +374,11 @@ class Partner extends CI_Controller
             redirect(base_url(), 'refresh');
 
 		$icp_id = $this->session->userdata('center_id');
+
+		if(substr($icp_id,0,3)=='KE0'){
+			$icp_id='KE'.substr($icp_id,3);
+
+		}
 		
 		$cluster = $this->session->userdata('cluster');
 

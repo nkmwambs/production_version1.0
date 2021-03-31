@@ -23,6 +23,7 @@ $record = $this->db->get_where('voucher_body',array("voucher_header.hID"=>$param
 $VNumber = $record[0]->voucher_number;
 $icpNo = $record[0]->fcp_id;
 
+//print_r($record);
 ?>
 
 <div class="row">
@@ -105,7 +106,7 @@ $icpNo = $record[0]->fcp_id;
 										<td colspan="2"><?php echo $row->detail_description;?></td>
 										<td><?php echo number_format($row->unit_cost,2);?></td>
 										<td><?php echo number_format($row->total_cost,2);?></td>
-										<td><?php $row->account_code;?></td>
+										<td><?=$row->account_code;?></td>
 									</tr>
 								<?php
 									$sum_cost +=$row->total_cost;

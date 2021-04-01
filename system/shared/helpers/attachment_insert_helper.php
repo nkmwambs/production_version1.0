@@ -65,6 +65,7 @@ if(!function_exists('attachment_insert_array')){
             $files[$cnt]['is_upload_to_s3_completed'] = 1;
             $files[$cnt]['attachment_file_type'] = mime_content_type($pathinfo);
     
+            
             if(isset($attachment_url_as_array[1]) && ($attachment_url_as_array[1] == 'bank_statements' || $attachment_url_as_array[1] == 'dct_documents')){
                 $files[$cnt]['fk_projectsdetails_id'] = $projectsdetails[$attachment_url_as_array[2]];
                 $files[$cnt]['item_name'] = $attachment_url_as_array[1];
@@ -80,6 +81,8 @@ if(!function_exists('attachment_insert_array')){
             }
     
             $cnt++;
+
+            if($cnt==50) break;
         }
         }
     

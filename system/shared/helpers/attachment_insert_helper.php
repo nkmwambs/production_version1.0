@@ -91,7 +91,7 @@ if(!function_exists('attachment_insert_array')){
                     //$CI->db->insert_batch('attachment', $files);
                     echo json_encode($files);
                     // Empty the array
-                    unset($files);
+                    $files = array();
                     break;
                 }
             }

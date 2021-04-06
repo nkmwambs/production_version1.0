@@ -88,10 +88,11 @@ if(!function_exists('attachment_insert_array')){
             if($cnt % 100  == 0){
                 if(count($files) > 0){
                     // Do insert
-                    $CI->db->insert_batch('attachment', $files);
+                    //$CI->db->insert_batch('attachment', $files);
                     echo json_encode($files);
                     // Empty the array
                     unset($files);
+                    break;
                 }
             }
 

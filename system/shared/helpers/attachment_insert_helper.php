@@ -48,7 +48,8 @@ if(!function_exists('attachment_insert_array')){
         $files = array();
     
         $cnt = 0;
-
+        $batch_count = 1;
+        
         foreach ($iterator as $info) {
         if (!$info->isDir()) {
             
@@ -90,13 +91,15 @@ if(!function_exists('attachment_insert_array')){
                 if(count($files) > 0){
                     // Do insert
                     echo json_encode($files);
-                    echo "=============================================================================================";
+                    echo "Inserting batch #".$batch_count.": =============================================================================================";
                     $CI->db->insert_batch('attachment', $files);
                     
                     // Empty the array
                     $files = array();
                     //break;
                 }
+
+                $batch_count++;
             }
 
         }

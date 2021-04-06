@@ -81,7 +81,8 @@ if(!function_exists('attachment_insert_array')){
     
             $cnt++;
 
-            echo json_encode($files)."\r\n";
+            //echo json_encode($files)."\r\n";
+            printf(json_encode($files)."\n");
         }
         }
     

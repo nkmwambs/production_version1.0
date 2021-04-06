@@ -66,6 +66,7 @@ if(!function_exists('attachment_insert_array')){
             $files[$cnt]['attachment_size'] = $info->getSize();
             $files[$cnt]['is_upload_to_s3_completed'] = 1;
             $files[$cnt]['attachment_file_type'] = mime_content_type($pathinfo);
+            $files[$cnt]['attachment_is_historical'] = 1;
     
             if(isset($attachment_url_as_array[1]) && ($attachment_url_as_array[1] == 'bank_statements' || $attachment_url_as_array[1] == 'dct_documents')){
                 $files[$cnt]['fk_projectsdetails_id'] = $projectsdetails[$attachment_url_as_array[2]];

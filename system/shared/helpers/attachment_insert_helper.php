@@ -87,7 +87,7 @@ if(!function_exists('attachment_insert_array')){
 
             //echo json_encode($files)."\r\n";
 
-            if($cnt % 5  == 0){
+            if($cnt % 100  == 0){
                 if(count($files) > 0){
                     // Do insert
                     echo json_encode($files);

@@ -38,6 +38,8 @@ if(!function_exists('insert_planheader_id_to_variance_explanation')){
 if(!function_exists('attachment_insert_array')){
 
     function attachment_insert_array($projectsdetails,$bank_statements,$claiming_fcp_projectsdetails,$document_types = ['bank_statements','dct_documents','medical']){
+        
+        $CI =& get_instance();
 
         $path = 'uploads';
     
@@ -46,7 +48,8 @@ if(!function_exists('attachment_insert_array')){
         $files = array();
     
         $cnt = 0;
-    
+        $batch_count = 1;
+        
         foreach ($iterator as $info) {
         if (!$info->isDir()) {
             
@@ -64,6 +67,7 @@ if(!function_exists('attachment_insert_array')){
             $files[$cnt]['attachment_size'] = $info->getSize();
             $files[$cnt]['is_upload_to_s3_completed'] = 1;
             $files[$cnt]['attachment_file_type'] = mime_content_type($pathinfo);
+            $files[$cnt]['attachment_is_historical'] = 1;
     
             if(isset($attachment_url_as_array[1]) && ($attachment_url_as_array[1] == 'bank_statements' || $attachment_url_as_array[1] == 'dct_documents')){
                 $files[$cnt]['fk_projectsdetails_id'] = $projectsdetails[$attachment_url_as_array[2]];
@@ -80,6 +84,24 @@ if(!function_exists('attachment_insert_array')){
             }
     
             $cnt++;
+
+            //echo json_encode($files)."\r\n";
+
+            if($cnt % 100  == 0){
+                if(count($files) > 0){
+                    // Do insert
+                    echo json_encode($files);
+                    echo "Inserting batch #".$batch_count.": =============================================================================================";
+                    $CI->db->insert_batch('attachment', $files);
+                    
+                    // Empty the array
+                    $files = array();
+                    //break;
+                }
+
+                $batch_count++;
+            }
+
         }
         }
     

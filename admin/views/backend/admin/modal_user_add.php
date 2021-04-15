@@ -127,16 +127,22 @@
 <script>
 	
 	function populate_projects(el){
-		var url = '<?php echo base_url();?>admin.php/admin/populate_projects/'+$(el).val();
+		var url = '<?php echo base_url();?>admin.php/admin/populate_projects/';
 		
+		var data = {'cluster_name':$(el).val()};
+
 		$('#fname').find('option').remove();
 		
-		$.ajax({
-			url:url,
-			success:function(data){
-				$('#fname').append(data);
-			}
+		$.post(url,data,function(response){
+			$('#fname').append(response);
 		});
+
+		// $.ajax({
+		// 	url:url,
+		// 	success:function(data){
+		// 		$('#fname').append(data);
+		// 	}
+		// });
 	}
 
 	$('#userlevel').change(function(ev){

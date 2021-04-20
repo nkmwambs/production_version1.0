@@ -245,14 +245,16 @@ class Admin extends CI_Controller
 	// 	echo $opt;	
 	// }
 
-	function populate_projects($param1=""){
+	function populate_projects(){
 		
+		$cluster_name = $this->input->post('cluster_name');
+
 		$opt = '<option value="">'.get_phrase("select").'</option>';
 
 		$this->db->select(array('icpNo'));
 		$this->db->join('clusters','clusters.clusters_id=projectsdetails.cluster_id');
 		$projects = $this->db->get_where('projectsdetails',
-		array('clusterName'=>$param1))->result_object();
+		array('clusterName'=>$cluster_name))->result_object();
 										
 			foreach($projects as $row):
 

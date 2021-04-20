@@ -62,7 +62,7 @@ $autoload['packages'] = array();
 
 //$autoload['libraries'] = array('pagination', 'xmlrpc' , 'form_validation', 'email','upload','image_lib','pagination','encrypt');
 
-$autoload['libraries'] = array('pagination', 'xmlrpc' , 'form_validation', 'email','upload','image_lib','pagination');
+$autoload['libraries'] = array('pagination' , 'form_validation', 'email','upload','image_lib','pagination');
 
 
 /*

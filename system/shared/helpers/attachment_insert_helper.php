@@ -70,8 +70,8 @@ if(!function_exists('attachment_insert_array')){
             $files[$cnt]['attachment_is_historical'] = 1;
     
             if(isset($attachment_url_as_array[1]) && ($attachment_url_as_array[1] == 'bank_statements' || $attachment_url_as_array[1] == 'dct_documents')){
-                $files[$cnt]['fk_projectsdetails_id'] = isset($projectsdetails[$attachment_url_as_array[2]])?$projectsdetails[$attachment_url_as_array[2]]:0;
-                $files[$cnt]['item_name'] = isset($attachment_url_as_array[1])?$attachment_url_as_array[1]:0;
+                $files[$cnt]['fk_projectsdetails_id'] = $projectsdetails[$attachment_url_as_array[2]];
+                $files[$cnt]['item_name'] = $attachment_url_as_array[1];
             }elseif(isset($attachment_url_as_array[2]) && $attachment_url_as_array[2] == 'medical'){
                 $files[$cnt]['fk_projectsdetails_id'] = isset($claiming_fcp_projectsdetails[$attachment_url_as_array[4]]) ? $claiming_fcp_projectsdetails[$attachment_url_as_array[4]] : 0;
                 $files[$cnt]['item_name'] = isset($attachment_url_as_array[3]) ? $attachment_url_as_array[3] : 0;

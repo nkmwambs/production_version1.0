@@ -515,7 +515,7 @@ class Partner extends CI_Controller
             redirect(base_url().'exams.php','refresh');
 			
         $crud = new grocery_CRUD();
-		$crud->set_theme('bootstrap');
+		$crud->set_theme('datatables');
 		$crud->set_table('kcpe');
 		
 		$acYr = date('Y');

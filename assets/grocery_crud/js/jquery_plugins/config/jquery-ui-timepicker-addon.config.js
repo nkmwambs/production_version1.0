@@ -1,7 +1,7 @@
 $(function(){
     $('.datetime-input').datetimepicker({
     	timeFormat: 'HH:mm:ss',
-		dateFormat: js_date_format,//
+		dateFormat: js_date_format,
 		showButtonPanel: true,
 		changeMonth: true,
 		changeYear: true

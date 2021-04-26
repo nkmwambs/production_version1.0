@@ -45,7 +45,6 @@ foreach($css_files as $file): ?>
 <hr />
 <div class="row">
 	<div class="col-sm-12">
-		<?=$this->session->login_type;?>
 		<?php echo $output; ?>
 	</div>
 </div>

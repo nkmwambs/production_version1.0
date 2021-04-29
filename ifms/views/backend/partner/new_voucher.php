@@ -376,6 +376,14 @@ include "dct_scripts.php";
 		});
 
 
+		// $('#ChqNo').change(function(ch){
+
+		// 	var chnoWithZeros=parseInt($(this).val())*1;
+
+		// 	alert(chnoWithZeros);
+
+		// });
+
 
 		$('#btnPostVch,#btnPostVch_footer').click(function(e) {
 			// added by onduso on 19/5/2020 start
@@ -384,6 +392,10 @@ include "dct_scripts.php";
 			var voucher_number = $('#Generated_VNumber').val();
 			//alert(reference_number);
 			var val = $('#VTypeMain').val();
+
+			
+            //Remove trailing zeros(000078) from cheque numbers 
+
 
 			if ($('#ChqNo').val() < 1 && $("#totals").val() !== "0.00 Kes." && val === 'CHQ' && $('#reversal').prop('checked') === false) {
 				//alert("Here 1");

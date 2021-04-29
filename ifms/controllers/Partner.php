@@ -1186,7 +1186,10 @@ class Partner extends CI_Controller
 			$bank_code = $bank_code . "-0";
 		}
 
-		$data['ChqNo'] = $this->input->post('ChqNo') . "-" . $bank_code;
+		//reomove leading zeros
+		$cheque_number_with_zeros=ltrim($this->input->post('ChqNo'),'0');
+		$data['ChqNo'] = $cheque_number_with_zeros . "-" . $bank_code;
+
 		$data['TDescription'] = $this->input->post('TDescription');
 		$data['totals'] = array_sum($this->input->post('cost'));
 		$data['unixStmp'] = time();
@@ -1214,7 +1217,7 @@ class Partner extends CI_Controller
 				$data2['VNumber'] = $this->input->post('VNumber');
 				$data2['TDate'] = $this->input->post('TDate');
 				$data2['VType'] = $this->input->post('VTypeMain');
-				$data2['ChqNo'] = $this->input->post('ChqNo') . "-" . $bank_code;
+				$data2['ChqNo'] = $cheque_number_with_zeros . "-" . $bank_code;
 				$data2['unixStmp'] = time();
 				$data2['Qty'] = $qty[$i];
 				$data2['Details'] = $details[$i];

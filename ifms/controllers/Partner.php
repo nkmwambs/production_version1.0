@@ -1317,6 +1317,125 @@ class Partner extends CI_Controller
 		$this->load->view('backend/index', $page_data);
 	}
 
+
+	
+  
+	// function  reverse_voucher($voucher_id,$reuse_cheque){
+    //   echo "success";
+	// }
+
+	function reverse_voucher($voucher_id,$reuse_cheque = 1){
+     
+		$message = get_phrase("reversal_completed");
+	
+		// Get the voucher and voucher details
+		$voucher = $this->db->get_where('voucher_header',
+		array('hID'=>$voucher_id))->row_array();
+	
+		
+		$this->db->trans_start();
+	
+		
+		$new_voucher_id = $this->insert_voucher_reversal_record($voucher,$reuse_cheque);
+	
+
+		//$this->update_cash_recipient_account($new_voucher_id,$voucher);
+	
+		$this->db->trans_complete();
+	
+		if($this->db->trans_status() == false){
+		  $message = get_phrase("reversal_failed");
+		}
+	
+		echo $message;
+	  }
+	
+	  function insert_voucher_reversal_record($voucher,$reuse_cheque){
+    
+		//Unset the primary key field
+		$voucher_id =array_shift($voucher);
+	
+		$voucher_body_details = $this->db->get_where('voucher_body',
+		array('hID'=>$voucher_id))->result_array();
+
+		// Get next voucher number
+		$next_voucher_number = $this->finance_model->get_voucher_number($voucher['icpNo']);
+   
+	
+		$next_voucher_date = $this->finance_model->get_voucher_date($voucher['icpNo']);
+
+	
+		// Replace the voucher number in selected voucher with the next voucher number
+		/*$voucher_description = '<strike>'.$voucher['voucher_description'].'</strike> [Reversal of voucher number '.$voucher['voucher_number'].']';
+		$voucher = array_replace($voucher,['voucher_vendor'=>'<strike>'.$voucher['voucher_vendor'].'<strike>','voucher_is_reversed'=>1,'voucher_reversal_from'=>$voucher_id,'voucher_cleared'=>1,
+		'voucher_date'=>$next_voucher_date,'voucher_cleared_month'=>date('Y-m-t',strtotime($next_voucher_date)),'voucher_number'=>$next_voucher_number,
+		'voucher_description'=>$voucher_description,'voucher_cheque_number'=>$voucher['voucher_cheque_number'] > 0 && $reuse_cheque == 1 ? -$voucher['voucher_cheque_number'] : $voucher['voucher_cheque_number']]);*/
+
+		// //if cheq has -0075868-9
+		// $negative_sign_for_chq_at_pos_zero=strpos($voucher['ChqNo'], '-'); 
+
+		// $abs_chq=abs($voucher['ChqNo']);
+
+		// $abs_chq_without_zero=explode('-',ltrim($abs_chq,'0'))[0];
+		
+		// //if cheq has -0075868-9
+		// $abs_chq_without_zero=$negative_sign_for_chq_at_pos_zero==0? -$abs_chq_without_zero:$abs_chq_without_zero;
+		
+				
+		//Explode chq no
+		$rebuilt_chq=$voucher['ChqNo'];
+
+		$chq_explode=explode('-',$voucher['ChqNo']);
+
+		
+		if(sizeof($chq_explode)==2 && $chq_explode[0]>0){
+			
+			$rebuilt_chq=-abs($chq_explode[0]).'-'.$chq_explode[1];
+		}
+		// Replace the voucher number in selected voucher with the next voucher number
+		$trans_description = '<strike>'.$voucher['TDescription'].'</strike> [Reversal of voucher number '.$voucher['VNumber'].']';
+
+		echo('Check from db: '.$voucher['ChqNo']. '  Rebuilt Checque:'.$rebuilt_chq); exit;
+		$voucher = array_replace($voucher,['Payee'=>'<strike>'.$voucher['Payee'].'<strike>','ChqNo'=>$voucher['ChqNo'],'voucher_reversal_from'=>$voucher_id,'voucher_cleared'=>1,'TDate'=>$next_voucher_date,'clrMonth'=>date('Y-m-t',strtotime($next_voucher_date)),'VNumber'=>$next_voucher_number,'TDescription'=>$trans_description,'ChqNo'=>$rebuilt_chq]);
+	  
+       
+		
+		//Insert the next voucher record and get the insert id
+		$this->db->insert('voucher_header',$voucher);
+	
+		$new_voucher_id = $this->db->insert_id();
+	
+		
+		
+		// Update details array and insert 
+		
+		$updated_voucher_details = [];
+	
+		foreach($voucher_body_details as $voucher_body_detail){
+		  unset($voucher_body_detail['bID']);
+		  $updated_voucher_details[] = array_replace($voucher_body_detail,['hID'=>$new_voucher_id,'UnitCost'=>-$voucher_body_detail['UnitCost'],'Cost'=>-$voucher_body_detail['Cost']]);
+		}
+	
+		
+		//return json_encode($updated_voucher_details);
+		//exit;
+
+		$this->db->insert_batch('voucher_body',$updated_voucher_details);
+	
+		
+		// Update the original voucher record by flagging it reversed
+		$this->db->where(array('hID'=>$voucher_id));
+		$update_data['voucher_is_reversed'] = 1;
+		
+		$update_data['voucher_cleared'] = 1;
+		$update_data['clrMonth'] = date('Y-m-t',strtotime($next_voucher_date));
+		$update_data['ChqNo'] = $reuse_cheque==0?$voucher['ChqNo']:"'".$rebuilt_chq."'";
+		$update_data['voucher_reversal_to'] = $new_voucher_id;
+		$this->db->update('voucher_header',$update_data);
+	
+		
+		return $new_voucher_id;
+	  }
 	function get_ajax_voucher($param1 = "")
 	{
 		//echo $param1;

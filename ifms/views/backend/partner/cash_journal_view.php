@@ -69,18 +69,17 @@
 
                             $reverse_btn_label = get_phrase('linked_source');
 
-                            $related_voucher_id = $voucher_record['voucher_reversal_from'];
-
                             if (!$voucher_reversal_from) {
-
-                                $related_voucher_id = $voucher_record['voucher_reversal_to'];
 
                                 $reverse_btn_label = get_phrase('linked_destination');
 
                                 
                             }
+
+                            //Get the hID for the voucher
+                            $hID=$voucher_reversal_to > 0 ? $voucher_record['voucher_reversal_to'] : $voucher_record['voucher_reversal_from']
                         ?>
-                            <a class='btn btn-danger' href='#' onclick="showAjaxModal('<?php echo base_url(); ?>ifms.php/modal/popup/modal_view_voucher/<?=$voucher_reversal_to > 0 ? $voucher_record['voucher_reversal_to'] : $voucher_record['voucher_reversal_from'];?>');"><?= $reverse_btn_label; ?> [<?= get_related_voucher($voucher_reversal_to > 0 ? $voucher_record['voucher_reversal_to'] : $voucher_record['voucher_reversal_from']); ?>]</a>
+                            <a class='btn btn-danger' href='#' onclick="showAjaxModal('<?php echo base_url(); ?>ifms.php/modal/popup/modal_view_voucher/<?=$hID;?>');"><?= $reverse_btn_label; ?> [<?= get_related_voucher($hID); ?>]</a>
                         <?php } ?>
 
 

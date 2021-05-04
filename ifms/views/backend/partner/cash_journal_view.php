@@ -36,48 +36,66 @@
         <?php
         $bank_balance = 0;
         $pc_balance = 0;
-        
+
         ?>
-       
+
         <?php
         if (!empty($voucher_records)) {
             foreach ($voucher_records as $voucher_id => $voucher_record) : ?>
                 <tr>
-                   <?php 
-                      $cheque_number=$voucher_record['cheque_number'];
+                    <?php
+                    $cheque_number = $voucher_record['cheque_number'];
 
-                      $explode_chqno_with_hyphen=explode('-',$cheque_number);
+                    // $explode_chqno_with_hyphen=explode('-',$cheque_number);
 
-                      $voucher_is_reversed=sizeof($explode_chqno_with_hyphen)==3?true:false;
+                    //$voucher_is_reversed=sizeof($explode_chqno_with_hyphen)==3?true:false;
 
-                      $allow_skipping_of_cheque_leaves=true;
+                    $voucher_is_reversed = $voucher_record['voucher_is_reversed'] == 1 ? true : false;
 
-                      $voucher_is_cleared=false; //to be completed
-                   ?>
+                    $is_cheque_payment = $voucher_record['voucher_type'] == 'CHQ' ? true : false;
+
+                    $voucher_is_cleared = false; //to be completed
+
+                    $voucher_reversal_from=$voucher_record['voucher_reversal_from']>0?true:false;
+
+                    $voucher_reversal_to=$voucher_record['voucher_reversal_to']>0?true:false;
+                    ?>
 
 
                     <td nowrap>
 
-                        <?php if (sizeof($explode_chqno_with_hyphen)== 2 && $explode_chqno_with_hyphen[0]=='') { ?>
-                            <div data-voucher_id='<?= $voucher_id; ?>' class='btn btn-primary btn_reverse  <?= $voucher_is_reversed ? "hidden" : ""; ?> <?= $voucher_is_cleared ? "hidden" : ""; ?>'>
-                                <i class='fa fa-undo' style='cursor:pointer;'></i>
-                                <?= get_phrase('cancel'); ?>
-                            </div>
-                        <?php } else { ?>
-                            <div data-voucher_id='<?= $voucher_id; ?>' class='btn btn-primary btn_reverse <?= $voucher_is_reversed ? "hidden" : ""; ?> <?= $voucher_is_cleared ? "hidden" : ""; ?>'>
-                                <i class='fa fa-undo' style='cursor:pointer;'></i>
-                                <?= get_phrase('cancel'); ?>
-                            </div>
-                            <?php if ($allow_skipping_of_cheque_leaves) { ?>
-                                <div data-voucher_id='<?= $voucher_id; ?>' class='btn btn-primary btn_reverse re_use  <?= $voucher_is_reversed ? "hidden" : ""; ?> <?= $voucher_is_cleared ? "hidden" : ""; ?>'>
-                                    <i class='fa fa-plus' style='cursor:pointer;'></i>
-                                    <?= get_phrase('re-use_cheque'); ?>
+                        <?php
+                        if ($voucher_reversal_from ||$voucher_reversal_to ) {
 
-                                </div>
-                            <?php } ?>
+                            $reverse_btn_label = get_phrase('linked_source');
 
+                            $related_voucher_id = $voucher_record['voucher_reversal_from'];
+
+                            if (!$voucher_reversal_from) {
+
+                                $related_voucher_id = $voucher_record['voucher_reversal_to'];
+
+                                $reverse_btn_label = get_phrase('linked_destination');
+
+                                
+                            }
+                        ?>
+                            <a class='btn btn-danger' href='#' onclick="showAjaxModal('<?php echo base_url(); ?>ifms.php/modal/popup/modal_view_voucher/<?=$voucher_reversal_to > 0 ? $voucher_record['voucher_reversal_to'] : $voucher_record['voucher_reversal_from'];?>');"><?= $reverse_btn_label; ?> [<?= get_related_voucher($voucher_reversal_to > 0 ? $voucher_record['voucher_reversal_to'] : $voucher_record['voucher_reversal_from']); ?>]</a>
                         <?php } ?>
 
+
+                        <div data-voucher_id='<?= $voucher_id; ?>' class='btn btn-primary btn_reverse  <?= ($voucher_is_reversed ? "hidden" :$voucher_reversal_from)?"hidden": ""; ?> <?= $voucher_is_cleared ? "hidden" : ""; ?>'>
+                            <i class='fa fa-undo' style='cursor:pointer;'></i>
+                            <?= get_phrase('cancel'); ?>
+                        </div>
+
+                        <?php if ($is_cheque_payment) { ?>
+                            <div data-voucher_id='<?= $voucher_id; ?>' class='btn btn-primary btn_reverse re_use  <?= ($voucher_is_reversed ? "hidden" :$voucher_reversal_from)?"hidden": ""; ?> <?= $voucher_is_cleared ? "hidden" : ""; ?>'>
+                                <i class='fa fa-plus' style='cursor:pointer;'></i>
+                                <?= get_phrase('re-use_cheque'); ?>
+
+                            </div>
+                        <?php } ?>
                     </td>
 
                     <?php
@@ -161,12 +179,10 @@
                         if ($voucher_record['voucher_type'] !== 'UDCTB') {
                             $mixed_chq_arr = explode('-', $voucher_record['cheque_number']);
 
-                            if(sizeof($mixed_chq_arr)==3){
-                                $mixed_chq=-$mixed_chq_arr[1];
-
-                            }
-                            else{
-                                $mixed_chq=$mixed_chq_arr[0];
+                            if (sizeof($mixed_chq_arr) == 3) {
+                                $mixed_chq = -$mixed_chq_arr[1];
+                            } else {
+                                $mixed_chq = $mixed_chq_arr[0];
                             }
                         } else {
                             $arr = explode('-', $row['ChqNo']);
@@ -242,4 +258,3 @@
         ?>
     </tbody>
 </table>
-

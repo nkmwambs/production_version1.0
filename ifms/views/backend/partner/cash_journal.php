@@ -266,8 +266,8 @@ if ($this->finance_model->check_opening_balances($fcp_number)) {
 
 		if (cnfrm) {
 			var url = "<?= base_url(); ?>ifms.php/partner/reverse_voucher/" + voucher_id + "/" + reuse_cheque;
-
-			$.post(url, function(response) {
+            
+			    $.post(url, function(response) {
 				alert(response);
 
 				//console.log(response);

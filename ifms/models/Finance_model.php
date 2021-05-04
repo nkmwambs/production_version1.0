@@ -3014,7 +3014,7 @@ class Finance_model extends CI_Model
 		$this->db->select(array('voucher_header.Payee as payee', 'voucher_header.VType as voucher_type'));
 		$this->db->select(array('voucher_header.ChqNo as cheque_number', 'voucher_header.ChqState as clear_state'));
 		$this->db->select(array('voucher_header.clrMonth as clear_month', 'voucher_header.editable as is_editable'));
-		$this->db->select(array('voucher_header.TDescription as description'));
+		$this->db->select(array('voucher_header.TDescription as description','voucher_header.voucher_reversal_from','voucher_header.voucher_reversal_to','voucher_header.voucher_is_reversed as voucher_is_reversed'));
 		$this->db->select(array(
 			'accounts.AccNo as account_number', 'accounts.AccText as account_code',
 			'accounts.AccName as account_name', 'accounts.AccGrp as account_group'
@@ -3049,7 +3049,11 @@ class Finance_model extends CI_Model
 		$this->db->select(array(
 			"LAST_DAY(voucher_header.TDate) as voucher_date",
 			'accounts.AccNo as account_number', 'accounts.AccText as account_code',
-			'AccGrp as account_group', 'accID as account_id', 'parentAccID as parent_account_id'
+			'AccGrp as account_group', 'accID as account_id', 'parentAccID as parent_account_id',
+			'voucher_header.voucher_reversal_from as voucher_reversal_from',
+			'voucher_header.voucher_reversal_to as voucher_reversal_to',
+			'voucher_header.hID as hID'
+
 		));
 		$this->db->select_sum('Cost');
 		$this->db->where(array('voucher_header.TDate>=' => $start_period_date, 'voucher_header.TDate<=' => $end_period_date));
@@ -3446,7 +3450,7 @@ class Finance_model extends CI_Model
 
 			$cash_journal['month_utilized_income_accounts'] = [];
 			$cash_journal['month_utilized_expense_accounts'] = [];
-
+//print_r($vouchers); exit;
 			foreach ($vouchers as $voucher) {
 
 				$bank_deposit += $voucher['voucher_type'] == 'CR' || $voucher['voucher_type'] == 'PCR' ? $voucher['Cost'] : 0;
@@ -3460,11 +3464,17 @@ class Finance_model extends CI_Model
 					'voucher_date' => $voucher['voucher_date'],
 					'voucher_type' => $voucher['voucher_type'],
 					'payee' => $voucher['payee'],
+
+					'voucher_reversal_from' => $voucher['voucher_reversal_from'],
+					'voucher_reversal_to' => $voucher['voucher_reversal_to'],
+
+
 					'description' => $voucher['description'],
 					'cheque_number' => $voucher['cheque_number'],
 					'clear_state' => $voucher['clear_state'],
 					'clear_month' => $voucher['clear_month'],
-					'is_editable' => $voucher['is_editable']
+					'is_editable' => $voucher['is_editable'],
+					'voucher_is_reversed' => $voucher['voucher_is_reversed']
 				];
 
 				if ($voucher['account_group'] == 1) {

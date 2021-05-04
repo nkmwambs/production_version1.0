@@ -93,6 +93,13 @@ if(! function_exists('checkIsAValidDate')){
     	return (bool)strtotime($myDateString);
 	}
 }
+
+if(!function_exists('get_related_voucher')){
+	function get_related_voucher($voucher_id){
+		$CI =& get_instance();
+		return $CI->db->get_where('voucher_header',array('hID'=>$voucher_id))->row()->VNumber;
+	}
+}
 // ------------------------------------------------------------------------
 /* End of file language_helper.php */
 /* Location: ./system/helpers/language_helper.php */

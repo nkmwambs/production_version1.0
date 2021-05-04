@@ -1324,7 +1324,7 @@ class Partner extends CI_Controller
     //   echo "success";
 	// }
 
-	function reverse_voucher($voucher_id,$reuse_cheque = 1){
+	function reverse_voucher($voucher_id,$reuse_cheque){
      
 		$message = get_phrase("reversal_completed");
 	
@@ -1372,31 +1372,29 @@ class Partner extends CI_Controller
 		'voucher_description'=>$voucher_description,'voucher_cheque_number'=>$voucher['voucher_cheque_number'] > 0 && $reuse_cheque == 1 ? -$voucher['voucher_cheque_number'] : $voucher['voucher_cheque_number']]);*/
 
 		// //if cheq has -0075868-9
-		// $negative_sign_for_chq_at_pos_zero=strpos($voucher['ChqNo'], '-'); 
-
-		// $abs_chq=abs($voucher['ChqNo']);
-
-		// $abs_chq_without_zero=explode('-',ltrim($abs_chq,'0'))[0];
-		
-		// //if cheq has -0075868-9
-		// $abs_chq_without_zero=$negative_sign_for_chq_at_pos_zero==0? -$abs_chq_without_zero:$abs_chq_without_zero;
-		
-				
+	
 		//Explode chq no
 		$rebuilt_chq=$voucher['ChqNo'];
 
+		
+
 		$chq_explode=explode('-',$voucher['ChqNo']);
 
-		
+		//If size is 2 that means canceling
+
+		//$voucher['voucher_cheque_number'] > 0 && $reuse_cheque == 1 ? -$voucher['voucher_cheque_number'] : $voucher['voucher_cheque_number']
+
 		if(sizeof($chq_explode)==2 && $chq_explode[0]>0){
 			
 			$rebuilt_chq=-abs($chq_explode[0]).'-'.$chq_explode[1];
 		}
+		
+		//echo $rebuilt_chq; exit;
 		// Replace the voucher number in selected voucher with the next voucher number
 		$trans_description = '<strike>'.$voucher['TDescription'].'</strike> [Reversal of voucher number '.$voucher['VNumber'].']';
-
-		echo('Check from db: '.$voucher['ChqNo']. '  Rebuilt Checque:'.$rebuilt_chq); exit;
-		$voucher = array_replace($voucher,['Payee'=>'<strike>'.$voucher['Payee'].'<strike>','ChqNo'=>$voucher['ChqNo'],'voucher_reversal_from'=>$voucher_id,'voucher_cleared'=>1,'TDate'=>$next_voucher_date,'clrMonth'=>date('Y-m-t',strtotime($next_voucher_date)),'VNumber'=>$next_voucher_number,'TDescription'=>$trans_description,'ChqNo'=>$rebuilt_chq]);
+		
+	
+		$voucher = array_replace($voucher,['Payee'=>'<strike>'.$voucher['Payee'].'<strike>','voucher_reversal_from'=>$voucher_id,'voucher_cleared'=>1,'TDate'=>$next_voucher_date,'clrMonth'=>date('Y-m-t',strtotime($next_voucher_date)),'VNumber'=>$next_voucher_number,'TDescription'=>$trans_description,'ChqNo'=>$rebuilt_chq]);
 	  
        
 		
@@ -1404,6 +1402,8 @@ class Partner extends CI_Controller
 		$this->db->insert('voucher_header',$voucher);
 	
 		$new_voucher_id = $this->db->insert_id();
+
+	
 	
 		
 		
@@ -1424,12 +1424,16 @@ class Partner extends CI_Controller
 	
 		
 		// Update the original voucher record by flagging it reversed
+		$second_explode_chq_to_remove_negative=explode('-',$voucher['ChqNo']);
 		$this->db->where(array('hID'=>$voucher_id));
 		$update_data['voucher_is_reversed'] = 1;
 		
 		$update_data['voucher_cleared'] = 1;
 		$update_data['clrMonth'] = date('Y-m-t',strtotime($next_voucher_date));
-		$update_data['ChqNo'] = $reuse_cheque==0?$voucher['ChqNo']:"'".$rebuilt_chq."'";
+
+		
+		$update_data['ChqNo'] = $reuse_cheque==0?abs($second_explode_chq_to_remove_negative[1]).'-'.$second_explode_chq_to_remove_negative[2]:$rebuilt_chq;
+		
 		$update_data['voucher_reversal_to'] = $new_voucher_id;
 		$this->db->update('voucher_header',$update_data);
 	

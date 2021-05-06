@@ -1394,7 +1394,7 @@ class Partner extends CI_Controller
 		$trans_description = '<strike>'.$voucher['TDescription'].'</strike> [Reversal of voucher number '.$voucher['VNumber'].']';
 		
 	
-		$voucher = array_replace($voucher,['Payee'=>'<strike>'.$voucher['Payee'].'<strike>','voucher_reversal_from'=>$voucher_id,'voucher_cleared'=>1,'TDate'=>$next_voucher_date,'clrMonth'=>date('Y-m-t',strtotime($next_voucher_date)),'VNumber'=>$next_voucher_number,'TDescription'=>$trans_description,'ChqNo'=>$rebuilt_chq]);
+		$voucher = array_replace($voucher,['Payee'=>'<strike>'.$voucher['Payee'].'<strike>','voucher_reversal_from'=>$voucher_id,'ChqState'=>1,'TDate'=>$next_voucher_date,'clrMonth'=>date('Y-m-t',strtotime($next_voucher_date)),'VNumber'=>$next_voucher_number,'TDescription'=>$trans_description,'ChqNo'=>$rebuilt_chq]);
 	  
        
 		
@@ -1428,7 +1428,7 @@ class Partner extends CI_Controller
 		$this->db->where(array('hID'=>$voucher_id));
 		$update_data['voucher_is_reversed'] = 1;
 		
-		$update_data['voucher_cleared'] = 1;
+		$update_data['ChqState'] = 1;
 		$update_data['clrMonth'] = date('Y-m-t',strtotime($next_voucher_date));
 
 		

@@ -5,6 +5,7 @@ $mfr_submitted = $this->finance_model->mfr_submitted($this->session->center_id,d
 
 $oc=$this->finance_model->outstanding_cheques($param2,$this->session->center_id);
 
+//print_r($oc);
 ?>
 
 <div class="row">
@@ -39,11 +40,11 @@ $oc=$this->finance_model->outstanding_cheques($param2,$this->session->center_id)
 							<body>
 								<?php
 									$oc_total = 0;
-									foreach($oc as$row):
+									foreach($oc as $row):
 										$chq=explode('-',$row['ChqNo']);
 								?>
 									<tr>
-										<td><div <?php if($mfr_submitted==='1'){echo "style='display:none;'";};?> class="btn btn-danger chqClr"  id='oc_<?php echo $row['hID'];?>'><?php echo get_phrase('clear');?></div></td>
+										<td><div <?php if($mfr_submitted==='1'){echo "style='display:none;'";};?> class="btn btn-danger chqClr" <?php if($row['voucher_reversal_to']>0||$row['voucher_reversal_from']>0){echo 'disabled';}?> id='oc_<?php echo $row['hID'];?>'><?php echo get_phrase('clear');?></div></td>
 										<td><?php echo $row['TDate']?></td>
 										<td><?php  echo $chq[0];?></td>
 										<td><?php echo $row['TDescription']?></td>

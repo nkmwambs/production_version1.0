@@ -39,7 +39,7 @@ $dep = $this->finance_model->deposit_transit($param2,$this->session->center_id);
 									?>
 								<tr>
 
-									<td><div <?php if($mfr_submitted==='1'){echo "style='display:none;'";};?>  class="btn btn-danger depClr" id="dep_<?php echo $row['hID'];?>"><?php echo get_phrase('clear');?></div></td>
+									<td><div <?php if($mfr_submitted==='1'){echo "style='display:none;'";};?>  class="btn btn-danger depClr" <?php if($row['voucher_reversal_to']>0||$row['voucher_reversal_from']>0){echo 'disabled';}?> id="dep_<?php echo $row['hID'];?>"><?php echo get_phrase('clear');?></div></td>
 									<td><?php echo $row['TDate']?></td>
 									<td><?php echo $row['TDescription']?></td>
 									<td><?php echo $row['totals']?></td>

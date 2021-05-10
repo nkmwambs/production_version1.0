@@ -1432,7 +1432,7 @@ class Partner extends CI_Controller
 		$update_data['clrMonth'] = date('Y-m-t',strtotime($next_voucher_date));
 
 		
-		$update_data['ChqNo'] = $reuse_cheque==0?abs($second_explode_chq_to_remove_negative[1]).'-'.$second_explode_chq_to_remove_negative[2]:$rebuilt_chq;
+		$update_data['ChqNo'] = $reuse_cheque==0 && isset($second_explode_chq_to_remove_negative[2]) ?abs($second_explode_chq_to_remove_negative[1]).'-'.$second_explode_chq_to_remove_negative[2]:$rebuilt_chq;
 		
 		$update_data['voucher_reversal_to'] = $new_voucher_id;
 		$this->db->update('voucher_header',$update_data);

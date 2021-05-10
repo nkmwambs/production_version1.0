@@ -42,22 +42,32 @@ $oc=$this->finance_model->outstanding_cheques($param2,$this->session->center_id)
 									$oc_total = 0;
 									foreach($oc as $row):
 										$chq=explode('-',$row['ChqNo']);
+
+										$style = '';
+										$label = 'clear';
+										$disable_btn = '';
+
+										//$chq_no=$chq[0];
+
+										if ($row['voucher_reversal_to'] > 0 || $row['voucher_reversal_from'] > 0) {
+                                           
+											//$chq_no=sizeof($chq)==3?$chq[1]:$chq[0];
+											
+											$style = "color:red";
+
+											$label = 'cancelled_cheque';
+
+											$disable_btn = 'disabled';
+										}
+
 								?>
 									<tr>
-									   <?php 
-
-									     $check_if_chq_is_cancelled_or_reused=false;
-
-									     if($row['voucher_reversal_to']>0||$row['voucher_reversal_from']>0){
-
-                                            $check_if_chq_is_cancelled_or_reused=true;
-										 }
-									   ?>
-										<td><div <?php if($mfr_submitted==='1'){echo "style='display:none;'";};?> class="btn btn-danger chqClr" <?php if($check_if_chq_is_cancelled_or_reused){echo 'disabled';} ?> id='oc_<?php echo $row['hID'];?>'><?php if($check_if_chq_is_cancelled_or_reused){echo get_phrase('cancelled_cheque');} else{ echo get_phrase('clear');}?></div></td>
-										<td> <?php if($check_if_chq_is_cancelled_or_reused){echo "<i style='color:red;'>";} ?><?php echo $row['TDate']?></td>
-										<td> <?php if($check_if_chq_is_cancelled_or_reused){echo "<i style='color:red;'>";} ?><?php  echo $chq[0];?></td>
-										<td><?php if($check_if_chq_is_cancelled_or_reused){echo "<i style='color:red;'>";} ?>  <?php echo $row['TDescription']?></td>
-										<td>  <?php if($check_if_chq_is_cancelled_or_reused){echo "<i style='color:red;'>";} ?> <?php echo $this->db->select_sum('Cost')->get_where('voucher_body',array('hID'=>$row['hID']))->row()->Cost?></td>
+									  
+										<td><div <?php if($mfr_submitted==='1'){echo "style='display:none;'";};?> class="btn btn-danger chqClr" <?=$disable_btn; ?>  id='oc_<?php echo $row['hID'];?>'><?=get_phrase($label);?></div></td>
+										<td> <span style="<?=$style;?>;">  <?php echo $row['TDate']?></span></td>
+										<td> <span style="<?=$style;?>;" > <?php  echo $chq[0];?></span></td>
+										<td><span style="<?=$style;?>;" >  <?php echo $row['TDescription']?></span></td>
+										<td>  <span style="<?=$style;?>;"> <?php echo $row['totals'];?></span></td>
 									</tr>
 								<?php
 									$oc_total+=$this->db->select_sum('Cost')->get_where('voucher_body',array('hID'=>$row['hID']))->row()->Cost;

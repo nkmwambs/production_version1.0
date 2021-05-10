@@ -82,11 +82,13 @@
                             <a class='btn btn-danger' href='#' onclick="showAjaxModal('<?php echo base_url(); ?>ifms.php/modal/popup/modal_view_voucher/<?=$hID;?>');"><?= $reverse_btn_label; ?> [<?= get_related_voucher($hID); ?>]</a>
                         <?php } ?>
 
-
+                         <?php 
+                         if( $voucher_record['clear_state']==0){  ?>
                         <div data-voucher_id='<?= $voucher_id; ?>' class='btn btn-primary btn_reverse  <?= ($voucher_is_reversed ? "hidden" :$voucher_reversal_from)?"hidden": ""; ?> <?= $voucher_is_cleared ? "hidden" : ""; ?>'>
                             <i class='fa fa-undo' style='cursor:pointer;'></i>
                             <?= get_phrase('cancel'); ?>
                         </div>
+
 
                         <?php if ($is_cheque_payment) { ?>
                             <div data-voucher_id='<?= $voucher_id; ?>' class='btn btn-primary btn_reverse re_use  <?= ($voucher_is_reversed ? "hidden" :$voucher_reversal_from)?"hidden": ""; ?> <?= $voucher_is_cleared ? "hidden" : ""; ?>'>
@@ -94,7 +96,8 @@
                                 <?= get_phrase('re-use_cheque'); ?>
 
                             </div>
-                        <?php } ?>
+                        <?php } }?>
+                        
                     </td>
 
                     <?php
@@ -184,7 +187,7 @@
                                 $mixed_chq = $mixed_chq_arr[0];
                             }
                         } else {
-                            $arr = explode('-', $row['ChqNo']);
+                            $arr = explode('-', $voucher_record['cheque_number']);
                             array_pop($arr);
                             $mixed_chq = implode('-', $arr);
                         }

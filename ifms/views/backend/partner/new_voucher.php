@@ -173,11 +173,11 @@
 										</td>
 
 										<td colspan="2" id='td_reversal'>
-											<div id="label-toggle-switch" for="reversal" class="col-sm-6 hidden"><span style="font-weight: bold;"><?php echo get_phrase('cheque_reversal'); ?></span>
+											<!-- <div id="label-toggle-switch" for="reversal" class="col-sm-6 hidden"><span style="font-weight: bold;"><?php echo get_phrase('cheque_reversal'); ?></span>
 												<div class="make-switch switch-small" data-on-label="Yes" data-off-label="No">
 													<input type="checkbox" id="reversal" name="reversal" />
 												</div>
-											</div>
+											</div> -->
 										</td>
 
 

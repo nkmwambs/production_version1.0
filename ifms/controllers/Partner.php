@@ -257,9 +257,9 @@ class Partner extends CI_Controller
 		if ($this->session->userdata('admin_login') != 1)
 			redirect(base_url(), 'refresh');
 
-		if ($param1 == 'scroll') {
-			$page_data['cur_fy'] = $this->input->post('cur_fy');
-		}
+
+		$page_data['cur_fy'] = $this->input->post('cur_fy');
+
 
 		$page_data['page_name']  = 'new_budget_item';
 		$page_data['page_title'] = get_phrase('budget_item');
@@ -1186,7 +1186,10 @@ class Partner extends CI_Controller
 			$bank_code = $bank_code . "-0";
 		}
 
-		$data['ChqNo'] = $this->input->post('ChqNo') . "-" . $bank_code;
+		//reomove leading zeros
+		$cheque_number_with_zeros=ltrim($this->input->post('ChqNo'),'0');
+		$data['ChqNo'] = $cheque_number_with_zeros . "-" . $bank_code;
+
 		$data['TDescription'] = $this->input->post('TDescription');
 		$data['totals'] = array_sum($this->input->post('cost'));
 		$data['unixStmp'] = time();
@@ -1214,7 +1217,7 @@ class Partner extends CI_Controller
 				$data2['VNumber'] = $this->input->post('VNumber');
 				$data2['TDate'] = $this->input->post('TDate');
 				$data2['VType'] = $this->input->post('VTypeMain');
-				$data2['ChqNo'] = $this->input->post('ChqNo') . "-" . $bank_code;
+				$data2['ChqNo'] = $cheque_number_with_zeros . "-" . $bank_code;
 				$data2['unixStmp'] = time();
 				$data2['Qty'] = $qty[$i];
 				$data2['Details'] = $details[$i];
@@ -1314,6 +1317,129 @@ class Partner extends CI_Controller
 		$this->load->view('backend/index', $page_data);
 	}
 
+
+	
+  
+	// function  reverse_voucher($voucher_id,$reuse_cheque){
+    //   echo "success";
+	// }
+
+	function reverse_voucher($voucher_id,$reuse_cheque){
+     
+		$message = get_phrase("reversal_completed");
+	
+		// Get the voucher and voucher details
+		$voucher = $this->db->get_where('voucher_header',
+		array('hID'=>$voucher_id))->row_array();
+	
+		
+		$this->db->trans_start();
+	
+		
+		$new_voucher_id = $this->insert_voucher_reversal_record($voucher,$reuse_cheque);
+	
+
+		//$this->update_cash_recipient_account($new_voucher_id,$voucher);
+	
+		$this->db->trans_complete();
+	
+		if($this->db->trans_status() == false){
+		  $message = get_phrase("reversal_failed");
+		}
+	
+		echo $message;
+	  }
+	
+	  function insert_voucher_reversal_record($voucher,$reuse_cheque){
+    
+		//Unset the primary key field
+		$voucher_id =array_shift($voucher);
+	
+		$voucher_body_details = $this->db->get_where('voucher_body',
+		array('hID'=>$voucher_id))->result_array();
+
+		// Get next voucher number
+		$next_voucher_number = $this->finance_model->get_voucher_number($voucher['icpNo']);
+   
+	
+		$next_voucher_date = $this->finance_model->get_voucher_date($voucher['icpNo']);
+
+	
+		// Replace the voucher number in selected voucher with the next voucher number
+		/*$voucher_description = '<strike>'.$voucher['voucher_description'].'</strike> [Reversal of voucher number '.$voucher['voucher_number'].']';
+		$voucher = array_replace($voucher,['voucher_vendor'=>'<strike>'.$voucher['voucher_vendor'].'<strike>','voucher_is_reversed'=>1,'voucher_reversal_from'=>$voucher_id,'voucher_cleared'=>1,
+		'voucher_date'=>$next_voucher_date,'voucher_cleared_month'=>date('Y-m-t',strtotime($next_voucher_date)),'voucher_number'=>$next_voucher_number,
+		'voucher_description'=>$voucher_description,'voucher_cheque_number'=>$voucher['voucher_cheque_number'] > 0 && $reuse_cheque == 1 ? -$voucher['voucher_cheque_number'] : $voucher['voucher_cheque_number']]);*/
+
+		// //if cheq has -0075868-9
+	
+		//Explode chq no
+		$rebuilt_chq=$voucher['ChqNo'];
+
+		
+
+		$chq_explode=explode('-',$voucher['ChqNo']);
+
+		//If size is 2 that means canceling
+
+		//$voucher['voucher_cheque_number'] > 0 && $reuse_cheque == 1 ? -$voucher['voucher_cheque_number'] : $voucher['voucher_cheque_number']
+
+		if(sizeof($chq_explode)==2 && $chq_explode[0]>0){
+			
+			$rebuilt_chq=-abs($chq_explode[0]).'-'.$chq_explode[1];
+		}
+		
+		//echo $rebuilt_chq; exit;
+		// Replace the voucher number in selected voucher with the next voucher number
+		$trans_description = '<strike>'.$voucher['TDescription'].'</strike> [Reversal of voucher number '.$voucher['VNumber'].']';
+		
+	
+		$voucher = array_replace($voucher,['Payee'=>'<strike>'.$voucher['Payee'].'<strike>','voucher_reversal_from'=>$voucher_id,'ChqState'=>1,'TDate'=>$next_voucher_date,'clrMonth'=>date('Y-m-t',strtotime($next_voucher_date)),'VNumber'=>$next_voucher_number,'TDescription'=>$trans_description,'ChqNo'=>$rebuilt_chq]);
+	  
+       
+		
+		//Insert the next voucher record and get the insert id
+		$this->db->insert('voucher_header',$voucher);
+	
+		$new_voucher_id = $this->db->insert_id();
+
+	
+	
+		
+		
+		// Update details array and insert 
+		
+		$updated_voucher_details = [];
+	
+		foreach($voucher_body_details as $voucher_body_detail){
+		  unset($voucher_body_detail['bID']);
+		  $updated_voucher_details[] = array_replace($voucher_body_detail,['hID'=>$new_voucher_id,'UnitCost'=>-$voucher_body_detail['UnitCost'],'Cost'=>-$voucher_body_detail['Cost']]);
+		}
+	
+		
+		//return json_encode($updated_voucher_details);
+		//exit;
+
+		$this->db->insert_batch('voucher_body',$updated_voucher_details);
+	
+		
+		// Update the original voucher record by flagging it reversed
+		$second_explode_chq_to_remove_negative=explode('-',$voucher['ChqNo']);
+		$this->db->where(array('hID'=>$voucher_id));
+		$update_data['voucher_is_reversed'] = 1;
+		
+		$update_data['ChqState'] = 1;
+		$update_data['clrMonth'] = date('Y-m-t',strtotime($next_voucher_date));
+
+		
+		$update_data['ChqNo'] = $reuse_cheque==0 && isset($second_explode_chq_to_remove_negative[2]) ?abs($second_explode_chq_to_remove_negative[1]).'-'.$second_explode_chq_to_remove_negative[2]:$rebuilt_chq;
+		
+		$update_data['voucher_reversal_to'] = $new_voucher_id;
+		$this->db->update('voucher_header',$update_data);
+	
+		
+		return $new_voucher_id;
+	  }
 	function get_ajax_voucher($param1 = "")
 	{
 		//echo $param1;
@@ -1368,7 +1494,7 @@ class Partner extends CI_Controller
 		if ($this->session->userdata('admin_login') != 1)
 			redirect(base_url(), 'refresh');
 
-		if (count($this->db->get_where('planheader', array('icpNo' => $project, 'fy' => $this->input->post('fy')))->row()) === 0) {
+		if ($this->db->get_where('planheader', array('icpNo' => $project, 'fy' => $this->input->post('fy')))->num_rows() === 0) {
 
 			$header['icpNo'] = 	$project;
 			$header['fy'] = $this->input->post('fy');
@@ -1380,7 +1506,7 @@ class Partner extends CI_Controller
 
 		$body['planHeaderID'] = $planHeaderID;
 		$body['AccNo'] = $this->input->post('AccNo');
-		$body['plan_item_tag_id'] = $this->input->post('plan_item_tag_id');
+		$body['plan_item_tag_id'] = 0;
 		$body['details'] = $this->input->post('details');
 		$body['qty'] = $this->input->post('qty');
 		$body['unitCost'] = $this->input->post('unitCost');
@@ -1407,11 +1533,13 @@ class Partner extends CI_Controller
 		//$this->session->set_flashdata('flash_message',get_phrase('limit_exceeded'));
 		//}else{
 		$this->db->insert('plansschedule', $body);
-		//$this->session->set_flashdata('flash_message',get_phrase('record_created'));
+
 		//}
 
-		$page_data['param2'] = $this->input->post('fy');
+		$page_data['cur_fy'] = $this->input->post('fy');
 		$page_data['msg'] = get_phrase('record_created');
+
+		//$this->session->set_flashdata('flash_message',get_phrase('record_created'));
 
 		echo $this->load->view('backend/partner/modal_new_budget_item', $page_data, TRUE);
 		//redirect(base_url().'ifms.php/partner/scroll_budget_schedules/'.$this->input->post('fy'),'refresh');

@@ -860,7 +860,8 @@ class Admin extends CI_Controller
 
 			$this->db->trans_start();
 
-			$this->db->truncate($table);
+			//$this->db->truncate($table);
+			$this->db->query("DELETE FROM " . $table);
 
 			$file = $_FILES['userfile']['tmp_name'];
 

@@ -874,6 +874,8 @@ class Admin extends CI_Controller
 			// 	$msg = get_phrase('restore_complete') . ". " . count($result) . " " . get_phrase("records_uploaded");
 			// }
 			$msg = $table;
+			echo $table;
+			exit;
 			$this->session->set_flashdata('flash_message', $msg);
 			redirect(base_url() . 'admin.php/admin/manage_data/', 'refresh');
 		}

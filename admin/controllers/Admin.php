@@ -858,23 +858,22 @@ class Admin extends CI_Controller
 
 			$table = $this->input->post('table_name');
 
-			$this->db->trans_start();
+			// $this->db->trans_start();
 
-			//$this->db->truncate($table);
-			$this->db->query("DELETE FROM " . $table);
+			// $this->db->query("DELETE FROM " . $table);
 
-			$file = $_FILES['userfile']['tmp_name'];
+			// $file = $_FILES['userfile']['tmp_name'];
 
-			$result =   $this->csvreader->parse_file($file);
+			// $result =   $this->csvreader->parse_file($file);
 
-			$this->db->insert_batch($table, $result);
+			// $this->db->insert_batch($table, $result);
 
-			$this->db->trans_complete();
+			// $this->db->trans_complete();
 
-			if ($this->db->affected_rows() > 0) {
-				$msg = get_phrase('restore_complete') . ". " . count($result) . " " . get_phrase("records_uploaded");
-			}
-
+			// if ($this->db->affected_rows() > 0) {
+			// 	$msg = get_phrase('restore_complete') . ". " . count($result) . " " . get_phrase("records_uploaded");
+			// }
+			$msg = $table;
 			$this->session->set_flashdata('flash_message', $msg);
 			redirect(base_url() . 'admin.php/admin/manage_data/', 'refresh');
 		}

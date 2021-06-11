@@ -30,9 +30,7 @@ $this_fy = get_fy(date("Y-m-d"), $this->session->center_id);
 
 
 <div id="load_create_item" class="hidden">
-	<?php 
-	 include('modal_new_budget_item.php');
+	<?php
+	include('modal_new_budget_item.php');
 	?>
 </div>
-
-

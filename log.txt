@@ -1,0 +1,55 @@
+08fc149 Resolved budget not posting when one of the spread cells have a zero value
+3c5fc29 Reversed the truncating beneficary data table when uploading update
+0206afd Checking if table name is posted during beneficiary uploads - Debug
+4e73117 Checking if table name is posted during beneficiary uploads
+933a31f Updated code to use SQL statement instead of delete records when uploading beneficiaries
+4247e3b Updated code to use truncate instead of delete records when uploading beneficiaries
+4a09c6b Merge branch 'master' of https://github.com/nkmwambs/production_version1.0
+0193a73 Code review of voucher cancelling and reuse
+06a71d3 Removed the tongle of between no and yes
+7a9ec94 Coloured the text red for cancelled cheques to make clear to users and marked the button cancelled
+3fb43d9 Disabled the clear btn when the chq is reversed or cancelled
+af69925 Changed the chqstate code from voucher_cleared
+a9573a8 Completed the cheque reversal feature2
+23488e3 Completed the cheque reversal feature
+08a7d0f Cheque cancelling reuse
+b835a7b Remove Leading zeros from cheque numbers
+705c26a Remove Leading zeros from cheque numbers
+75bc282 Updated the grocery crud theme
+18ec181 Merge branch 'master' into dev
+293dd0a Upgrading Grocery Crud
+5108127 Correcting Exam app issue
+3e6246a Use post to get fcps in cluster on ajax when adding a new user
+b8fc047 Merge branch 'master' into dev
+f0b0fae Resolve Array and string offset access syntax with curly braces is deprecated
+20f27c3 Testing batch inserts with batch numbering - 2
+0bb473c Testing batch inserts with batch numbering
+023d630 Testing batch inserts 2
+30059b8 Testing batch inserts
+d708a78 Check errors 6
+cac9bb6 Check errors 5
+73b0010 Check errors 4
+5f542bc Check errors 3
+b62ffc6 Check errors 2
+2362f8f Check errors
+3322f1d Insert attachments in batches of 100
+918fdb7 Added printf
+d202c49 Added newline in echoes
+7aa1108 Added echos to insert attachment helper
+924102f Merge branch 'missing_income_account' into dev
+1c814f9 Correcting missing accounts
+b4dc4c7 Merge branch 'medical_claim' into dev
+f6112c9 Correcting the leading zero on the new claim3
+e09c3b9 Correcting the leading zero on the new claim2
+a108a68 Correcting the leading zero on the new claim
+e09e022 Merge pull request #276 from nkmwambs/remove_negative_post
+fe73373 Preventing negative budgets and vouchers
+2e7bbf5 Returned on the code for uploads
+bb6c606 Implementation of voucher disallowing posting negative values
+22f9bda Merge pull request #275 from nkmwambs/stage
+a000ff2 Merge pull request #274 from nkmwambs/dev
+aca0e2d Resolved Journal showing username other than FCP ID for Accountants
+c96cd6e Merge pull request #273 from nkmwambs/stage
+7af02e5 Merge pull request #272 from nkmwambs/dev
+1e942bc Merge pull request #271 from nkmwambs/pf_ac_dashboard_cj
+2de718d Completed Journal for PF and Acc

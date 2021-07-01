@@ -17,17 +17,21 @@
             <th><?php echo get_phrase('cash_payments'); ?></th>
             <th><?php echo get_phrase('cash_balance'); ?></th>
 
-            <?php foreach ($month_utilized_income_accounts as $utilized) : ?>
+            <?php
+            if (isset($month_utilized_income_accounts)) {
+                foreach ($month_utilized_income_accounts as $utilized) : ?>
 
-                <th class="spread" title="<?= $utilized['account_name']; ?>"><?= $utilized['account_code']; ?></th>
+                    <th class="spread" title="<?= $utilized['account_name']; ?>"><?= $utilized['account_code']; ?></th>
 
-            <?php endforeach; ?>
+                <?php endforeach; ?>
 
-            <?php foreach ($month_utilized_expense_accounts as $utilized_exp) : ?>
+                <?php foreach ($month_utilized_expense_accounts as $utilized_exp) : ?>
 
-                <th class="spread" title="<?= $utilized['account_name']; ?>"><?= $utilized_exp['account_code']; ?></th>
+                    <th class="spread" title="<?= $utilized['account_name']; ?>"><?= $utilized_exp['account_code']; ?></th>
 
-            <?php endforeach; ?>
+            <?php endforeach;
+            }
+            ?>
 
         </tr>
 
@@ -56,48 +60,47 @@
 
                     $voucher_is_cleared = false; //to be completed
 
-                    $voucher_reversal_from=$voucher_record['voucher_reversal_from']>0?true:false;
+                    $voucher_reversal_from = $voucher_record['voucher_reversal_from'] > 0 ? true : false;
 
-                    $voucher_reversal_to=$voucher_record['voucher_reversal_to']>0?true:false;
+                    $voucher_reversal_to = $voucher_record['voucher_reversal_to'] > 0 ? true : false;
                     ?>
 
 
                     <td nowrap>
 
                         <?php
-                        if ($voucher_reversal_from ||$voucher_reversal_to ) {
+                        if ($voucher_reversal_from || $voucher_reversal_to) {
 
                             $reverse_btn_label = get_phrase('linked_source');
 
                             if (!$voucher_reversal_from) {
 
                                 $reverse_btn_label = get_phrase('linked_destination');
-
-                                
                             }
 
                             //Get the hID for the voucher
-                            $hID=$voucher_reversal_to > 0 ? $voucher_record['voucher_reversal_to'] : $voucher_record['voucher_reversal_from']
+                            $hID = $voucher_reversal_to > 0 ? $voucher_record['voucher_reversal_to'] : $voucher_record['voucher_reversal_from']
                         ?>
-                            <a class='btn btn-danger' href='#' onclick="showAjaxModal('<?php echo base_url(); ?>ifms.php/modal/popup/modal_view_voucher/<?=$hID;?>');"><?= $reverse_btn_label; ?> [<?= get_related_voucher($hID); ?>]</a>
+                            <a class='btn btn-danger' href='#' onclick="showAjaxModal('<?php echo base_url(); ?>ifms.php/modal/popup/modal_view_voucher/<?= $hID; ?>');"><?= $reverse_btn_label; ?> [<?= get_related_voucher($hID); ?>]</a>
                         <?php } ?>
 
-                         <?php 
-                         if( $voucher_record['clear_state']==0){  ?>
-                        <div data-voucher_id='<?= $voucher_id; ?>' class='btn btn-primary btn_reverse  <?= ($voucher_is_reversed ? "hidden" :$voucher_reversal_from)?"hidden": ""; ?> <?= $voucher_is_cleared ? "hidden" : ""; ?>'>
-                            <i class='fa fa-undo' style='cursor:pointer;'></i>
-                            <?= get_phrase('cancel'); ?>
-                        </div>
-
-
-                        <?php if ($is_cheque_payment) { ?>
-                            <div data-voucher_id='<?= $voucher_id; ?>' class='btn btn-primary btn_reverse re_use  <?= ($voucher_is_reversed ? "hidden" :$voucher_reversal_from)?"hidden": ""; ?> <?= $voucher_is_cleared ? "hidden" : ""; ?>'>
-                                <i class='fa fa-plus' style='cursor:pointer;'></i>
-                                <?= get_phrase('re-use_cheque'); ?>
-
+                        <?php
+                        if ($voucher_record['clear_state'] == 0) {  ?>
+                            <div data-voucher_id='<?= $voucher_id; ?>' class='btn btn-primary btn_reverse  <?= ($voucher_is_reversed ? "hidden" : $voucher_reversal_from) ? "hidden" : ""; ?> <?= $voucher_is_cleared ? "hidden" : ""; ?>'>
+                                <i class='fa fa-undo' style='cursor:pointer;'></i>
+                                <?= get_phrase('cancel'); ?>
                             </div>
-                        <?php } }?>
-                        
+
+
+                            <?php if ($is_cheque_payment) { ?>
+                                <div data-voucher_id='<?= $voucher_id; ?>' class='btn btn-primary btn_reverse re_use  <?= ($voucher_is_reversed ? "hidden" : $voucher_reversal_from) ? "hidden" : ""; ?> <?= $voucher_is_cleared ? "hidden" : ""; ?>'>
+                                    <i class='fa fa-plus' style='cursor:pointer;'></i>
+                                    <?= get_phrase('re-use_cheque'); ?>
+
+                                </div>
+                        <?php }
+                        } ?>
+
                     </td>
 
                     <?php

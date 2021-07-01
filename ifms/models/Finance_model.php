@@ -242,229 +242,240 @@ class Finance_model extends CI_Model
 		return (object)$voucher_details;
 	}
 
-	 /**Local methods**/
+	/**Local methods**/
 
-  /**
-   * Get Voucher Date
-   * 
-   * This method computes the next valid vouching date for a given office
-   * @param String $icpNo - The unique key of the projectdetails 
-   * @return String - The next valid vouching date
-   * 
-   */  
+	/**
+	 * Get Voucher Date
+	 * 
+	 * This method computes the next valid vouching date for a given office
+	 * @param String $icpNo - The unique key of the projectdetails 
+	 * @return String - The next valid vouching date
+	 * 
+	 */
 
-  function get_voucher_date(String $icpNo):String{
+	function get_voucher_date(String $icpNo): String
+	{
 
-	
-    //return date('Y-m-t');
-    $voucher_date = $this->db->get_where('projectsdetails',array('icpno'=>$icpNo))->row()->system_start_date;
 
-    $office_transaction_date = $this->get_office_transacting_month($icpNo);
+		//return date('Y-m-t');
+		$voucher_date = $this->db->get_where('projectsdetails', array('icpno' => $icpNo))->row()->system_start_date;
 
-	
-	
-    if(count($this->get_office_last_voucher($icpNo)) > 0 ){
-      $voucher_date = $this->get_office_last_voucher($icpNo)['TDate'];
-    }
+		$office_transaction_date = $this->get_office_transacting_month($icpNo);
 
-    if(strtotime($office_transaction_date) > strtotime($voucher_date)){
-      $voucher_date = $office_transaction_date;
-    }
 
-	
-	
 
-    return $voucher_date;
-  }  
+		if (count($this->get_office_last_voucher($icpNo)) > 0) {
+			$voucher_date = $this->get_office_last_voucher($icpNo)['TDate'];
+		}
+
+		if (strtotime($office_transaction_date) > strtotime($voucher_date)) {
+			$voucher_date = $office_transaction_date;
+		}
+
+
+
+
+		return $voucher_date;
+	}
 
 
 
 	////////////
-	  /**
-   * Get Voucher Number
-   * 
-   * The method computes the next valid voucher number. The voucher numbers are in the format YYMMSS where YY is the fiscal year and MM is the month whe transaction
-   * belongs to. SS is the voucher serial number incremented from 1 (First Voucher of the month)
-   *  
-   * @param Int $office_id - The primary key of the office
-   * @return Int - The next valid voucher number
-   */
-  function get_voucher_number(String $icpNo):Int{
+	/**
+	 * Get Voucher Number
+	 * 
+	 * The method computes the next valid voucher number. The voucher numbers are in the format YYMMSS where YY is the fiscal year and MM is the month whe transaction
+	 * belongs to. SS is the voucher serial number incremented from 1 (First Voucher of the month)
+	 *  
+	 * @param Int $office_id - The primary key of the office
+	 * @return Int - The next valid voucher number
+	 */
+	function get_voucher_number(String $icpNo): Int
+	{
 
-    $next_voucher_number = $this->compute_voucher_number($this->get_office_transacting_month($icpNo),$this->get_voucher_next_serial_number($icpNo));;
-    
-	
-    return $next_voucher_number;
-  }
-  
-
-   /**
-   * Get Voucher Next Serial Number
-   * 
-   * Computes the next voucher serial number i.e. The 5th + digits in a voucher number
-   * 
-   * @param String $icpNo- ProjectDetails in Check
-   * @return Int - Next voucher serial number
-   */
-  function get_voucher_next_serial_number(String $icpNo):Int{
-
-    // Set default serial number to 1 unless adding to a series in a month
-    $next_serial = 1; 
-
-	
-	
-    // Start checking if the office has a last voucher record
-    if(count((array)$this->get_office_last_voucher($icpNo)) > 0){
-	
-      $last_voucher_number = $this->get_office_last_voucher($icpNo)['VNumber']; 
-      $last_voucher_date = $this->get_office_last_voucher($icpNo)['TDate']; 
-	  
-      if(!$this->check_if_office_transacting_month_has_been_closed($icpNo,$last_voucher_date)){
-        // Get the serial number of the last voucher, replace the month and year part of the 
-        // voucher number with an empty string to remain with only the voucher serial number
-        //voucher format - yymmss or yymmsss
-        $current_voucher_serial_number = substr_replace($last_voucher_number,'',0,4);  
-        $next_serial = $current_voucher_serial_number + 1;
-      }
-    }
-
-    return $next_serial;
-  }
-
-  /**
-   * Compute Voucher Number
-   * 
-   * This method computes the next valid voucher number by concatenating the YY, MM and SS together.
-   * YY - Vouching Year, MM - Vouching Month and SS - Voucher Serial Number in the month
-   * 
-   * @param String $vouching_month - Date the voucher is being raised
-   * @param Int $next_voucher_serial - Next valid voucher serial number
-   * @return Int - A Voucher number
-   */
-  function compute_voucher_number(String $vouching_month, Int $next_voucher_serial = 1):Int{
-
-	$chunk_year_from_date = date('y',strtotime($vouching_month));
-    $chunk_month_from_date = date('m',strtotime($vouching_month));
+		$next_voucher_number = $this->compute_voucher_number($this->get_office_transacting_month($icpNo), $this->get_voucher_next_serial_number($icpNo));;
 
 
-    if($next_voucher_serial < 10){
-      $next_voucher_serial = '0'.$next_voucher_serial;
-    }
-
-    return $chunk_year_from_date.$chunk_month_from_date.$next_voucher_serial;
-
-  }
-
-  /**
-   * get_office_transacting_month
-   * 
-   * This methods gives the date of the first day of the valid transaction month of an office
-   * 
-   * @param Int $office - Office in check
-   * @return String - Date of the first day of the valid transacting month
-   */
-  function get_office_transacting_month(String $icpNo):String{
-    
-	
-
-    $office_transacting_month  = date('Y-m-01');
-
-	
-	
-    // If the office has not voucher yet, then the transacting month equals the office start date
-    //$count_of_vouchers = $this->db->get_where('voucher',array('fk_office_id'=>$office_id))->num_rows(); 
-
-    //If count_of_vouchers eq to 0 then get the start date if the office
-    if(!$this->check_if_office_has_started_transacting($icpNo)){
-	
-      $office_transacting_month = $this->db->get_where('projectsdetails',array('icpNo'=>$icpNo))->row()->system_start_date;
-    }else{
-
-		
-      // Get the last office voucher date
-      $voucher_date = $this->get_office_last_voucher($icpNo)['TDate'];
-	//   echo($icpNo); exit();
-	  
-      // Check if the transacting month has been closed based on the last voucher date
-
-      if($this->check_if_office_transacting_month_has_been_closed($icpNo,$voucher_date)){
-        $office_transacting_month = date('Y-m-d',strtotime('first day of next month',strtotime($voucher_date)));
-      }else{
-        $office_transacting_month = date('Y-m-01',strtotime($voucher_date));
-
-      }
-    }
-	
-    return $office_transacting_month;
-
-  }
-
-   /**
-   * Check if Office Transaction Month Has Been Closed
-   * 
-   * Finds out if the date passed as an argument belongs to a month whose vouching process has been closed based on whether the financial report (Bank Reconciliation)
-   * has been created and submitted. 
-   * 
-   * @param String $icpNo - Unique key in projectdetails table
-   * @param String $date_of_month - Date of the month in check
-   * @return Bool - True if reconciliation has been created else false
-   */
-  function check_if_office_transacting_month_has_been_closed(String $icpNo,String $date_of_month):Bool{
-	// If the reconciliation of the max date month has been done and submitted, 
-	// then use the start date of the next month as the transacting date
-	// *** Modify the query by checking if it has been submitted - Not yet done ****
-
-  $check_month_reconciliation = $this->db->get_where('opfundsbalheader',
-	array('submitted'=>1,'icpNo'=>$icpNo,
-	'closureDate'=>date('Y-m-t',strtotime($date_of_month))))->num_rows();
-
-	return $check_month_reconciliation > 0 ? true : false; 
-
-}
-
-   /**
-   * Get Office Last Voucher
-   * 
-   * The methods get the last voucher record for a given office
-   * 
-   * @param Int $icpNo - Office in check
-   * @return Array - a voucher record
-   */
-  function get_office_last_voucher($icpNo):Array{
-
-    $last_voucher = [];
-
-    if($this->check_if_office_has_started_transacting($icpNo)){
-      // Check the max voucher id of the office provided
-      $hID = $this->db->select_max('hID')->get_where('voucher_header',
-      array('icpNo'=>$icpNo))->row()->hID;
-
-	  
-
-      $last_voucher = $this->db->get_where('voucher_header',
-      array('hID'=>$hID))->row_array();
-
-    }
-    
-
-    return $last_voucher;
-  }
+		return $next_voucher_number;
+	}
 
 
-  /**
-   * Check if Office Has Started Transacting
-   * 
-   * Finds out if the argument offfice has began raising vouchers
-   * 
-   * @param Int $office_id - Office in check
-   * @return Bool - True if has began raising vouchers else false
-   */
-  function check_if_office_has_started_transacting(String $icpNo):Bool{
-    // If the office has not voucher yet, then the transacting month equals the office start date
-    $count_of_vouchers = $this->db->get_where('voucher_header',array('icpNo'=>$icpNo))->num_rows(); 
+	/**
+	 * Get Voucher Next Serial Number
+	 * 
+	 * Computes the next voucher serial number i.e. The 5th + digits in a voucher number
+	 * 
+	 * @param String $icpNo- ProjectDetails in Check
+	 * @return Int - Next voucher serial number
+	 */
+	function get_voucher_next_serial_number(String $icpNo): Int
+	{
 
-    return $count_of_vouchers > 0 ? true : false;
-  }
+		// Set default serial number to 1 unless adding to a series in a month
+		$next_serial = 1;
+
+
+
+		// Start checking if the office has a last voucher record
+		if (count((array)$this->get_office_last_voucher($icpNo)) > 0) {
+
+			$last_voucher_number = $this->get_office_last_voucher($icpNo)['VNumber'];
+			$last_voucher_date = $this->get_office_last_voucher($icpNo)['TDate'];
+
+			if (!$this->check_if_office_transacting_month_has_been_closed($icpNo, $last_voucher_date)) {
+				// Get the serial number of the last voucher, replace the month and year part of the 
+				// voucher number with an empty string to remain with only the voucher serial number
+				//voucher format - yymmss or yymmsss
+				$current_voucher_serial_number = substr_replace($last_voucher_number, '', 0, 4);
+				$next_serial = $current_voucher_serial_number + 1;
+			}
+		}
+
+		return $next_serial;
+	}
+
+	/**
+	 * Compute Voucher Number
+	 * 
+	 * This method computes the next valid voucher number by concatenating the YY, MM and SS together.
+	 * YY - Vouching Year, MM - Vouching Month and SS - Voucher Serial Number in the month
+	 * 
+	 * @param String $vouching_month - Date the voucher is being raised
+	 * @param Int $next_voucher_serial - Next valid voucher serial number
+	 * @return Int - A Voucher number
+	 */
+	function compute_voucher_number(String $vouching_month, Int $next_voucher_serial = 1): Int
+	{
+
+		$chunk_year_from_date = date('y', strtotime($vouching_month));
+		$chunk_month_from_date = date('m', strtotime($vouching_month));
+
+
+		if ($next_voucher_serial < 10) {
+			$next_voucher_serial = '0' . $next_voucher_serial;
+		}
+
+		return $chunk_year_from_date . $chunk_month_from_date . $next_voucher_serial;
+	}
+
+	/**
+	 * get_office_transacting_month
+	 * 
+	 * This methods gives the date of the first day of the valid transaction month of an office
+	 * 
+	 * @param Int $office - Office in check
+	 * @return String - Date of the first day of the valid transacting month
+	 */
+	function get_office_transacting_month(String $icpNo): String
+	{
+
+
+
+		$office_transacting_month  = date('Y-m-01');
+
+
+
+		// If the office has not voucher yet, then the transacting month equals the office start date
+		//$count_of_vouchers = $this->db->get_where('voucher',array('fk_office_id'=>$office_id))->num_rows(); 
+
+		//If count_of_vouchers eq to 0 then get the start date if the office
+		if (!$this->check_if_office_has_started_transacting($icpNo)) {
+
+			$office_transacting_month = $this->db->get_where('projectsdetails', array('icpNo' => $icpNo))->row()->system_start_date;
+		} else {
+
+
+			// Get the last office voucher date
+			$voucher_date = $this->get_office_last_voucher($icpNo)['TDate'];
+			//   echo($icpNo); exit();
+
+			// Check if the transacting month has been closed based on the last voucher date
+
+			if ($this->check_if_office_transacting_month_has_been_closed($icpNo, $voucher_date)) {
+				$office_transacting_month = date('Y-m-d', strtotime('first day of next month', strtotime($voucher_date)));
+			} else {
+				$office_transacting_month = date('Y-m-01', strtotime($voucher_date));
+			}
+		}
+
+		return $office_transacting_month;
+	}
+
+	/**
+	 * Check if Office Transaction Month Has Been Closed
+	 * 
+	 * Finds out if the date passed as an argument belongs to a month whose vouching process has been closed based on whether the financial report (Bank Reconciliation)
+	 * has been created and submitted. 
+	 * 
+	 * @param String $icpNo - Unique key in projectdetails table
+	 * @param String $date_of_month - Date of the month in check
+	 * @return Bool - True if reconciliation has been created else false
+	 */
+	function check_if_office_transacting_month_has_been_closed(String $icpNo, String $date_of_month): Bool
+	{
+		// If the reconciliation of the max date month has been done and submitted, 
+		// then use the start date of the next month as the transacting date
+		// *** Modify the query by checking if it has been submitted - Not yet done ****
+
+		$check_month_reconciliation = $this->db->get_where(
+			'opfundsbalheader',
+			array(
+				'submitted' => 1, 'icpNo' => $icpNo,
+				'closureDate' => date('Y-m-t', strtotime($date_of_month))
+			)
+		)->num_rows();
+
+		return $check_month_reconciliation > 0 ? true : false;
+	}
+
+	/**
+	 * Get Office Last Voucher
+	 * 
+	 * The methods get the last voucher record for a given office
+	 * 
+	 * @param Int $icpNo - Office in check
+	 * @return Array - a voucher record
+	 */
+	function get_office_last_voucher($icpNo): array
+	{
+
+		$last_voucher = [];
+
+		if ($this->check_if_office_has_started_transacting($icpNo)) {
+			// Check the max voucher id of the office provided
+			$hID = $this->db->select_max('hID')->get_where(
+				'voucher_header',
+				array('icpNo' => $icpNo)
+			)->row()->hID;
+
+
+
+			$last_voucher = $this->db->get_where(
+				'voucher_header',
+				array('hID' => $hID)
+			)->row_array();
+		}
+
+
+		return $last_voucher;
+	}
+
+
+	/**
+	 * Check if Office Has Started Transacting
+	 * 
+	 * Finds out if the argument offfice has began raising vouchers
+	 * 
+	 * @param Int $office_id - Office in check
+	 * @return Bool - True if has began raising vouchers else false
+	 */
+	function check_if_office_has_started_transacting(String $icpNo): Bool
+	{
+		// If the office has not voucher yet, then the transacting month equals the office start date
+		$count_of_vouchers = $this->db->get_where('voucher_header', array('icpNo' => $icpNo))->num_rows();
+
+		return $count_of_vouchers > 0 ? true : false;
+	}
 
 
 	function check_opening_balances($param1 = "")
@@ -3014,7 +3025,7 @@ class Finance_model extends CI_Model
 		$this->db->select(array('voucher_header.Payee as payee', 'voucher_header.VType as voucher_type'));
 		$this->db->select(array('voucher_header.ChqNo as cheque_number', 'voucher_header.ChqState as clear_state'));
 		$this->db->select(array('voucher_header.clrMonth as clear_month', 'voucher_header.editable as is_editable'));
-		$this->db->select(array('voucher_header.TDescription as description','voucher_header.voucher_reversal_from','voucher_header.voucher_reversal_to','voucher_header.voucher_is_reversed as voucher_is_reversed'));
+		$this->db->select(array('voucher_header.TDescription as description', 'voucher_header.voucher_reversal_from', 'voucher_header.voucher_reversal_to', 'voucher_header.voucher_is_reversed as voucher_is_reversed'));
 		$this->db->select(array(
 			'accounts.AccNo as account_number', 'accounts.AccText as account_code',
 			'accounts.AccName as account_name', 'accounts.AccGrp as account_group'
@@ -3224,6 +3235,7 @@ class Finance_model extends CI_Model
 		$this->db->join('planheader', 'planheader.planHeaderID=plansschedule.planHeaderID');
 		$this->db->join('accounts', 'accounts.AccNo=plansschedule.AccNo');
 		$this->db->join('(select accID as account_id, AccNo as income_account_number,AccText as income_account_code FROM accounts WHERE AccGrp = 1) as income_accounts', 'income_accounts.account_id=accounts.parentAccID', 'LEFT', NULL);
+		$this->db->order_by('plansschedule.AccNo');
 		$budget_items_obj = $this->db->get('plansschedule');
 
 		$budget_items = [];
@@ -3234,6 +3246,48 @@ class Finance_model extends CI_Model
 
 		return $budget_items;
 	}
+
+	// function budget_spread_month_totals($fy, $fcp_number, $month = '')
+	// {
+	// 	$month_number = $month != '' ? date('n', strtotime($month)) : 0;
+
+	// 	$budget_items = $this->fcp_year_budget_to_date_for_all_income_accounts($fy, $fcp_number);
+	// 	$budget_spread = [];
+
+	// 	foreach ($budget_items as $spread) {
+	// 		$income_account_number = array_shift($spread);
+	// 		$expense_account_number = array_shift($spread);
+	// 		$budget_spread[$income_account_number][$expense_account_number][] = $spread;
+	// 	}
+
+	// 	$sum_budget_spread = [];
+
+	// 	foreach ($budget_spread as $income_account_number => $expense_sum_spread) {
+	// 		$sum = 0;
+	// 		foreach ($expense_sum_spread as $expense_account_number => $sum_spread) {
+	// 			$sum_array = [];
+
+	// 			$month_range = order_of_months_in_fy(); //[7,8,9,10,11,12,1,2,3,4,5,6];
+
+	// 			$cnt = 1;
+	// 			foreach ($month_range as $month) {
+
+	// 				$sum_array[$month] = array_sum(array_column($sum_spread, 'month_' . $cnt . '_amount'));
+
+	// 				$cnt++;
+
+	// 				if ($month_number > 0 && $month_number == $month) break;
+	// 			}
+
+	// 			$sum += array_sum($sum_array);
+
+	// 			$sum_budget_spread[$income_account_number]['month_spread'][] = $sum_array;
+	// 			$sum_budget_spread[$income_account_number]['total_cost'] = $sum;
+	// 		}
+	// 	}
+
+	// 	return $sum_budget_spread;
+	// }
 
 	function budget_spread_grid_by_income_accounts($fy, $fcp_number, $month = '')
 	{
@@ -3252,7 +3306,7 @@ class Finance_model extends CI_Model
 		$sum_budget_spread = [];
 
 		foreach ($budget_spread as $income_account_number => $expense_sum_spread) {
-
+			$sum = 0;
 			foreach ($expense_sum_spread as $expense_account_number => $sum_spread) {
 				$sum_array = [];
 
@@ -3270,6 +3324,11 @@ class Finance_model extends CI_Model
 
 				$sum_budget_spread[$income_account_number][$expense_account_number] = $sum_array;
 				$sum_budget_spread[$income_account_number][$expense_account_number]['total_cost'] = array_sum($sum_array);
+
+				$sum += array_sum($sum_array);
+
+				$sum_budget_spread['totals'][$income_account_number]['month_spread'][] = $sum_array;
+				$sum_budget_spread['totals'][$income_account_number]['grand_total'] = $sum;
 			}
 		}
 
@@ -3450,7 +3509,7 @@ class Finance_model extends CI_Model
 
 			$cash_journal['month_utilized_income_accounts'] = [];
 			$cash_journal['month_utilized_expense_accounts'] = [];
-//print_r($vouchers); exit;
+			//print_r($vouchers); exit;
 			foreach ($vouchers as $voucher) {
 
 				$bank_deposit += $voucher['voucher_type'] == 'CR' || $voucher['voucher_type'] == 'PCR' ? $voucher['Cost'] : 0;

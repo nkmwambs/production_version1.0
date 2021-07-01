@@ -3041,6 +3041,7 @@ class Finance_model extends CI_Model
 		$this->db->join('voucher_header', 'voucher_header.hID=voucher_body.hID');
 		$this->db->join('accounts', 'accounts.AccNo=voucher_body.AccNo');
 		$this->db->group_by(array('voucher_header.VNumber', 'voucher_body.AccNo'));
+		$this->db->order_by("accounts.AccNo");
 		$vouchers_obj = $this->db->get('voucher_body');
 
 		if ($vouchers_obj->num_rows() > 0) {

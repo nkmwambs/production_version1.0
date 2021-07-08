@@ -1,5 +1,5 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
 /*
 | -------------------------------------------------------------------
@@ -60,7 +60,7 @@ $autoload['packages'] = array();
 |	$autoload['libraries'] = array('user_agent' => 'ua');
 */
 
-$autoload['libraries'] = array('pagination', 'xmlrpc' , 'form_validation', 'email','upload','image_lib','pagination','GoogleAuthenticator','CSVReader');
+$autoload['libraries'] = array('pagination', 'form_validation', 'email', 'upload', 'image_lib', 'pagination', 'GoogleAuthenticator', 'CSVReader');
 
 
 /*
@@ -88,7 +88,7 @@ $autoload['drivers'] = array();
 |	$autoload['helper'] = array('url', 'file');
 */
 
-$autoload['helper'] = array('url','file','form','security','string','inflector','directory','download','multi_language');
+$autoload['helper'] = array('url', 'file', 'form', 'security', 'string', 'inflector', 'directory', 'download', 'multi_language');
 
 
 /*
@@ -137,4 +137,4 @@ $autoload['language'] = array();
 |	$autoload['model'] = array('first_model' => 'first');
 */
 
-$autoload['model'] = array('email_model' , 'sms_model','settings_model','crud_model','admin_model');
+$autoload['model'] = array('email_model', 'sms_model', 'settings_model', 'crud_model', 'admin_model');

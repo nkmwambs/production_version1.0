@@ -1142,8 +1142,9 @@ class Finance_model extends CI_Model
 		$expense_account = $this->expense_accounts($rev_id);
 
 		foreach ($expense_account as $account) {
-			$this->db->where(array('icpNo' => $project_id, 'AccNo' => $account->AccNo, 'TDate>=' => date('Y-m-01', strtotime($month)), 'TDate<=' => date('Y-m-t', strtotime($month))));
+			$this->db->where(array('voucher_header.icpNo' => $project_id, 'AccNo' => $account->AccNo, 'voucher_header.TDate>=' => date('Y-m-01', strtotime($month)), 'voucher_header.TDate<=' => date('Y-m-t', strtotime($month))));
 
+			$this->db->join('voucher_header', 'voucher_header.hID=voucher_body.hID');
 			$total += $this->db->select_sum('Cost')->get('voucher_body')->row()->Cost;
 		}
 
@@ -1156,8 +1157,8 @@ class Finance_model extends CI_Model
 		if ($this->db->get_where('accounts', array('AccNo' => $rev_id))->row()) {
 			//$rev_ac = $this->db->get_where('accounts',array('AccNo'=>$rev_id))->row()->AccNo;
 
-			$this->db->where(array('icpNo' => $project_id, 'AccNo' => $rev_id, 'TDate>=' => date('Y-m-01', strtotime($month)), 'TDate<=' => date('Y-m-t', strtotime($month))));
-
+			$this->db->where(array('voucher_header.icpNo' => $project_id, 'AccNo' => $rev_id, 'voucher_header.TDate>=' => date('Y-m-01', strtotime($month)), 'voucher_header.TDate<=' => date('Y-m-t', strtotime($month))));
+			$this->db->join('voucher_header', 'voucher_header.hID=voucher_body.hID');
 			return $this->db->select_sum('Cost')->get('voucher_body')->row()->Cost;
 		} else {
 			return 0;

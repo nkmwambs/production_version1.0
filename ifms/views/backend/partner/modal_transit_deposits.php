@@ -38,11 +38,21 @@ $dep = $this->finance_model->deposit_transit($param2,$this->session->center_id);
 										foreach($dep as $row):
 									?>
 								<tr>
+								    <?php
 
-									<td><div <?php if($mfr_submitted==='1'){echo "style='display:none;'";};?>  class="btn btn-danger depClr" id="dep_<?php echo $row['hID'];?>"><?php echo get_phrase('clear');?></div></td>
-									<td><?php echo $row['TDate']?></td>
-									<td><?php echo $row['TDescription']?></td>
-									<td><?php echo $row['totals']?></td>
+									$check_if_chq_is_cancelled_or_reused = false;
+
+									if ($row['voucher_reversal_to'] > 0 || $row['voucher_reversal_from'] > 0) {
+
+										$check_if_chq_is_cancelled_or_reused = true;
+									}
+
+									?>
+
+									<td><div <?php if($mfr_submitted==='1'){echo "style='display:none;'";};?>  class="btn btn-danger depClr" <?php if($check_if_chq_is_cancelled_or_reused){echo 'disabled';} ?> id="dep_<?php echo $row['hID'];?>"><?php if($check_if_chq_is_cancelled_or_reused){echo get_phrase('cancelled_cheque');} else{ echo get_phrase('clear');}?></div></td>
+									<td><?php if($check_if_chq_is_cancelled_or_reused){echo "<i style='color:red;'>";} ?><?php echo $row['TDate']?></td>
+									<td><?php if($check_if_chq_is_cancelled_or_reused){echo "<i style='color:red;'>";} ?><?php echo $row['TDescription']?></td>
+									<td><?php if($check_if_chq_is_cancelled_or_reused){echo "<i style='color:red;'>";} ?><?php echo $row['totals']?></td>
 								</tr>
 								
 								<?php

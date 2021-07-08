@@ -33,6 +33,7 @@ $expense = $this->db->get_where("accounts",array("accID"=>$account_id))->row();
 			<tbody>
 				
 			<?php
+			  
 				if($this->finance_model->plans_per_account($fyr,$this->session->center_id,$expense->AccNo) > 0){
 			?>
 				<tr class="table-active"><td class="schedule_header" colspan="21"><?=$expense->AccText.' - '.$expense->AccName;?></td></tr>

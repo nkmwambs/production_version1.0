@@ -1,3 +1,6 @@
+<?php
+//print_r($month_totals);
+?>
 <div class="row">
 	<div class="col-sm-12">
 		<div class="panel panel-primary">
@@ -49,27 +52,42 @@
 									<th><?= get_phrase('annual_total'); ?></th>
 								</tr>
 							</thead>
-							<tbody>
-								<?php
-								if (isset($budget_summary[$revenue_account->AccNo])) {
-									foreach ($budget_summary[$revenue_account->AccNo] as $expense_account => $budget_items) {
-								?>
+							<?php
+							if (isset($budget_summary[$revenue_account->AccNo])) {
+								foreach ($budget_summary[$revenue_account->AccNo] as $expense_account => $budget_items) {
+							?>
+									<tbody>
+
 										<tr>
 											<td><?= $expense_account; ?></td>
 											<?php
 											foreach ($budget_items as $amount) {
 											?>
 
-												<td><?=number_format($amount,2);?></td>
+												<td><?= number_format($amount, 2); ?></td>
 											<?php
 											}
 											?>
 										</tr>
-								<?php
-									}
+									<?php
 								}
-								?>
-							</tbody>
+
+									?>
+									</tbody>
+									<tfoot>
+										<tr>
+											<td><?= get_phrase('totals'); ?></td>
+
+											<?php
+											$total_per_month = $budget_summary["totals"][$revenue_account->AccNo];
+											?>
+											<?php foreach (order_of_months_in_fy() as $budget_month) { ?>
+												<td><?= number_format(array_sum(array_column($total_per_month['month_spread'], $budget_month)), 2); ?></td>
+											<?php } ?>
+											<td><?= number_format($total_per_month['grand_total'], 2); ?></td>
+										</tr>
+									</tfoot>
+								<?php } ?>
 						</table>
 
 					<?php

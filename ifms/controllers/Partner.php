@@ -1339,11 +1339,9 @@ class Partner extends CI_Controller
 
 		$this->db->trans_start();
 
+		$this->insert_voucher_reversal_record($voucher, $reuse_cheque);
 
-		$new_voucher_id = $this->insert_voucher_reversal_record($voucher, $reuse_cheque);
-
-
-		//$this->update_cash_recipient_account($new_voucher_id,$voucher);
+		$this->email_model->voucher_cancellation_notification($voucher['VNumber'], $voucher['icpNo']);
 
 		$this->db->trans_complete();
 
@@ -1384,7 +1382,6 @@ class Partner extends CI_Controller
 		$rebuilt_chq = $voucher['ChqNo'];
 
 
-
 		$chq_explode = explode('-', $voucher['ChqNo']);
 
 		//If size is 2 that means canceling
@@ -1401,18 +1398,12 @@ class Partner extends CI_Controller
 		$trans_description = '<strike>' . $voucher['TDescription'] . '</strike> [Reversal of voucher number ' . $voucher['VNumber'] . ']';
 
 
-		$voucher = array_replace($voucher, ['Payee' => '<strike>' . $voucher['Payee'] . '<strike>', 'voucher_reversal_from' => $voucher_id, 'ChqState' => 1, 'TDate' => $next_voucher_date, 'clrMonth' => date('Y-m-t', strtotime($next_voucher_date)), 'VNumber' => $next_voucher_number, 'TDescription' => $trans_description, 'ChqNo' => $rebuilt_chq]);
-
-
+		$voucher = array_replace($voucher, ['Payee' => '<strike>' . $voucher['Payee'] . '</strike>', 'voucher_reversal_from' => $voucher_id, 'ChqState' => 1, 'TDate' => $next_voucher_date, 'clrMonth' => date('Y-m-t', strtotime($next_voucher_date)), 'VNumber' => $next_voucher_number, 'TDescription' => $trans_description, 'ChqNo' => $rebuilt_chq, 'totals' => -$voucher['totals']]);
 
 		//Insert the next voucher record and get the insert id
 		$this->db->insert('voucher_header', $voucher);
 
 		$new_voucher_id = $this->db->insert_id();
-
-
-
-
 
 		// Update details array and insert 
 
@@ -1420,7 +1411,7 @@ class Partner extends CI_Controller
 
 		foreach ($voucher_body_details as $voucher_body_detail) {
 			unset($voucher_body_detail['bID']);
-			$updated_voucher_details[] = array_replace($voucher_body_detail, ['hID' => $new_voucher_id, 'UnitCost' => -$voucher_body_detail['UnitCost'], 'Cost' => -$voucher_body_detail['Cost']]);
+			$updated_voucher_details[] = array_replace($voucher_body_detail, ['TDate' => $next_voucher_date, 'VNumber' => $next_voucher_number, 'hID' => $new_voucher_id, 'UnitCost' => -$voucher_body_detail['UnitCost'], 'Cost' => -$voucher_body_detail['Cost']]);
 		}
 
 

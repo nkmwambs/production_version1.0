@@ -331,19 +331,17 @@ include "dct_scripts.php";
 
 		var negative_value = '';
 
-		var unit_cost = parseInt($('.unit').val());
+		var unit_cost = parseFloat($('.unit').val());
 
 		var qty = parseInt($('.qty').val());
 
 		if ((qty < 0 || qty == 0) && (unit_cost < 0 || unit_cost == 0)) {
 			negative_value = 'both';
 
-		}
-		else if ((qty > 0 || qty != 0) && (unit_cost < 0 || unit_cost == 0)) {
+		} else if ((qty > 0 || qty != 0) && (unit_cost < 0 || unit_cost == 0)) {
 			negative_value = 'unit';
 
-		}
-		else if ((qty < 0 || qty == 0) && (unit_cost > 0 || unit_cost != 0)) {
+		} else if ((qty < 0 || qty == 0) && (unit_cost > 0 || unit_cost != 0)) {
 			negative_value = 'qty';
 
 		}
@@ -393,7 +391,7 @@ include "dct_scripts.php";
 			//alert(reference_number);
 			var val = $('#VTypeMain').val();
 
-			
+
 			if ($('#ChqNo').val() < 1 && $("#totals").val() !== "0.00 Kes." && val === 'CHQ' && $('#reversal').prop('checked') === false) {
 				//alert("Here 1");
 				$('#error_msg').html('<?php echo get_phrase('error:_invalid_cheque_number'); ?>');

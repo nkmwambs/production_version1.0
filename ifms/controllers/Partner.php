@@ -1347,6 +1347,8 @@ class Partner extends CI_Controller
 			$this->db->trans_rollback();
 			$message = get_phrase("reversal_failed");
 		} else {
+			$message = get_phrase("reversal_successful");
+			//$message = $new_voucher_id;
 			$this->email_model->voucher_cancellation_notification($voucher['VNumber'], $voucher['icpNo']);
 			$this->db->trans_commit();
 		}
@@ -1358,7 +1360,7 @@ class Partner extends CI_Controller
 	{
 		$already_reversed = false;
 
-		if ($voucher['voucher_reversal_from'] > 0) {
+		if ($voucher['voucher_is_reversed'] == 1) {
 			$already_reversed = true;
 		}
 

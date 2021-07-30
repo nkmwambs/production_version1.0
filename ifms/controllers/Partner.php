@@ -1360,7 +1360,7 @@ class Partner extends CI_Controller
 	{
 		$already_reversed = false;
 
-		if ($voucher['voucher_is_reversed'] == 1) {
+		if ($voucher['voucher_reversal_from'] > 0 || $voucher['voucher_reversal_to'] > 0 || $voucher['voucher_is_reversed'] == 1) {
 			$already_reversed = true;
 		}
 

@@ -53,7 +53,7 @@
  *
  * NOTE: If you change these, also change the error_reporting() code below
  */
-	define('ENVIRONMENT', isset($_SERVER['CI_ENV']) ? $_SERVER['CI_ENV'] : 'production');
+	define('ENVIRONMENT', isset($_SERVER['CI_ENV']) ? $_SERVER['CI_ENV'] : 'development');
 
 /*
  *---------------------------------------------------------------
@@ -97,6 +97,7 @@ switch (ENVIRONMENT)
  * This variable must contain the name of your "system" directory.
  * Set the path if it is not in the same directory as this file.
  */
+	//$system_path = 'system';
 	$system_path = 'system';
 
 /*
@@ -114,6 +115,7 @@ switch (ENVIRONMENT)
  *
  * NO TRAILING SLASH!
  */
+	//$application_folder = 'application';
 	$application_folder = 'reports';
 
 /*
@@ -229,7 +231,7 @@ switch (ENVIRONMENT)
 	// Path to the system directory
 	define('BASEPATH', $system_path);
 	
-		// Path to the Shared Resources directory
+	// Path to the Shared Resources directory
 	define('SHAREDPATH', $system_path.'/shared/');
 
 	// Path to the front controller (this file) directory
@@ -239,7 +241,7 @@ switch (ENVIRONMENT)
 	define('SYSDIR', basename(BASEPATH));
 	
 	//Name of Root Directory
-	define('ROOT_DIR', basename(FCPATH));
+	define('ROOT_DIR', basename(FCPATH));	
 
 	// The path to the "application" directory
 	if (is_dir($application_folder))

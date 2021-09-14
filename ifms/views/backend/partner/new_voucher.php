@@ -392,7 +392,7 @@ include "dct_scripts.php";
 			var val = $('#VTypeMain').val();
 
 
-			if ($('#ChqNo').val() < 1 && $("#totals").val() !== "0.00 Kes." && val === 'CHQ' && $('#reversal').prop('checked') === false) {
+			if (($('#ChqNo').val() == "" || $('#ChqNo').val() < 1 || $("#totals").val() == "0.00 Kes.") && val === 'CHQ') { // && $('#reversal').prop('checked') == false
 				//alert("Here 1");
 				$('#error_msg').html('<?php echo get_phrase('error:_invalid_cheque_number'); ?>');
 				e.preventDefault();
@@ -653,6 +653,11 @@ include "dct_scripts.php";
 			var reversal = 'no';
 			if ($('#reversal').prop('checked')) {
 				reversal = 'yes';
+			}
+
+			if (chqno.replace(/\s/g, "") == "") {
+				alert("Cheque number cannot be empty");
+				return false;
 			}
 
 			var url = "<?php echo base_url(); ?>ifms.php/partner/chqIntel/" + chqno;

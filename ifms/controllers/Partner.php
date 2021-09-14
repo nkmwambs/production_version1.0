@@ -252,6 +252,212 @@ class Partner extends CI_Controller
 		redirect(base_url() . 'ifms.php/partner/scroll_cash_journal/' . $param2 . '/1/next');
 	}
 
+	function get_transfer_accounts($is_civ_accounts = false, $is_income_accounts = true)
+	{
+
+
+		$selected_columns = array('AccNo as account_number', 'AccText as account_code');
+		if ($is_civ_accounts) {
+			$selected_columns = array('civaID as account_number', 'AccNoCIVA as account_code');
+			$this->db->join('civa', 'civa.accID=accounts.accID');
+			$this->db->where(array('open' => 0));
+		} else {
+			$this->db->where(array('accounts.Active' => 1));
+		}
+
+		$account_type = array('AccGrp' => 0);
+		if ($is_income_accounts) {
+			$account_type =  array('AccGrp' => 1);
+		}
+
+
+		$this->db->select($selected_columns);
+		$this->db->where($account_type);
+		$results = $this->db->get("accounts")->result_array();
+
+		$account_codes = array_column($results, 'account_code');
+		$account_numbers = array_column($results, 'account_number');
+
+		return array_combine($account_numbers, $account_codes);
+	}
+
+	function derive_funds_transfer_accounts($transfer_type, $is_source_account_civ, $is_destination_civ)
+	{
+		$source_accounts = [];
+
+		$destination_accounts = [];
+
+
+		if ($transfer_type == 1) {
+			if ($is_source_account_civ == 1 && $is_destination_civ == 1) {
+				// Both Source and Destination are CIVs
+				$source_accounts = $this->get_transfer_accounts(true);
+				$destination_accounts = $source_accounts;
+			} elseif ($is_source_account_civ == 1 && $is_destination_civ == 0) {
+				// Source is CIVs and Destination is not
+				$source_accounts = $this->get_transfer_accounts(true);
+				$destination_accounts = $this->get_transfer_accounts();
+			} elseif ($is_source_account_civ == 0 && $is_destination_civ == 1) {
+				// Source is not CIV and destination is CIV
+				$source_accounts = $this->get_transfer_accounts();
+				$destination_accounts = $this->get_transfer_accounts(true);
+			} else {
+				// Source and destination accounts are equal
+				$source_accounts = $this->get_transfer_accounts();
+				$destination_accounts = $source_accounts;
+			}
+		} else {
+			if ($is_source_account_civ == 1 && $is_destination_civ == 1) {
+				// Both Source and Destination are CIVs
+				$source_accounts = $this->get_transfer_accounts(true, false);
+				$destination_accounts = $source_accounts;
+			} elseif ($is_source_account_civ == 1 && $is_destination_civ == 0) {
+				// Source is CIVs and Destination is not
+				$source_accounts = $this->get_transfer_accounts(true, false);
+				$destination_accounts = $this->get_transfer_accounts(false, false);
+			} elseif ($is_source_account_civ == 0 && $is_destination_civ == 1) {
+				// Source is not CIV and destination is CIV
+				$source_accounts = $this->get_transfer_accounts(false, false);
+				$destination_accounts = $this->get_transfer_accounts(true, false);
+			} else {
+				// Source and destination accounts are equal
+				$source_accounts = $this->get_transfer_accounts(false, false);
+				$destination_accounts = $source_accounts;
+			}
+		}
+
+
+		$accounts = [
+			'source_accounts' => $source_accounts,
+			'destination_accounts' => $destination_accounts
+		];
+
+		return $accounts;
+	}
+
+
+	function funds_transfer_accounts()
+	{
+
+		$post = $this->input->post();
+
+		$transfer_type = $post['transfer_type'];
+		$is_source_account_civ = $post['is_source_account_civ'];
+		$is_destination_civ = $post['is_destination_civ'];
+
+		$accounts = $this->derive_funds_transfer_accounts($transfer_type, $is_source_account_civ, $is_destination_civ);
+
+		echo json_encode($accounts);
+	}
+
+	function funds_transfer($request_id = 0)
+	{
+		if ($this->session->userdata('admin_login') != 1)
+			redirect(base_url(), 'refresh');
+
+		$page_data['transfer_request'] = [];
+		$page_data['accounts'] = [];
+
+		if ($request_id > 0) {
+			$request = $this->finance_model->get_funds_transfer_requests([$this->session->userdata('center_id')], $request_id);
+			$page_data['transfer_request'] = $request;
+			$page_data['accounts'] = $this->derive_funds_transfer_accounts($request['transfer_type'], $request['source_civa_account'] != null ? 1 : 0, $request['destination_civa_account'] != null ? 1 : 0);
+		}
+
+		$page_data['page_name']  = 'new_funds_transfer';
+		$page_data['page_title'] = get_phrase('funds_transfer');
+		$this->load->view('backend/index', $page_data);
+	}
+
+	function view_funds_transfer_request($request_id)
+	{
+		if ($this->session->userdata('admin_login') != 1)
+			redirect(base_url(), 'refresh');
+
+
+		$page_data['transfer_request'] = $this->finance_model->get_funds_transfer_requests([$this->session->userdata('center_id')], $request_id);
+		$page_data['page_name']  = 'view_funds_transfer_request';
+		$page_data['page_title'] = get_phrase('funds_transfer_request');
+		$this->load->view('backend/index', $page_data);
+	}
+
+	function list_funds_transfer_requests()
+	{
+		if ($this->session->userdata('admin_login') != 1)
+			redirect(base_url(), 'refresh');
+
+
+		$page_data['transfer_requests'] = $this->finance_model->get_funds_transfer_requests([$this->session->userdata('center_id')]);
+		$page_data['page_name']  = 'funds_transfer_requests';
+		$page_data['page_title'] = get_phrase('funds_transfer_requests');
+		$this->load->view('backend/index', $page_data);
+	}
+
+	function get_account_from_civa_code($post_account_code, $is_civa_account)
+	{
+
+		if ($is_civa_account) {
+			$this->db->where(array('civaID' => $post_account_code));
+			$this->db->join('civa', 'civa.accID=accounts.accID');
+			$post_account_code = $this->db->get('accounts')->row()->AccNo;
+		}
+
+		return $post_account_code;
+	}
+
+	function delete_transfer_request($request_id = 0)
+	{
+		$this->db->where(array('reqID' => $request_id, 'accepted' => 0));
+		$this->db->update('fundstransfersrequests', ['deleted' => 1, 'deleted_date' => date('Y-m-d')]);
+
+		$message = 0; // Not deleted
+
+		if ($this->db->affected_rows() > 0) {
+			$message = 1; // Deleted successfully
+		}
+
+		echo $message;
+	}
+
+	function post_funds_transfer($request_id = 0)
+	{
+		$post = $this->input->post();
+
+		$data['icpNo'] = $this->session->userdata('center_id');
+		$data['monthfrom'] = date('Y-m-d');
+		$data['acfrom'] = $this->get_account_from_civa_code($post['source_account'], $post['is_source_account_civ']);
+		$data['acto'] = $this->get_account_from_civa_code($post['destination_account'], $post['is_destination_civ']);
+		$data['civa_from'] = $post['is_source_account_civ'] ? $post['source_account'] : 0;
+		$data['civa_to'] = $post['is_destination_civ'] ? $post['destination_account'] : 0;
+		$data['civaID'] = 0;
+		$data['amttotransfer'] = $post['transfer_amount'];
+		$data['description'] = $post['transfer_description'];
+		$data['VNumber'] = 0;
+		$data['accepted'] = 1;
+		$data['request_raised_by'] = $this->session->login_user_id;
+
+		$message = "Request submitted unsuccessful";
+
+		if ($request_id == 0) {
+			$this->db->insert('fundstransfersrequests', $data);
+		} else {
+			$this->db->where(array('reqID' => $request_id));
+			$data['accepted'] = 2;
+			$this->db->update('fundstransfersrequests', $data);
+
+			//$message = "Request Updated successful";
+		}
+
+
+		if ($this->db->affected_rows() > 0) {
+			$message = "Request submitted successful";
+
+			// Send an email to PF for approval
+		}
+
+		echo $message;
+	}
+
 	function new_budget_item($param1 = "")
 	{
 		if ($this->session->userdata('admin_login') != 1)

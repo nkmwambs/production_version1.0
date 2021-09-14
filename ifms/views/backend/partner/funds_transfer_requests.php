@@ -40,7 +40,13 @@
                                             <li>
                                                 <a target="_blank" href="<?= base_url(); ?>ifms.php/partner/view_funds_transfer_request/<?= $transfer_request['request_id']; ?>"><?php echo get_phrase('view'); ?></a>
                                             </li>
+                                            
                                             <?php if ($transfer_request['transfer_status'] == 0) { ?>
+                                                <li class="divider"></li>
+                                                <li>
+                                                    <a href="<?= base_url(); ?>ifms.php/partner/reinstate_funds_transfer/<?= $transfer_request['request_id']; ?>"><?php echo get_phrase('reinstate'); ?></a>
+                                                </li>
+
                                                 <li class="divider"></li>
                                                 <li>
                                                     <a href="<?= base_url(); ?>ifms.php/partner/funds_transfer/<?= $transfer_request['request_id']; ?>"><?php echo get_phrase('edit'); ?></a>

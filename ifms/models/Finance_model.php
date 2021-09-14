@@ -3623,7 +3623,9 @@ class Finance_model extends CI_Model
 				$request_record['destination_account'] = isset($accounts_codes[$request['destination_account']]) ? $accounts_codes[$request['destination_account']] : null;
 				$request_record['source_civa_account'] = isset($civs_with_accounts[$request['source_civa_account']]) ? $civs_with_accounts[$request['source_civa_account']] : null;
 				$request_record['destination_civa_account'] = isset($civs_with_accounts[$request['destination_civa_account']]) ? $civs_with_accounts[$request['destination_civa_account']] : null;
+				//0 -declined, 1 - submitted, 2 - reinstated, 3 - approved
 				$request_record['transfer_status_label'] = $request['transfer_status'] == 0 ? "Declined" : ($request['transfer_status'] == 1 ? "Submitted" : ($request['transfer_status'] == 2 ? "Reinstated" : "Approved"));
+				$request_record['transfer_status'] =  $request['transfer_status'];
 				$request_record['created_date'] = $request['created_date'];
 				$requests_with_account_codes[] = $request_record;
 			}

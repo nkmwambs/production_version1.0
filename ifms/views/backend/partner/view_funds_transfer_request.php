@@ -15,6 +15,11 @@
 
                 <a href="<?= base_url(); ?>ifms.php/partner/list_funds_transfer_requests" class="btn btn-primary" id="list_transfer">List Fund Transfer Requests</a>
                 <hr />
+                <?php if($transfer_request['transfer_status'] == 0){?>
+                    <button class='btn btn-default'>Reinstate</button> 
+                    <hr/>
+                <?php }?> 
+                
 
                 <table class="table table-striped ">
                     <thead>

@@ -37,7 +37,7 @@
                                             <li>
                                                 <a target="_blank" href="<?= base_url(); ?>ifms.php/facilitator/view_funds_transfer_request/<?=$transfer_request['fcp_number'];?>/<?= $transfer_request['request_id']; ?>"><?php echo get_phrase('view'); ?></a>
                                             </li>
-                                            <?php if ($transfer_request['transfer_status'] == 1 && $this->session->logged_user_level == 2) { ?>
+                                            <?php if (in_array($transfer_request['transfer_status'],[1,2]) && $this->session->logged_user_level == 2) { ?>
                                                 <li class="divider"></li>
                                                 <li>
                                                     <a href="#" class="btn_approve" id="approve_<?= $transfer_request['request_id']; ?>"><?php echo get_phrase('approve'); ?></a>

@@ -14,7 +14,12 @@
             <div class="panel-body" style="max-width:50; overflow: auto;">
                 <a href="<?= base_url(); ?>ifms.php/facilitator/list_funds_transfer_requests" class="btn btn-primary" id="list_transfer">List Fund Transfer Requests</a>
                 <hr />
-
+                <?php if(in_array($transfer_request['transfer_status'],[1,2])){?>
+                    <button class='btn btn-default'>Approve</button> 
+                    <button class='btn btn-default'>Decline</button> 
+                    <hr/>
+                <?php }?> 
+                
                 <table class="table table-striped ">
                     <thead>
                         <tr>

@@ -240,6 +240,7 @@ if (!empty($transfer_request)) {
         $("#clear").attr("disabled", true);
         // Prevent posting amount <= 0, no transfer type and source anmd destination accounts selected
         const data = {
+            transfer_type: $("#transfer_type").val(),
             is_source_account_civ: $("#is_source_account_civ").is(":checked") ? 1 : 0,
             is_destination_civ: $("#is_destination_civ").is(":checked") ? 1 : 0,
             transfer_description: $("#transfer_description").val(),

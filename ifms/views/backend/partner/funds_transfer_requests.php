@@ -12,7 +12,10 @@
                 </div>
             </div>
             <div class="panel-body" style="max-width:50; overflow: auto;">
-                <table class="table table-striped">
+                <a href="<?= base_url(); ?>ifms.php/partner/funds_transfer" class="btn btn-primary" id="list_transfer">New Funds Transfer Requests</a>
+                <hr />
+
+                <table class="table table-striped datatable">
                     <thead>
                         <tr>
                             <th>Action</th>
@@ -21,6 +24,7 @@
                             <th>Source Account</th>
                             <th>Destination Account</th>
                             <th>Amount</th>
+                            <th>Request Date</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -67,6 +71,7 @@
                                     echo $transfer_request['destination_civa_account'] != null ? ' [' . $transfer_request['destination_civa_account'] . '] ' : null
                                     ?>
                                 <td><?= number_format($transfer_request['amount'], 2); ?></td>
+                                <td><?= $transfer_request['created_date']; ?></td>
                             </tr>
                         <?php } ?>
                     </tbody>
@@ -77,6 +82,9 @@
 </div>
 
 <script>
+
+    $(".datatable").DataTable();
+
     $(".btn_delete").on("click", function() {
         const id = $(this).attr('id').split("_")[1];
         const btn = $(this);

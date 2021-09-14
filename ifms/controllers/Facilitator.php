@@ -845,4 +845,16 @@ class Facilitator extends CI_Controller
 
 		echo $message;
 	}
+
+	function view_funds_transfer_request($fcp_id, $request_id)
+	{
+		if ($this->session->userdata('admin_login') != 1)
+			redirect(base_url(), 'refresh');
+
+
+		$page_data['transfer_request'] = $this->finance_model->get_funds_transfer_requests([$fcp_id], $request_id);
+		$page_data['page_name']  = 'view_funds_transfer_request';
+		$page_data['page_title'] = get_phrase('funds_transfer_request');
+		$this->load->view('backend/index', $page_data);
+	}
 }

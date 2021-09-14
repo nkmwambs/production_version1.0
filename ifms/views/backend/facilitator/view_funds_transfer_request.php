@@ -12,6 +12,9 @@
                 </div>
             </div>
             <div class="panel-body" style="max-width:50; overflow: auto;">
+                <a href="<?= base_url(); ?>ifms.php/facilitator/list_funds_transfer_requests" class="btn btn-primary" id="list_transfer">List Fund Transfer Requests</a>
+                <hr />
+
                 <table class="table table-striped ">
                     <thead>
                         <tr>
@@ -23,7 +26,7 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td><span style="font-weight:bold;">Date:</span> <?= $transfer_request['raise_date']; ?></td>
+                            <td><span style="font-weight:bold;">Request Date:</span> <?= $transfer_request['raise_date']; ?></td>
                             <td><span style="font-weight:bold;">Voucher Number:</span> <?= !$transfer_request['voucher_number'] ? "Not yet assigned" : $transfer_request['voucher_number']; ?></td>
                         </tr>
                         <tr>

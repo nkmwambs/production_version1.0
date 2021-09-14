@@ -425,11 +425,12 @@ class Partner extends CI_Controller
 
 		$data['icpNo'] = $this->session->userdata('center_id');
 		$data['monthfrom'] = date('Y-m-d');
+		$data['transfer_type'] = $post['transfer_type'];
 		$data['acfrom'] = $this->get_account_from_civa_code($post['source_account'], $post['is_source_account_civ']);
 		$data['acto'] = $this->get_account_from_civa_code($post['destination_account'], $post['is_destination_civ']);
 		$data['civa_from'] = $post['is_source_account_civ'] ? $post['source_account'] : 0;
 		$data['civa_to'] = $post['is_destination_civ'] ? $post['destination_account'] : 0;
-		$data['civaID'] = 0;
+		$data['civaID'] = 0; // This field has become redundant
 		$data['amttotransfer'] = $post['transfer_amount'];
 		$data['description'] = $post['transfer_description'];
 		$data['VNumber'] = 0;
@@ -437,6 +438,7 @@ class Partner extends CI_Controller
 		$data['request_raised_by'] = $this->session->login_user_id;
 
 		$message = "Request submitted unsuccessful";
+		//echo json_encode($data);
 
 		if ($request_id == 0) {
 			$this->db->insert('fundstransfersrequests', $data);

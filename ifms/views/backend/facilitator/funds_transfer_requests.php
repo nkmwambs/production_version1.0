@@ -21,6 +21,7 @@
                             <th>Source Account</th>
                             <th>Destination Account</th>
                             <th>Amount</th>
+                            <th>Request Date</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -34,7 +35,7 @@
 
                                         <ul class="dropdown-menu dropdown-default pull-left" role="menu">
                                             <li>
-                                                <a target="_blank" href="<?= base_url(); ?>ifms.php/partner/view_funds_transfer_request/<?= $transfer_request['request_id']; ?>"><?php echo get_phrase('view'); ?></a>
+                                                <a target="_blank" href="<?= base_url(); ?>ifms.php/facilitator/view_funds_transfer_request/<?=$transfer_request['fcp_number'];?>/<?= $transfer_request['request_id']; ?>"><?php echo get_phrase('view'); ?></a>
                                             </li>
                                             <?php if ($transfer_request['transfer_status'] == 1 && $this->session->logged_user_level == 2) { ?>
                                                 <li class="divider"></li>
@@ -78,6 +79,7 @@
                                     echo $transfer_request['destination_civa_account'] != null ? ' [' . $transfer_request['destination_civa_account'] . '] ' : null
                                     ?>
                                 <td><?= number_format($transfer_request['amount'], 2); ?></td>
+                                <td><?= $transfer_request['created_date']; ?></td>
                             </tr>
                         <?php } ?>
                     </tbody>

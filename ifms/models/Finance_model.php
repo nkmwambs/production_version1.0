@@ -3587,48 +3587,51 @@ class Finance_model extends CI_Model
 
 	function get_funds_transfer_requests(array $fcp_ids, $request_id = 0, $deleted = 0)
 	{
-		$this->db->select(array(
-			'reqID as request_id', 'icpNo as fcp_number', 'monthfrom as raise_date', 'acfrom as source_account',
-			'acto as destination_account', 'civa_from as source_civa_account', 'civa_to as destination_civa_account',
-			'amttotransfer as amount', 'description', 'VNumber as voucher_number', 'accepted as transfer_status',
-			'users.ID as user_id', 'CONCAT(userfirstname, " " ,userlastname) as requestor', 'transfer_type',
-			'civa_from', 'civa_to', 'acfrom', 'acto'
-		));
-
-		if ($request_id != 0) {
-			$this->db->where(array('reqID' => $request_id));
-		}
-
-		$this->db->where(array('deleted' => $deleted));
-		//$this->db->where(array('accepted' => $status));
-		$this->db->where_in('icpNo', $fcp_ids);
-		$this->db->join('users', 'users.ID=fundstransfersrequests.request_raised_by');
-		$requests = $this->db->get('fundstransfersrequests')->result_array();
-
-		$source_civs = array_column($requests, 'source_civa_account');
-		$destination_civs = array_column($requests, 'destination_civa_account');
-
-		$civs = array_merge($source_civs, $destination_civs);
-
-		$civs_with_accounts = $this->get_civ_account_code($civs);
-		$accounts_codes = $this->accounts_codes();
-
 		$requests_with_account_codes = [];
 
-		foreach ($requests as $request) {
-			$request_record = $request;
-			$request_record['source_account'] = isset($accounts_codes[$request['source_account']]) ? $accounts_codes[$request['source_account']] : null;
-			$request_record['destination_account'] = isset($accounts_codes[$request['destination_account']]) ? $accounts_codes[$request['destination_account']] : null;
-			$request_record['source_civa_account'] = isset($civs_with_accounts[$request['source_civa_account']]) ? $civs_with_accounts[$request['source_civa_account']] : null;
-			$request_record['destination_civa_account'] = isset($civs_with_accounts[$request['destination_civa_account']]) ? $civs_with_accounts[$request['destination_civa_account']] : null;
-			$request_record['transfer_status_label'] = $request['transfer_status'] == 0 ? "Declined" : ($request['transfer_status'] == 1 ? "Submitted" : ($request['transfer_status'] == 2 ? "Reinstated" : "Approved"));
-			$requests_with_account_codes[] = $request_record;
-		}
+		if(!empty($fcp_ids)){
 
-		if ($request_id != 0) {
-			$requests_with_account_codes = $requests_with_account_codes[0];
-		}
+			$this->db->select(array(
+				'reqID as request_id', 'icpNo as fcp_number', 'monthfrom as raise_date', 'acfrom as source_account',
+				'acto as destination_account', 'civa_from as source_civa_account', 'civa_to as destination_civa_account',
+				'amttotransfer as amount', 'description', 'VNumber as voucher_number', 'accepted as transfer_status',
+				'users.ID as user_id', 'CONCAT(userfirstname, " " ,userlastname) as requestor', 'transfer_type',
+				'civa_from', 'civa_to', 'acfrom', 'acto','stmp as created_date'
+			));
 
+			if ($request_id != 0) {
+				$this->db->where(array('reqID' => $request_id));
+			}
+
+			$this->db->where(array('deleted' => $deleted));
+			//$this->db->where(array('accepted' => $status));
+			$this->db->where_in('icpNo', $fcp_ids);
+			$this->db->join('users', 'users.ID=fundstransfersrequests.request_raised_by');
+			$requests = $this->db->get('fundstransfersrequests')->result_array();
+
+			$source_civs = array_column($requests, 'source_civa_account');
+			$destination_civs = array_column($requests, 'destination_civa_account');
+
+			$civs = array_merge($source_civs, $destination_civs);
+
+			$civs_with_accounts = $this->get_civ_account_code($civs);
+			$accounts_codes = $this->accounts_codes();
+
+			foreach ($requests as $request) {
+				$request_record = $request;
+				$request_record['source_account'] = isset($accounts_codes[$request['source_account']]) ? $accounts_codes[$request['source_account']] : null;
+				$request_record['destination_account'] = isset($accounts_codes[$request['destination_account']]) ? $accounts_codes[$request['destination_account']] : null;
+				$request_record['source_civa_account'] = isset($civs_with_accounts[$request['source_civa_account']]) ? $civs_with_accounts[$request['source_civa_account']] : null;
+				$request_record['destination_civa_account'] = isset($civs_with_accounts[$request['destination_civa_account']]) ? $civs_with_accounts[$request['destination_civa_account']] : null;
+				$request_record['transfer_status_label'] = $request['transfer_status'] == 0 ? "Declined" : ($request['transfer_status'] == 1 ? "Submitted" : ($request['transfer_status'] == 2 ? "Reinstated" : "Approved"));
+				$request_record['created_date'] = $request['created_date'];
+				$requests_with_account_codes[] = $request_record;
+			}
+
+			if ($request_id != 0) {
+				$requests_with_account_codes = $requests_with_account_codes[0];
+			}
+		}
 		return $requests_with_account_codes;
 	}
 
